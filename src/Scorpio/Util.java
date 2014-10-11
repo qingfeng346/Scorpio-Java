@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 
 import Scorpio.Collections.*;
 import Scorpio.Variable.*;
@@ -187,7 +188,7 @@ public final class Util
 		}
 		return false;
 	}
-	public static String GetFileString(String fileName, String charsetName) throws IOException
+	public static String GetFileString(String fileName, Charset charset) throws IOException
 	{
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		stream = new FileInputStream(new File(fileName));
@@ -196,7 +197,7 @@ public final class Util
         while (-1 != (n = stream.read(buffer))) {
             output.write(buffer, 0, n);
         }
-        return new String(output.toByteArray(), charsetName);
+        return new String(output.toByteArray(), charset);
 	}
 	public static boolean IsNullOrEmpty(String str)
 	{

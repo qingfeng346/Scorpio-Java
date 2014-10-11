@@ -3,6 +3,7 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import Scorpio.Collections.*;
 import Scorpio.Runtime.*;
@@ -31,10 +32,14 @@ public class Script
 	{
 		return LoadFile(strFileName, "UTF8");
 	}
-	public final ScriptObject LoadFile(String strFileName, String charsetName) throws IOException, Exception
+	public final ScriptObject LoadFile(String strFileName, String charsetName) throws Exception
+	{
+		return LoadFile(strFileName, Charset.forName(charsetName));
+	}
+	public final ScriptObject LoadFile(String strFileName, Charset charset) throws Exception
 	{
 		try {
-			return LoadString(strFileName, Util.GetFileString(strFileName, charsetName));
+			return LoadString(strFileName, Util.GetFileString(strFileName, charset));
 		} catch (RuntimeException e) {
 			throw new ScriptException("load file [" + strFileName + "] is error : " + e.toString());
 		}
