@@ -1,6 +1,6 @@
 ﻿package Scorpio.CodeDom;
 
-import Scorpio.Script;
+import Scorpio.*;
 import Scorpio.Runtime.*;
 
 //for循环 for (var i=0;i<10;++i) {}

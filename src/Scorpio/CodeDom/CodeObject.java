@@ -1,6 +1,5 @@
 ﻿package Scorpio.CodeDom;
 
-import Scorpio.Compiler.*;
 import Scorpio.Exception.*;
 
 //一个需要解析的Object

@@ -51,13 +51,15 @@ public class ScriptNumberLong extends ScriptNumber
 				return m_Script.CreateNumber(privateValue++);
 			case POST_DECREMENT:
 				return m_Script.CreateNumber(privateValue--);
+		default:
+			break;
 		}
 		return this;
 	}
 	@Override
 	public ScriptNumber Negative()
 	{
-		setValue(-getValue());
+		privateValue = -privateValue;
 		return this;
 	}
 	@Override

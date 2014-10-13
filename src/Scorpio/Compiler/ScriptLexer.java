@@ -5,14 +5,13 @@ import Scorpio.Exception.*;
 
 public class ScriptLexer
 {
-
-	private LexState m_lexState = LexState.forValue(0); //当前解析状态
-	private String m_strToken = null; //字符串token
-	private int m_iSourceLine; //当前解析行数
-	private int m_iSourceChar; //当前解析字符
-	private String m_strBreviary; //字符串的摘要 取第一行字符串的前20个字符
-	private java.util.ArrayList<String> m_listSourceLines; //所有行
-	private java.util.ArrayList<Token> m_listTokens; //解析后所得Token
+	private LexState m_lexState = LexState.None; 	//当前解析状态
+	private String m_strToken = null; 				//字符串token
+	private int m_iSourceLine; 						//当前解析行数
+	private int m_iSourceChar; 						//当前解析字符
+	private String m_strBreviary; 					//字符串的摘要 取第一行字符串的前20个字符
+	private java.util.ArrayList<String> m_listSourceLines;	//所有行
+	private java.util.ArrayList<Token> m_listTokens; 		//解析后所得Token
 	private char ch; //当前的解析的字符
 	public ScriptLexer(String buffer)
 	{

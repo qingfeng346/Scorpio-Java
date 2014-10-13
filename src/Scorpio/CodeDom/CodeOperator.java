@@ -7,7 +7,7 @@ public class CodeOperator extends CodeObject
 {
 	public CodeObject Left; //左边值
 	public CodeObject Right; //右边值
-	public TokenType Operator = TokenType.forValue(0); //符号类型
+	public TokenType Operator; //符号类型
 	public CodeOperator(CodeObject Right, CodeObject Left, TokenType type)
 	{
 		this.Left = Left;

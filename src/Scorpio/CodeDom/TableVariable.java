@@ -8,7 +8,7 @@ public class TableVariable
 	public CodeObject Value;
 	public TableVariable(String key, CodeObject value)
 	{
-		this.Key = key;
-		this.Value = value;
+		Key = key;
+		Value = value;
 	}
 }

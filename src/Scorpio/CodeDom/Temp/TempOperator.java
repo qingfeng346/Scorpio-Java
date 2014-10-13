@@ -24,7 +24,7 @@ public class TempOperator
 		Operators.put(TokenType.Modulo, new TempOperator(TokenType.Modulo, 4));
 	}
 
-	public TokenType Operator = TokenType.forValue(0); //符号类型
+	public TokenType Operator; //符号类型
 	public int Level; //优先级
 	public TempOperator(TokenType oper, int level)
 	{
