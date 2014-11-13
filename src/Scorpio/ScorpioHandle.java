@@ -1,5 +1,12 @@
 ﻿package Scorpio;
-public interface ScorpioHandle
-{
-	Object Call(Object[] Parameters) throws Exception;
+
+import Scorpio.Runtime.*;
+import Scorpio.Variable.*;
+
+//C#函数指针
+//C# TO JAVA CONVERTER TODO TASK: Delegates are not available in Java:
+//public delegate object ScorpioFunction(ScriptObject[] Parameters);
+//C#类执行
+public interface ScorpioHandle {
+    Object Call(ScriptObject[] Parameters);
 }

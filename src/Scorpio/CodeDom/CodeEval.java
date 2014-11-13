@@ -1,6 +1,5 @@
 ﻿package Scorpio.CodeDom;
 
-public class CodeEval extends CodeObject
-{
-	public CodeObject EvalObject;
+public class CodeEval extends CodeObject {
+    public CodeObject EvalObject;
 }

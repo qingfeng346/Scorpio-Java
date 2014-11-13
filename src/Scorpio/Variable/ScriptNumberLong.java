@@ -5,121 +5,129 @@ import Scorpio.CodeDom.*;
 import Scorpio.Compiler.*;
 import Scorpio.Exception.*;
 
-public class ScriptNumberLong extends ScriptNumber
-{
-	@Override
-	public ObjectType getType()
-	{
-		return ObjectType.Number;
-	}
-	@Override
-	public int getBranchType()
-	{
-		return 1;
-	}
-	@Override
-	public Object getObjectValue()
-	{
-		return getValue();
-	}
-	private long privateValue;
-	public final long getValue()
-	{
-		return privateValue;
-	}
-	private void setValue(long value)
-	{
-		privateValue = value;
-	}
-	public ScriptNumberLong(Script script, long value)
-	{
-		m_Script = script;
-		setValue(value);
-	}
-	@Override
-	public ScriptNumber Calc(CALC c)
-	{
-		switch (c)
-		{
-			case PRE_INCREMENT:
-				++privateValue;
-				break;
-			case PRE_DECREMENT:
-				--privateValue;
-				break;
-			case POST_INCREMENT:
-				return m_Script.CreateNumber(privateValue++);
-			case POST_DECREMENT:
-				return m_Script.CreateNumber(privateValue--);
-		default:
-			break;
-		}
-		return this;
-	}
-	@Override
-	public ScriptNumber Negative()
-	{
-		privateValue = -privateValue;
-		return this;
-	}
-	@Override
-	public long ToLong()
-	{
-		return getValue();
-	}
-	@Override
-	public ScriptObject Plus(ScriptObject obj)
-	{
-		return new ScriptNumberLong(m_Script, getValue() + ((ScriptNumber)obj).ToLong());
-	}
-	@Override
-	public ScriptObject Minus(ScriptObject obj)
-	{
-		return new ScriptNumberLong(m_Script, getValue() - ((ScriptNumber)obj).ToLong());
-	}
-	@Override
-	public ScriptObject Multiply(ScriptObject obj)
-	{
-		return new ScriptNumberLong(m_Script, getValue() * ((ScriptNumber)obj).ToLong());
-	}
-	@Override
-	public ScriptObject Divide(ScriptObject obj)
-	{
-		return new ScriptNumberLong(m_Script, getValue() / ((ScriptNumber)obj).ToLong());
-	}
-	@Override
-	public ScriptObject Modulo(ScriptObject obj)
-	{
-		return new ScriptNumberLong(m_Script, getValue() % ((ScriptNumber)obj).ToLong());
-	}
-	@Override
-	public boolean Compare(TokenType type, CodeOperator oper, ScriptNumber num)
-	{
-		ScriptNumberLong val = (ScriptNumberLong)((num instanceof ScriptNumberLong) ? num : null);
-		if (val == null)
-		{
-			throw new ExecutionException("数字比较 两边的数字类型不一致 请先转换再比较 ");
-		}
-		switch (type)
-		{
-			case Equal:
-				return getValue() == val.getValue();
-			case NotEqual:
-				return getValue() != val.getValue();
-			case Greater:
-				return getValue() > val.getValue();
-			case GreaterOrEqual:
-				return getValue() >= val.getValue();
-			case Less:
-				return getValue() < val.getValue();
-			case LessOrEqual:
-				return getValue() <= val.getValue();
-		}
-		return false;
-	}
-	@Override
-	public ScriptObject clone()
-	{
-		return new ScriptNumberLong(m_Script, getValue());
-	}
+public class ScriptNumberLong extends ScriptNumber {
+    @Override
+    public ObjectType getType() {
+        return ObjectType.Number;
+    }
+    @Override
+    public int getBranchType() {
+        return 1;
+    }
+    @Override
+    public Object getObjectValue() {
+        return m_Value;
+    }
+    public final long getValue() {
+        return m_Value;
+    }
+    public long m_Value;
+    public ScriptNumberLong(Script script, long value) {
+        super(script);
+        m_Value = value;
+    }
+    public int ToInt32()
+    {
+    	return (int)m_Value;
+    }
+    public double ToDouble()
+    {
+    	return (double)m_Value;
+    }
+    public long ToLong()
+    {
+    	return m_Value;
+    }
+    @Override
+    public ScriptNumber Calc(CALC c) {
+        switch (c) {
+            case PRE_INCREMENT:
+                ++m_Value;
+                break;
+            case PRE_DECREMENT:
+                --m_Value;
+                break;
+            case POST_INCREMENT:
+                return getScript().CreateLong(m_Value++);
+            case POST_DECREMENT:
+                return getScript().CreateLong(m_Value--);
+        }
+        return this;
+    }
+    @Override
+    public ScriptNumber Negative() {
+        m_Value = -m_Value;
+        return this;
+    }
+    @Override
+    public ScriptObject Assign() {
+        return getScript().CreateLong(m_Value);
+    }
+    @Override
+    public ScriptObject ComputePlus(ScriptNumber obj) {
+        return getScript().CreateLong(m_Value + obj.ToLong());
+    }
+    @Override
+    public ScriptObject ComputeMinus(ScriptNumber obj) {
+        return getScript().CreateLong(m_Value - obj.ToLong());
+    }
+    @Override
+    public ScriptObject ComputeMultiply(ScriptNumber obj) {
+        return getScript().CreateLong(m_Value * obj.ToLong());
+    }
+    @Override
+    public ScriptObject ComputeDivide(ScriptNumber obj) {
+        return getScript().CreateLong(m_Value / obj.ToLong());
+    }
+    @Override
+    public ScriptObject ComputeModulo(ScriptNumber obj) {
+        return getScript().CreateLong(m_Value % obj.ToLong());
+    }
+    @Override
+    public ScriptObject AssignPlus(ScriptNumber obj) {
+        m_Value += obj.ToLong();
+        return this;
+    }
+    @Override
+    public ScriptObject AssignMinus(ScriptNumber obj) {
+        m_Value -= obj.ToLong();
+        return this;
+    }
+    @Override
+    public ScriptObject AssignMultiply(ScriptNumber obj) {
+        m_Value *= obj.ToLong();
+        return this;
+    }
+    @Override
+    public ScriptObject AssignDivide(ScriptNumber obj) {
+        m_Value /= obj.ToLong();
+        return this;
+    }
+    @Override
+    public ScriptObject AssignModulo(ScriptNumber obj) {
+        m_Value %= obj.ToLong();
+        return this;
+    }
+    @Override
+    public boolean Compare(TokenType type, CodeOperator oper, ScriptNumber num) {
+        ScriptNumberLong val = (ScriptNumberLong)((num instanceof ScriptNumberLong) ? num : null);
+        if (val == null) {
+            throw new ExecutionException("数字比较 两边的数字类型不一致 请先转换再比较 ");
+        }
+        switch (type) {
+            case Greater:
+                return m_Value > val.m_Value;
+            case GreaterOrEqual:
+                return m_Value >= val.m_Value;
+            case Less:
+                return m_Value < val.m_Value;
+            case LessOrEqual:
+                return m_Value <= val.m_Value;
+        }
+        return false;
+    }
+    @Override
+    public ScriptObject clone() {
+        return getScript().CreateLong(m_Value);
+    }
 }

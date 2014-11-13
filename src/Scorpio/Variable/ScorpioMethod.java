@@ -1,138 +1,165 @@
 ﻿package Scorpio.Variable;
-import java.lang.reflect.InvocationTargetException;
 
-import Scorpio.ScriptObject;
-import Scorpio.Util;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import Scorpio.*;
 import Scorpio.Exception.*;
 
-public class ScorpioMethod
-{
-	private static class FunctionMethod
-	{
-		public java.lang.reflect.Method Method;
-		public java.lang.reflect.Constructor Constructor;
-		public java.lang.Class[] ParameterType;
-		private int type;
-		public FunctionMethod(java.lang.reflect.Method Method, java.lang.Class[] ParameterType)
-		{
-			type = 0;
-			this.Method = Method;
-			this.ParameterType = ParameterType;
-		}
-		public FunctionMethod(java.lang.reflect.Constructor Constructor, java.lang.Class[] ParameterType)
-		{
-			type = 1;
-			this.Constructor = Constructor;
-			this.ParameterType = ParameterType;
-		}
-		public final Object invoke(Object obj, Object[] parameters) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException
-		{
-			return type == 0 ? Method.invoke(obj, parameters) : Constructor.newInstance(parameters);
-		}
-	}
-	private Object m_Object;
-	private int m_Count;
-	private FunctionMethod[] m_Methods;
-	private String privateMethodName;
-	public final String getMethodName()
-	{
-		return privateMethodName;
-	}
-	private void setMethodName(String value)
-	{
-		privateMethodName = value;
-	}
-	public ScorpioMethod(java.lang.Class type, String methodName)
-	{
-		this(type, methodName, null);
-	}
-	public ScorpioMethod(java.lang.Class type, String methodName, Object obj)
-	{
-		m_Object = obj;
-		setMethodName(methodName);
-		java.util.ArrayList<FunctionMethod> functionMethod = new java.util.ArrayList<FunctionMethod>();
-		java.lang.reflect.Method[] methods = type.getMethods();
-		int length = methods.length;
-		java.util.ArrayList<java.lang.Class> parameters = new java.util.ArrayList<java.lang.Class>();
-		for (int i = 0; i < length;++i)
-		{
-			java.lang.reflect.Method method = methods[i];
-			if (method.getName().equals(methodName))
-			{
-				parameters.clear();
-//C# TO JAVA CONVERTER TODO TASK: There is no equivalent to implicit typing in Java:
-				Class<?>[] pars = methods[i].getParameterTypes();
-//C# TO JAVA CONVERTER TODO TASK: There is no equivalent to implicit typing in Java:
-				for (Class<?> par : pars)
-				{
-					parameters.add(par);
-				}
-				functionMethod.add(new FunctionMethod(method, parameters.toArray(new java.lang.Class[]{})));
-			}
-		}
-		m_Methods = functionMethod.toArray(new FunctionMethod[]{});
-		m_Count = m_Methods.length;
-	}
-	public ScorpioMethod(String typeName, java.lang.reflect.Constructor[] methods)
-	{
-		setMethodName(typeName);
-		java.util.ArrayList<FunctionMethod> functionMethod = new java.util.ArrayList<FunctionMethod>();
-		int length = methods.length;
-		java.util.ArrayList<java.lang.Class> parameters = new java.util.ArrayList<java.lang.Class>();
-		for (int i = 0; i < length; ++i)
-		{
-//C# TO JAVA CONVERTER TODO TASK: There is no equivalent to implicit typing in Java:
-			java.lang.reflect.Constructor method = methods[i];
-			parameters.clear();
-//C# TO JAVA CONVERTER TODO TASK: There is no equivalent to implicit typing in Java:
-			Class<?>[] pars = methods[i].getParameterTypes();
-//C# TO JAVA CONVERTER TODO TASK: There is no equivalent to implicit typing in Java:
-			for (Class<?> par : pars)
+public class ScorpioMethod {
+    private static class FunctionMethod {
+        private int m_Type; //是普通函数还是构造函数
+        private java.lang.reflect.Method m_Method; //普通函数对象
+        private java.lang.reflect.Constructor m_Constructor; //构造函数对象
+        public java.lang.Class[] ParameterType;
+        public boolean Params;
+        public java.lang.Class ParamType;
+        public FunctionMethod(java.lang.reflect.Constructor Constructor, java.lang.Class[] ParameterType, java.lang.Class ParamType, boolean Params) {
+            m_Type = 0;
+            m_Constructor = Constructor;
+            this.ParameterType = ParameterType;
+            this.ParamType = ParamType;
+            this.Params = Params;
+        }
+        public FunctionMethod(java.lang.reflect.Method Method, java.lang.Class[] ParameterType, java.lang.Class ParamType, boolean Params) {
+            m_Type = 1;
+            m_Method = Method;
+            this.ParameterType = ParameterType;
+            this.ParamType = ParamType;
+            this.Params = Params;
+        }
+        public final Object invoke(Object obj, Object[] parameters) throws Exception {
+            return m_Type == 0 ? m_Constructor.newInstance(parameters) : m_Method.invoke(obj, parameters);
+        }
+    }
+    private Object m_Object;
+    private int m_Count;
+    private FunctionMethod[] m_Methods;
+    private String privateMethodName;
+    public final String getMethodName() {
+        return privateMethodName;
+    }
+    private void setMethodName(String value) {
+        privateMethodName = value;
+    }
+    public ScorpioMethod(java.lang.Class type, String methodName) {
+        this(type, methodName, null);
+    }
+    public ScorpioMethod(java.lang.Class type, String methodName, Object obj) {
+        m_Object = obj;
+        setMethodName(methodName);
+        java.lang.reflect.Method[] methods = type.getMethods();
+        java.util.ArrayList<FunctionMethod> functionMethod = new java.util.ArrayList<FunctionMethod>();
+        boolean Params = false;
+        java.lang.Class ParamType = null;
+        Method method = null;
+        java.util.ArrayList<java.lang.Class> parameters = new java.util.ArrayList<java.lang.Class>();
+        int length = methods.length;
+        for (int i = 0; i < length; ++i) {
+        	method = methods[i];
+        	if (!method.getName().equals(methodName))
+        		continue;
+            Params = false;
+            ParamType = null;
+            parameters.clear();
+            
+            Class<?>[] pars = method.getParameterTypes();
+            for (Class<?> par : pars)
 			{
 				parameters.add(par);
-			}
-			functionMethod.add(new FunctionMethod(method, parameters.toArray(new java.lang.Class[]{})));
-		}
-		m_Methods = functionMethod.toArray(new FunctionMethod[]{});
-		m_Count = m_Methods.length;
-	}
-	public final Object Call(ScriptObject[] parameters) throws Exception
-	{
-		if (m_Count == 0)
-		{
-			throw new ScriptException("Method [" + getMethodName() + "] is cannot find");
-		}
-		FunctionMethod methodInfo = null;
-		if (m_Count == 1)
-		{
-			methodInfo = m_Methods[0];
-			if (parameters.length != methodInfo.ParameterType.length)
-			{
-				throw new ScriptException("Method [" + getMethodName() + "] is cannot find fit");
-			}
-		}
-		else
-		{
-			for (int i = 0; i < m_Methods.length; ++i)
-			{
-				FunctionMethod method = m_Methods[i];
-				if (Util.CanChangeType(parameters, method.ParameterType))
+				if (method.isVarArgs())
 				{
-					methodInfo = method;
-					break;
+					Params = true;
+					ParamType = par;
 				}
 			}
-			if (methodInfo == null)
+            functionMethod.add(new FunctionMethod(method, parameters.toArray(new java.lang.Class[]{}), ParamType, Params));
+        }
+        m_Methods = functionMethod.toArray(new FunctionMethod[]{});
+        m_Count = m_Methods.length;
+    }
+    public ScorpioMethod(String typeName, java.lang.reflect.Constructor[] methods) {
+        m_Object = null;
+        setMethodName(typeName);
+        java.util.ArrayList<FunctionMethod> functionMethod = new java.util.ArrayList<FunctionMethod>();
+        boolean Params = false;
+        java.lang.Class ParamType = null;
+        java.lang.reflect.Constructor method = null;
+        java.util.ArrayList<java.lang.Class> parameters = new java.util.ArrayList<java.lang.Class>();
+        int length = methods.length;
+        for (int i = 0; i < length; ++i) {
+            Params = false;
+            ParamType = null;
+            parameters.clear();
+            method = methods[i];
+            Class<?>[] pars = method.getParameterTypes();
+            for (Class<?> par : pars)
 			{
-				throw new ScriptException("Method [" + getMethodName() + "] is cannot find fit");
+				parameters.add(par);
+				if (method.isVarArgs())
+				{
+					Params = true;
+					ParamType = par;
+				}
 			}
-		}
-		int length = methodInfo.ParameterType.length;
-		Object[] objs = new Object[length];
-		for (int i = 0; i < length; i++)
-		{
-			objs[i] = Util.ChangeType(parameters[i], methodInfo.ParameterType[i]);
-		}
-		return methodInfo.invoke(m_Object, objs);
-	}
+            functionMethod.add(new FunctionMethod(method, parameters.toArray(new java.lang.Class[]{}), ParamType, Params));
+        }
+        m_Methods = functionMethod.toArray(new FunctionMethod[]{});
+        m_Count = m_Methods.length;
+        
+    }
+    public final Object Call(ScriptObject[] parameters) throws Exception {
+        if (m_Count == 0) {
+            throw new ScriptException("找不到函数 [" + getMethodName() + "]");
+        }
+        FunctionMethod methodInfo = null;
+        if (m_Count == 1) {
+            if (parameters.length == m_Methods[0].ParameterType.length) {
+                methodInfo = m_Methods[0];
+            }
+        }
+        else {
+            for (FunctionMethod method : m_Methods) {
+                if (Util.CanChangeType(parameters, method.ParameterType)) {
+                    methodInfo = method;
+                    break;
+                }
+            }
+        }
+        if (methodInfo != null) {
+            int length = methodInfo.ParameterType.length;
+            Object[] objs = new Object[length];
+            for (int i = 0; i < length; i++) {
+                objs[i] = Util.ChangeType(parameters[i], methodInfo.ParameterType[i]);
+            }
+            return methodInfo.invoke(m_Object, objs);
+        }
+        else {
+            for (FunctionMethod method : m_Methods) {
+                int length = method.ParameterType.length;
+                if (method.Params && parameters.length >= length - 1) {
+                    boolean fit = true;
+                    for (int i = 0; i < parameters.length; ++i) {
+                        if (!Util.CanChangeType(parameters[i], i >= length - 1 ? method.ParamType : method.ParameterType[i])) {
+                            fit = false;
+                            break;
+                        }
+                    }
+                    if (fit) {
+                        Object[] objs = new Object[length];
+                        for (int i = 0; i < length - 1; ++i) {
+                            objs[i] = Util.ChangeType(parameters[i], method.ParameterType[i]);
+                        }
+                        java.util.ArrayList<Object> param = new java.util.ArrayList<Object>();
+                        for (int i = length - 1; i < parameters.length; ++i) {
+                            param.add(Util.ChangeType(parameters[i], method.ParamType));
+                        }
+                        objs[length -1] = param.toArray(new Object[]{});
+                        return method.invoke(m_Object, objs);
+                    }
+                }
+            }
+            throw new ScriptException("找不到合适的函数 [" + getMethodName() + "]");
+        }
+    }
 }

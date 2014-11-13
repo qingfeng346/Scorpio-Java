@@ -2,13 +2,11 @@
 
 import Scorpio.*;
 
-public class TableVariable
-{
-	public String Key;
-	public CodeObject Value;
-	public TableVariable(String key, CodeObject value)
-	{
-		Key = key;
-		Value = value;
-	}
+public class TableVariable {
+    public Object key;
+    public CodeObject value;
+    public TableVariable(Object key, CodeObject value) {
+        this.key = key;
+        this.value = value;
+    }
 }

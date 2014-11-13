@@ -1,17 +1,15 @@
 ﻿package Scorpio.Userdata;
 
-import Scorpio.IScriptUserdataFactory;
-import Scorpio.Script;
-import Scorpio.ScriptUserdata;
+import Scorpio.*;
 
-public class DefaultScriptUserdataFactory implements IScriptUserdataFactory
-{
-	@Override
-	public ScriptUserdata create(Script script, Object obj) throws Exception {
-		if (obj instanceof java.lang.Class && ((java.lang.Class)obj).isEnum())
-		{
-			return new DefaultScriptUserdataEnum(script, obj);
-		}
-		return new DefaultScriptUserdataObject(script, obj);
-	}
+public class DefaultScriptUserdataFactory implements IScriptUserdataFactory {
+    public final ScriptUserdata create(Script script, Object obj) {
+        java.lang.Class type = (java.lang.Class)((obj instanceof java.lang.Class) ? obj : null);
+        if (type != null) {
+            if (Util.IsEnum(type)) {
+                return new DefaultScriptUserdataEnum(script, type);
+            }
+        }
+        return new DefaultScriptUserdataObject(script, obj);
+    }
 }
