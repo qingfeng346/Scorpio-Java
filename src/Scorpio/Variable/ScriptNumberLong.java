@@ -26,14 +26,7 @@ public class ScriptNumberLong extends ScriptNumber {
         super(script);
         m_Value = value;
     }
-    public int ToInt32()
-    {
-    	return (int)m_Value;
-    }
-    public double ToDouble()
-    {
-    	return (double)m_Value;
-    }
+    @Override
     public long ToLong()
     {
     	return m_Value;

@@ -29,8 +29,16 @@ public abstract class ScriptNumber extends ScriptObject {
     public abstract ScriptObject AssignDivide(ScriptNumber obj); // /=
     public abstract ScriptObject AssignModulo(ScriptNumber obj); // %=
 
-
-    public abstract int ToInt32();
-    public abstract double ToDouble();
-    public abstract long ToLong();
+    public int ToInt32()
+    {
+    	return Util.ToInt32(getObjectValue());
+    }
+    public double ToDouble()
+    {
+    	return Util.ToDouble(getObjectValue());
+    }
+    public long ToLong()
+    {
+    	return Util.ToInt64(getObjectValue());
+    }
 }

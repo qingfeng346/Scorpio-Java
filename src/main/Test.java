@@ -11,11 +11,13 @@ public class Test {
 	}
 	public static void main(String[] args)
 	{
+		long start = System.currentTimeMillis();
 		Script script = new Script();
 		try {
 			script.LoadLibrary();
 			ScriptObject obj = script.LoadFile("C:/Users/while/Desktop/a.sco");
 			System.out.println("返回值为 : " + (obj == null ? "null" : obj.toString()));
+			System.out.println("执行耗时 : " + (System.currentTimeMillis() - start));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -26,19 +26,11 @@ public class ScriptNumberDouble extends ScriptNumber {
         super(script);
         m_Value = value;
     }
-    public int ToInt32()
-    {
-    	return (int)m_Value;
-    }
+    @Override
     public double ToDouble()
     {
     	return m_Value;
     }
-    public long ToLong()
-    {
-    	return (long)m_Value;
-    }
-    
     @Override
     public ScriptNumber Calc(CALC c) {
         switch (c) {
