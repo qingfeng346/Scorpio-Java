@@ -1,6 +1,8 @@
 ﻿package Scorpio;
 
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 
 import Scorpio.Runtime.*;
 import Scorpio.Compiler.*;
@@ -16,6 +18,7 @@ public class Script {
     private static final String GLOBAL_VERSION = "_VERSION"; //版本号
     private IScriptUserdataFactory m_UserdataFactory = null; //Userdata工厂
     private ScriptTable m_GlobalTable; //全局Table
+    private Map<Class<?>, UserdataType> m_Types = new HashMap<Class<?>, UserdataType>();    //所有的类集合
     private java.util.ArrayList<StackInfo> m_StackInfoStack = new java.util.ArrayList<StackInfo>(); //堆栈数据
     private StackInfo m_StackInfo = new StackInfo(); //最近堆栈数据
     public final ScriptObject LoadFile(String strFileName) throws Exception {
@@ -151,6 +154,14 @@ public class Script {
     }
     public final ScriptFunction CreateFunction(ScorpioMethod value) {
         return new ScriptFunction(this, value);
+    }
+    public final UserdataType GetScorpioType(Class<?> type)
+    {
+        if (m_Types.containsKey(type))
+            return m_Types.get(type);
+        UserdataType scorpioType = new UserdataType(this, type);
+        m_Types.put(type, scorpioType);
+        return scorpioType;
     }
     public final void LoadLibrary() {
         m_UserdataFactory = new DefaultScriptUserdataFactory();
