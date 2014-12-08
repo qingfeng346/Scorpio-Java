@@ -1,24 +1,22 @@
 ﻿package Scorpio.Variable;
 
-import Scorpio.ScriptObject;
+import Scorpio.*;
 import Scorpio.Userdata.*;
 
-public class ScorpioMethod {
-    private UserdataMethod m_Method;
-    private Object m_Object;
+public abstract class ScorpioMethod {
+    private UserdataMethod privateMethod;
+    public final UserdataMethod getMethod() {
+        return privateMethod;
+    }
+    protected final void setMethod(UserdataMethod value) {
+        privateMethod = value;
+    }
     private String privateMethodName;
     public final String getMethodName() {
         return privateMethodName;
     }
-    private void setMethodName(String value) {
+    protected final void setMethodName(String value) {
         privateMethodName = value;
     }
-    public ScorpioMethod(Object obj, String name, UserdataMethod method) {
-        m_Object = obj;
-        m_Method = method;
-        setMethodName(name);
-    }
-    public final Object Call(ScriptObject[] parameters) throws Exception {
-        return m_Method.Call(m_Object, parameters);
-    }
+    public abstract Object Call(ScriptObject[] parameters) throws Exception; //调用函数
 }

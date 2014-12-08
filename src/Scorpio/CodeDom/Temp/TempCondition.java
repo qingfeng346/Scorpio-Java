@@ -4,6 +4,8 @@ import Scorpio.*;
 import Scorpio.CodeDom.*;
 import Scorpio.Runtime.*;
 
+/**  if语句中一个 if语句 
+*/
 public class TempCondition {
     public CodeObject Allow; //判断条件
     public ScriptExecutable Executable; //指令列表

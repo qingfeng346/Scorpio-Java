@@ -42,6 +42,7 @@ public class UserdataType {
     private java.util.HashMap<String, UserdataField> m_FieldInfos; //所有的变量 以及 get set函数
     private java.util.HashMap<String, ScriptUserdata> m_NestedTypes; //所有的类中类
     private java.util.HashMap<String, UserdataMethod> m_Functions; //所有的函数
+    private java.util.HashMap<String, ScorpioMethod> m_ScorpioMethods; //所有的静态函数和类函数（不包含对象函数）
     public UserdataType(Script script, java.lang.Class type) {
         m_Script = script;
         m_Type = type;
@@ -76,6 +77,19 @@ public class UserdataType {
         }
         return null;
     }
+    private ScorpioMethod GetMethod(Object obj, String name, UserdataMethod method) {
+        if (method.getIsStatic()) {
+            ScorpioMethod ret = new ScorpioStaticMethod(name, method);
+            m_ScorpioMethods.put(name, ret);
+            return ret;
+        }
+        else if (obj == null) {
+            ScorpioMethod ret = new ScorpioTypeMethod(name, method);
+            m_ScorpioMethods.put(name, ret);
+            return ret;
+        }
+        return new ScorpioObjectMethod(obj, name, method);
+    }
     private UserdataField GetField(String name) throws Exception {
         if (m_FieldInfos.containsKey(name)) {
             return m_FieldInfos.get(name);
@@ -99,8 +113,11 @@ public class UserdataType {
      * @throws Exception 
     */
     public final Object GetValue(Object obj, String name) throws Exception {
+    	if (m_ScorpioMethods.containsKey(name)) {
+            return m_ScorpioMethods.get(name);
+        }
         if (m_Functions.containsKey(name)) {
-            return new ScorpioMethod(obj, name, m_Functions.get(name));
+            return GetMethod(obj, name, m_Functions.get(name));
         }
         if (m_NestedTypes.containsKey(name)) {
             return m_NestedTypes.get(name);
@@ -121,7 +138,7 @@ public class UserdataType {
 		}
         UserdataMethod func = GetMethod(name);
         if (func != null) {
-            return new ScorpioMethod(obj, name, func);
+            return GetMethod(obj, name, func);
         }
         throw new ScriptException("GetValue Type[" + m_Type.toString() + "] 变量 [" + name + "] 不存在");
     }

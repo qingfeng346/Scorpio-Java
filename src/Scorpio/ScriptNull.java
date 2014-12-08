@@ -22,7 +22,7 @@ public class ScriptNull extends ScriptObject {
     }
     @Override
     public String toString() {
-        return "Null";
+        return "null";
     }
     @Override
     public boolean equals(Object obj) {

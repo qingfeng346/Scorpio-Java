@@ -2,6 +2,7 @@
 
 import Scorpio.*;
 import Scorpio.Exception.*;
+import Scorpio.Variable.*;
 
 public class LibraryBasis {
     private static class ArrayPairs implements ScorpioHandle {
@@ -122,6 +123,9 @@ public class LibraryBasis {
         script.SetObjectInternal("tolong", script.CreateFunction(new tolong(script)));
         script.SetObjectInternal("tostring", script.CreateFunction(new tostring(script)));
         script.SetObjectInternal("clone", script.CreateFunction(new clone()));
+        script.SetObjectInternal("require", script.CreateFunction(new require(script)));
+        script.SetObjectInternal("import", script.CreateFunction(new require(script)));
+        script.SetObjectInternal("using", script.CreateFunction(new require(script)));
         script.SetObjectInternal("import_type", script.CreateFunction(new import_type(script)));
     }
     private static class print implements ScorpioHandle {
@@ -240,6 +244,21 @@ public class LibraryBasis {
     private static class clone implements ScorpioHandle {
         public final Object Call(ScriptObject[] args) {
             return args[0].clone();
+        }
+    }
+    private static class require implements ScorpioHandle {
+        private Script m_script;
+        public require(Script script) {
+            m_script = script;
+        }
+        public final Object Call(ScriptObject[] args) {
+            ScriptString str = (ScriptString)((args[0] instanceof ScriptString) ? args[0] : null);
+            Util.Assert(str != null, "require 参数必须是 string");
+            try {
+            	return m_script.LoadFile(m_script.GetValue("searchpath") + "/" + str.getValue());
+            } catch (Exception ex) {
+            	throw new ExecutionException("require is error : " + ex.getMessage()); 
+            }
         }
     }
     private static class import_type implements ScorpioHandle {

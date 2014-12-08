@@ -1,8 +1,6 @@
 ﻿package Scorpio;
 
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
 
 import Scorpio.Runtime.*;
 import Scorpio.Compiler.*;
@@ -13,22 +11,26 @@ import Scorpio.Variable.*;
 //脚本类
 public class Script {
     public static final String DynamicDelegateName = "__DynamicDelegate__";
-    public static final String Version = "0.0.5beta";
+    public static final String Version = "master";
     private static final String GLOBAL_TABLE = "_G"; //全局table
     private static final String GLOBAL_VERSION = "_VERSION"; //版本号
     private IScriptUserdataFactory m_UserdataFactory = null; //Userdata工厂
     private ScriptTable m_GlobalTable; //全局Table
-    private Map<Class<?>, UserdataType> m_Types = new HashMap<Class<?>, UserdataType>();    //所有的类集合
     private java.util.ArrayList<StackInfo> m_StackInfoStack = new java.util.ArrayList<StackInfo>(); //堆栈数据
     private StackInfo m_StackInfo = new StackInfo(); //最近堆栈数据
     public final ScriptObject LoadFile(String strFileName) throws Exception {
         return LoadFile(strFileName, "UTF8");
     }
     public final ScriptObject LoadFile(String fileName, String encoding) throws Exception {
-        return LoadFile(fileName, Charset.forName(encoding));
+        return LoadFile(fileName,Charset.forName(encoding));
     }
     public final ScriptObject LoadFile(String fileName, Charset encoding) throws Exception {
-        return LoadString(fileName, Util.GetFileString(fileName, encoding));
+        try {
+            return LoadString(fileName, Util.GetFileString(fileName, encoding));
+        }
+        catch (RuntimeException e) {
+            throw new ScriptException("load file [" + fileName + "] is error : " + e.toString());
+        }
     }
     public final ScriptObject LoadString(String strBuffer) throws Exception {
         return LoadString("", strBuffer);
@@ -37,20 +39,25 @@ public class Script {
         return LoadString(strBreviary, strBuffer, null);
     }
     public final ScriptObject LoadString(String strBreviary, String strBuffer, ScriptContext context) throws Exception {
-        m_StackInfoStack.clear();
-        ScriptLexer scriptLexer = new ScriptLexer(strBuffer);
-        strBreviary = Util.IsNullOrEmpty(strBreviary) ? scriptLexer.GetBreviary() : strBreviary;
-        ScriptParser scriptParser = new ScriptParser(this, scriptLexer.GetTokens(), strBreviary);
-        ScriptExecutable scriptExecutable = scriptParser.Parse();
-        return new ScriptContext(this, scriptExecutable, context, Executable_Block.Context).Execute();
+        try {
+            m_StackInfoStack.clear();
+            ScriptLexer scriptLexer = new ScriptLexer(strBuffer);
+            strBreviary = Util.IsNullOrEmpty(strBreviary) ? scriptLexer.GetBreviary() : strBreviary;
+            ScriptParser scriptParser = new ScriptParser(this, scriptLexer.GetTokens(), strBreviary);
+            ScriptExecutable scriptExecutable = scriptParser.Parse();
+            return new ScriptContext(this, scriptExecutable, context, Executable_Block.Context).Execute();
+        }
+        catch (RuntimeException e) {
+            throw new ScriptException("load buffer [" + strBreviary + "] is error : " + e.toString());
+        }
     }
     public final ScriptObject LoadType(String str) {
-		try {
-			Class<?> type = java.lang.Class.forName(str);
-			if (type != null) {
-	            return CreateUserdata(type);
-	        }
-		} catch (ClassNotFoundException e) { }
+    	try {
+            java.lang.Class type = java.lang.Class.forName(str);
+            if (type != null) {
+                return CreateUserdata(type);
+            }
+    	} catch (Exception e) {}
         return ScriptNull.getInstance();
     }
     public final void SetStackInfo(StackInfo info) {
@@ -67,6 +74,9 @@ public class Script {
         }
         return builder.toString();
     }
+    public final ScriptTable GetGlobalTable() {
+        return m_GlobalTable;
+    }
     public final boolean HasValue(String key) {
         return m_GlobalTable.HasValue(key);
     }
@@ -79,7 +89,7 @@ public class Script {
     public final void SetObjectInternal(String key, ScriptObject value) {
         m_GlobalTable.SetValue(key, value);
     }
-    public final ScriptObject Call(String strName, Object... args) throws Exception {
+    public final Object Call(String strName, Object... args) throws Exception {
         ScriptObject obj = m_GlobalTable.GetValue(strName);
         if (obj instanceof ScriptNull) {
             throw new ScriptException("找不到变量[" + strName + "]");
@@ -155,16 +165,8 @@ public class Script {
     public final ScriptFunction CreateFunction(ScorpioMethod value) {
         return new ScriptFunction(this, value);
     }
-    public final UserdataType GetScorpioType(Class<?> type)
-    {
-        if (m_Types.containsKey(type))
-            return m_Types.get(type);
-        UserdataType scorpioType = new UserdataType(this, type);
-        m_Types.put(type, scorpioType);
-        return scorpioType;
-    }
     public final void LoadLibrary() {
-        m_UserdataFactory = new DefaultScriptUserdataFactory();
+        m_UserdataFactory = new DefaultScriptUserdataFactory(this);
         m_GlobalTable = CreateTable();
         m_GlobalTable.SetValue(GLOBAL_TABLE, m_GlobalTable);
         m_GlobalTable.SetValue(GLOBAL_VERSION, CreateString(Version));

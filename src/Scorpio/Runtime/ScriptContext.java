@@ -1,43 +1,11 @@
 ﻿package Scorpio.Runtime;
 
-import Scorpio.Script;
-import Scorpio.ScriptArray;
-import Scorpio.ScriptBoolean;
-import Scorpio.ScriptFunction;
-import Scorpio.ScriptNull;
-import Scorpio.ScriptNumber;
-import Scorpio.ScriptObject;
-import Scorpio.ScriptString;
-import Scorpio.ScriptTable;
-import Scorpio.ScriptUserdata;
-import Scorpio.Util;
-import Scorpio.CodeDom.CALC;
-import Scorpio.CodeDom.CodeArray;
-import Scorpio.CodeDom.CodeAssign;
-import Scorpio.CodeDom.CodeCallFunction;
-import Scorpio.CodeDom.CodeEval;
-import Scorpio.CodeDom.CodeFor;
-import Scorpio.CodeDom.CodeForSimple;
-import Scorpio.CodeDom.CodeForeach;
-import Scorpio.CodeDom.CodeFunction;
-import Scorpio.CodeDom.CodeIf;
-import Scorpio.CodeDom.CodeMember;
-import Scorpio.CodeDom.CodeObject;
-import Scorpio.CodeDom.CodeOperator;
-import Scorpio.CodeDom.CodeScriptObject;
-import Scorpio.CodeDom.CodeSwitch;
-import Scorpio.CodeDom.CodeTable;
-import Scorpio.CodeDom.CodeTernary;
-import Scorpio.CodeDom.CodeThrow;
-import Scorpio.CodeDom.CodeTry;
-import Scorpio.CodeDom.CodeWhile;
-import Scorpio.CodeDom.MEMBER_TYPE;
-import Scorpio.CodeDom.TableVariable;
-import Scorpio.CodeDom.Temp.TempCase;
-import Scorpio.CodeDom.Temp.TempCondition;
-import Scorpio.Compiler.TokenType;
-import Scorpio.Exception.ExecutionException;
-import Scorpio.Exception.InteriorException;
+import Scorpio.*;
+import Scorpio.Runtime.*;
+import Scorpio.Compiler.*;
+import Scorpio.CodeDom.*;
+import Scorpio.CodeDom.Temp.*;
+import Scorpio.Exception.*;
 
 //执行命令
 public class ScriptContext {
@@ -377,7 +345,7 @@ public class ScriptContext {
         }
         java.util.HashMap<String, ScriptObject> variables = code.variables;
         for (int i = begin; i <= finished; i += step) {
-            variables.put(code.Identifier, m_script.CreateNumber(i));
+        	variables.put(code.Identifier, m_script.CreateNumber(i));
             code.BlockContext.Initialize(this, variables);
             code.BlockContext.Execute();
             if (code.BlockContext.getIsBreak()) {
@@ -393,7 +361,7 @@ public class ScriptContext {
         }
         ScriptObject obj;
         for (; ;) {
-            obj = ((ScriptFunction)loop).Call();
+            obj = m_script.CreateObject(((ScriptFunction)loop).Call());
             if (obj == null || obj instanceof ScriptNull) {
                 return;
             }
@@ -497,7 +465,7 @@ public class ScriptContext {
         context.Execute();
     }
     private void ProcessCallFunction() throws Exception {
-        ParseCall((CodeCallFunction)m_scriptInstruction.getOperand0());
+        ParseCall((CodeCallFunction)m_scriptInstruction.getOperand0(), false);
     }
     private void InvokeReturnValue(ScriptObject value) {
         m_Over = true;
@@ -534,7 +502,7 @@ public class ScriptContext {
             return ParseFunction((CodeFunction)value);
         }
         else if (value instanceof CodeCallFunction) {
-            return ParseCall((CodeCallFunction)((value instanceof CodeCallFunction) ? value : null));
+            return ParseCall((CodeCallFunction)((value instanceof CodeCallFunction) ? value : null), true);
         }
         else if (value instanceof CodeMember) {
             return GetVariable((CodeMember)((value instanceof CodeMember) ? value : null));
@@ -585,7 +553,7 @@ public class ScriptContext {
         func.Func.SetParentContext(this);
         return func.Func;
     }
-    private ScriptObject ParseCall(CodeCallFunction scriptFunction) throws Exception {
+    private ScriptObject ParseCall(CodeCallFunction scriptFunction, boolean needRet) throws Exception {
         ScriptObject obj = ResolveOperand(scriptFunction.Member);
         int num = scriptFunction.Parameters.size();
         ScriptObject[] parameters = new ScriptObject[num];
@@ -593,7 +561,8 @@ public class ScriptContext {
             parameters[i] = ResolveOperand(scriptFunction.Parameters.get(i));
         }
         m_script.PushStackInfo();
-        return obj.Call(parameters);
+        Object ret = obj.Call(parameters);
+        return needRet ? m_script.CreateObject(ret) : null;
     }
     private ScriptArray ParseArray(CodeArray array) throws Exception {
         ScriptArray ret = m_script.CreateArray();
@@ -623,39 +592,28 @@ public class ScriptContext {
                 return m_script.CreateString(left.toString() + right.toString());
             }
             else if (left instanceof ScriptNumber && right instanceof ScriptNumber) {
-                return ((ScriptNumber)((left instanceof ScriptNumber) ? left : null)).ComputePlus(((ScriptNumber)((right instanceof ScriptNumber) ? right : null)));
+                return ((ScriptNumber)left).Compute(TokenType.Plus, (ScriptNumber)right);
             }
             else {
                 throw new ExecutionException("operate [+] left right is not same type");
             }
         }
-        else if (type == TokenType.Minus || type == TokenType.Multiply || type == TokenType.Divide || type == TokenType.Modulo) {
+        else if (type == TokenType.Minus || type == TokenType.Multiply || type == TokenType.Divide || type == TokenType.Modulo || type == TokenType.InclusiveOr || type == TokenType.Combine || type == TokenType.XOR || type == TokenType.Shr || type == TokenType.Shi) {
             ScriptNumber leftNumber = (ScriptNumber)((left instanceof ScriptNumber) ? left : null);
             if (leftNumber == null) {
-                throw new ExecutionException("operate [+ - * /] left is not number");
+                throw new ExecutionException("运算符[左边]必须是number类型");
             }
             ScriptObject tempVar = ResolveOperand(operate.Right);
             ScriptNumber rightNumber = (ScriptNumber)((tempVar instanceof ScriptNumber) ? tempVar : null);
             if (rightNumber == null) {
-                throw new ExecutionException("operate [+ - * /] right is not number");
+                throw new ExecutionException("运算符[右边]必须是number类型");
             }
-            if (operate.Operator == TokenType.Minus) {
-                return leftNumber.ComputeMinus((rightNumber));
-            }
-            else if (operate.Operator == TokenType.Multiply) {
-                return leftNumber.ComputeMultiply((rightNumber));
-            }
-            else if (operate.Operator == TokenType.Divide) {
-                return leftNumber.ComputeDivide((rightNumber));
-            }
-            else if (operate.Operator == TokenType.Modulo) {
-                return leftNumber.ComputeModulo((rightNumber));
-            }
+            return leftNumber.Compute(type, rightNumber);
         }
         else {
             if (left instanceof ScriptBoolean) {
+                boolean b1 = ((ScriptBoolean)left).getValue();
                 if (type == TokenType.And) {
-                    boolean b1 = ((ScriptBoolean)left).getValue();
                     if (b1 == false) {
                         return ScriptBoolean.False;
                     }
@@ -667,7 +625,6 @@ public class ScriptContext {
                     return right.getValue() ? ScriptBoolean.True : ScriptBoolean.False;
                 }
                 else if (type == TokenType.Or) {
-                    boolean b1 = ((ScriptBoolean)left).getValue();
                     if (b1 == true) {
                         return ScriptBoolean.True;
                     }
@@ -679,7 +636,6 @@ public class ScriptContext {
                     return right.getValue() ? ScriptBoolean.True : ScriptBoolean.False;
                 }
                 else {
-                    boolean b1 = ((ScriptBoolean)left).getValue();
                     ScriptObject tempVar4 = ResolveOperand(operate.Right);
                     ScriptBoolean right = (ScriptBoolean)((tempVar4 instanceof ScriptBoolean) ? tempVar4 : null);
                     if (right == null) {
@@ -722,35 +678,16 @@ public class ScriptContext {
                     throw new ExecutionException("[operate] left right is not same type");
                 }
                 if (left instanceof ScriptString) {
-                    String str1 = ((ScriptString)left).getValue();
-                    String str2 = ((ScriptString)right).getValue();
-                    boolean ret = false;
-                    if (type == TokenType.Greater) {
-                        ret = str1.compareTo(str2) < 0;
-                    }
-                    else if (type == TokenType.GreaterOrEqual) {
-                        ret = str1.compareTo(str2) <= 0;
-                    }
-                    else if (type == TokenType.Less) {
-                        ret = str1.compareTo(str2) > 0;
-                    }
-                    else if (type == TokenType.LessOrEqual) {
-                        ret = str1.compareTo(str2) >= 0;
-                    }
-                    else {
-                        throw new ExecutionException("nonsupport operate [" + type + "] with string");
-                    }
-                    return ret ? ScriptBoolean.True : ScriptBoolean.False;
+                    return ((ScriptString)left).Compare(type, (ScriptString)right) ? ScriptBoolean.True : ScriptBoolean.False;
                 }
                 else if (left instanceof ScriptNumber) {
-                    return ((ScriptNumber)left).Compare(type, operate, (ScriptNumber)right) ? ScriptBoolean.True : ScriptBoolean.False;
+                    return ((ScriptNumber)left).Compare(type, (ScriptNumber)right) ? ScriptBoolean.True : ScriptBoolean.False;
                 }
                 else {
                     throw new ExecutionException("nonsupport operate [" + type + "] with " + left.getType());
                 }
             }
         }
-        throw new ExecutionException("错误的操作符号 " + operate.Operator);
     }
     private ScriptObject ParseTernary(CodeTernary ternary) throws Exception {
         ScriptObject tempVar = ResolveOperand(ternary.Allow);
@@ -784,18 +721,7 @@ public class ScriptContext {
                 if (right == null) {
                     throw new ExecutionException("[+= -=...]值只能为 number类型");
                 }
-                switch (assign.AssignType) {
-                    case AssignPlus:
-                        return num.AssignPlus((right));
-                    case AssignMinus:
-                        return num.AssignMinus((right));
-                    case AssignMultiply:
-                        return num.AssignMultiply((right));
-                    case AssignDivide:
-                        return num.AssignDivide((right));
-                    case AssignModulo:
-                        return num.AssignModulo((right));
-                }
+                return num.AssignCompute(assign.AssignType, right);
             }
             throw new ExecutionException("[+= -=...]左边值只能为number或者string");
         }

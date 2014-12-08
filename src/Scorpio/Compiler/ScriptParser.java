@@ -61,21 +61,8 @@ public class ScriptParser {
     private void ParseStatement() {
         Token token = ReadToken();
         switch (token.getType()) {
-            case Var: {
-                    String str = ReadIdentifier();
-                    m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.VAR, str));
-                    Token peek = PeekToken();
-                    if (peek.getType() == TokenType.Assign) {
-                        UndoToken();
-                        ParseStatement();
-                    }
-                    else if (peek.getType() == TokenType.Comma) {
-                        while (PeekToken().getType() == TokenType.Comma) {
-                            ReadToken();
-                            m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.VAR, ReadIdentifier()));
-                        }
-                    }
-                }
+            case Var:
+                ParseVar();
                 break;
             case LeftBrace:
                 ParseBlock();
@@ -101,21 +88,13 @@ public class ScriptParser {
             case Throw:
                 ParseThrow();
                 break;
-            case Return: {
-                    Token peek = PeekToken();
-                    if (peek.getType() == TokenType.RightBrace || peek.getType() == TokenType.SemiColon || peek.getType() == TokenType.Finished) {
-                        m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.RET, new CodeScriptObject(m_script, null)));
-                    }
-                    else {
-                        m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.RET, GetObject()));
-                    }
-                }
+            case Return:
+                ParseReturn();
                 break;
             case Identifier:
             case Increment:
             case Decrement:
             case Eval:
-                UndoToken();
                 ParseExpression();
                 break;
             case Break:
@@ -178,6 +157,22 @@ public class ScriptParser {
         ReadRightParenthesis();
         ScriptExecutable executable = ParseStatementBlock(Executable_Block.Function);
         return m_script.CreateFunction(strFunctionName, new ScorpioScriptFunction(m_script, listParameters, executable, bParams));
+    }
+    //解析Var关键字
+    private void ParseVar() {
+        for (; ;) {
+            m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.VAR, ReadIdentifier()));
+            Token peek = PeekToken();
+            if (peek.getType() == TokenType.Assign) {
+                UndoToken();
+                ParseStatement();
+            }
+            peek = ReadToken();
+            if (peek.getType() != TokenType.Comma) {
+                UndoToken();
+                break;
+            }
+        }
     }
     //解析普通代码块 {}
     private void ParseBlock() {
@@ -360,8 +355,19 @@ public class ScriptParser {
         ret.obj = GetObject();
         m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.THROW, ret));
     }
+    //解析return
+    private void ParseReturn() {
+        Token peek = PeekToken();
+        if (peek.getType() == TokenType.RightBrace || peek.getType() == TokenType.SemiColon || peek.getType() == TokenType.Finished) {
+            m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.RET, new CodeScriptObject(m_script, null)));
+        }
+        else {
+            m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.RET, GetObject()));
+        }
+    }
     //解析表达式
     private void ParseExpression() {
+        UndoToken();
         Token peek = PeekToken();
         CodeObject member = GetObject();
         if (member instanceof CodeCallFunction) {
@@ -412,6 +418,11 @@ public class ScriptParser {
                     case AssignMultiply:
                     case AssignDivide:
                     case AssignModulo:
+                    case AssignCombine:
+                    case AssignInclusiveOr:
+                    case AssignXOR:
+                    case AssignShr:
+                    case AssignShi:
                         return new CodeAssign(member, GetObject(), token.getType(), m_strBreviary, token.getSourceLine());
                     default:
                         UndoToken();

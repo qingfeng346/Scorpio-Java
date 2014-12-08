@@ -2,6 +2,7 @@
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import Scorpio.*;
 import Scorpio.Exception.*;
@@ -37,9 +38,10 @@ public class UserdataMethod {
             return m_Type == 1 ? m_Method.invoke(obj, Args) : m_Constructor.newInstance(Args);
         }
     }
-    private java.lang.Class m_Type; //所在类型
-    private int m_Count; //相同名字函数数量
-    private FunctionMethod[] m_Methods; //所有函数对象
+    private java.lang.Class m_Type; 		//所在类型
+    private int m_Count; 					//相同名字函数数量
+    private FunctionMethod[] m_Methods; 	//所有函数对象
+    private boolean m_IsStatic;				//是否是静态函数
     private String privateMethodName;
     public final String getMethodName() {
         return privateMethodName;
@@ -47,8 +49,13 @@ public class UserdataMethod {
     private void setMethodName(String value) {
         privateMethodName = value;
     }
+    public boolean getIsStatic()
+    {
+    	return m_IsStatic;
+    }
     public UserdataMethod(java.lang.Class type, String methodName, java.lang.reflect.Method[] methods) {
         m_Type = type;
+        m_IsStatic = Modifier.isStatic(methods[0].getModifiers());
         setMethodName(methodName);
     	java.util.ArrayList<FunctionMethod> functionMethod = new java.util.ArrayList<FunctionMethod>();
         boolean Params = false;
@@ -82,6 +89,7 @@ public class UserdataMethod {
     public UserdataMethod(java.lang.Class type, String methodName, java.lang.reflect.Constructor[] methods) {
     	m_Type = type;
     	setMethodName(methodName);
+    	m_IsStatic = false;
         java.util.ArrayList<FunctionMethod> functionMethod = new java.util.ArrayList<FunctionMethod>();
         boolean Params = false;
         java.lang.Class ParamType = null;

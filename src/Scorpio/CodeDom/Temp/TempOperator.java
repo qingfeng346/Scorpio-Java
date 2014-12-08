@@ -7,6 +7,11 @@ public class TempOperator {
     //运算符优先级表，
     private static java.util.HashMap<TokenType, TempOperator> Operators = new java.util.HashMap<TokenType, TempOperator>();
     static {
+        Operators.put(TokenType.InclusiveOr, new TempOperator(TokenType.InclusiveOr, 1));
+        Operators.put(TokenType.Combine, new TempOperator(TokenType.Combine, 1));
+        Operators.put(TokenType.XOR, new TempOperator(TokenType.XOR, 1));
+        Operators.put(TokenType.Shi, new TempOperator(TokenType.Shi, 1));
+        Operators.put(TokenType.Shr, new TempOperator(TokenType.Shr, 1));
         Operators.put(TokenType.And, new TempOperator(TokenType.And, 1));
         Operators.put(TokenType.Or, new TempOperator(TokenType.Or, 1));
 

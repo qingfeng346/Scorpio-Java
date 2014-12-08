@@ -3,6 +3,7 @@
 import Scorpio.*;
 import Scorpio.CodeDom.Temp.*;
 
+//switch语句
 public class CodeSwitch extends CodeObject {
     public CodeObject Condition;
     public TempCase Default;

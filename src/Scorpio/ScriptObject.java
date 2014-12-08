@@ -34,11 +34,11 @@ public abstract class ScriptObject {
         throw new ExecutionException("类型[" + getType() + "]不支持设置变量(object)");
     }
     //调用无参函数
-    public final ScriptObject Call() throws Exception {
+    public final Object Call() throws Exception {
         return Call(NOPARAMETER);
     }
     //调用函数
-    public ScriptObject Call(ScriptObject[] parameters) throws Exception {
+    public Object Call(ScriptObject[] parameters) throws Exception {
         throw new ExecutionException("类型[" + getType() + "]不支持函数调用");
     }
     public ScriptObject clone() { // 复制一个变量

@@ -7,7 +7,7 @@ import Scorpio.Exception.*;
 
 public class DefaultScriptUserdataEnum extends ScriptUserdata {
     private java.util.HashMap<String, ScriptEnum> m_Enums; //如果是枚举的话 所有枚举的值
-    public DefaultScriptUserdataEnum(Script script, java.lang.Class value) {
+    public DefaultScriptUserdataEnum(Script script, java.lang.Class<?> value) {
         super(script);
         this.setValue(value);
         this.setValueType(value);

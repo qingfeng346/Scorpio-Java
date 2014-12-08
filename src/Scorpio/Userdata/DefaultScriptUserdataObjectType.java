@@ -2,21 +2,24 @@
 
 import Scorpio.*;
 import Scorpio.Variable.*;
-import Scorpio.Exception.*;
 
-/**  普通Object类型 
+/**  普通Object Type类型 
 */
-public class DefaultScriptUserdataObject extends ScriptUserdata {
+public class DefaultScriptUserdataObjectType extends ScriptUserdata {
     private UserdataType m_Type;
-    public DefaultScriptUserdataObject(Script script, Object value, UserdataType type) {
+    public DefaultScriptUserdataObjectType(Script script, java.lang.Class value, UserdataType type) {
         super(script);
         this.setValue(value);
-        this.setValueType(value.getClass());
+        this.setValueType(value);
         this.m_Type = type;
     }
     @Override
+    public Object Call(ScriptObject[] parameters) throws Exception {
+        return m_Type.CreateInstance(parameters);
+    }
+    @Override
     public ScriptObject GetValue(String strName) throws Exception {
-        return getScript().CreateObject(m_Type.GetValue(getValue(), strName));
+        return getScript().CreateObject(m_Type.GetValue(null, strName));
     }
     @Override
     public void SetValue(String strName, ScriptObject value) throws Exception {

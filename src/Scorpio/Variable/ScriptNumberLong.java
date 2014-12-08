@@ -27,11 +27,6 @@ public class ScriptNumberLong extends ScriptNumber {
         m_Value = value;
     }
     @Override
-    public long ToLong()
-    {
-    	return m_Value;
-    }
-    @Override
     public ScriptNumber Calc(CALC c) {
         switch (c) {
             case PRE_INCREMENT:
@@ -44,6 +39,8 @@ public class ScriptNumberLong extends ScriptNumber {
                 return getScript().CreateLong(m_Value++);
             case POST_DECREMENT:
                 return getScript().CreateLong(m_Value--);
+            default:
+                return this;
         }
         return this;
     }
@@ -57,52 +54,75 @@ public class ScriptNumberLong extends ScriptNumber {
         return getScript().CreateLong(m_Value);
     }
     @Override
-    public ScriptObject ComputePlus(ScriptNumber obj) {
-        return getScript().CreateLong(m_Value + obj.ToLong());
+    public long ToLong() {
+        return m_Value;
     }
     @Override
-    public ScriptObject ComputeMinus(ScriptNumber obj) {
-        return getScript().CreateLong(m_Value - obj.ToLong());
+    public ScriptObject Compute(TokenType type, ScriptNumber obj) {
+        switch (type) {
+            case Plus:
+                return getScript().CreateLong(m_Value + obj.ToLong());
+            case Minus:
+                return getScript().CreateLong(m_Value - obj.ToLong());
+            case Multiply:
+                return getScript().CreateLong(m_Value * obj.ToLong());
+            case Divide:
+                return getScript().CreateLong(m_Value / obj.ToLong());
+            case Modulo:
+                return getScript().CreateLong(m_Value % obj.ToLong());
+            case InclusiveOr:
+                return getScript().CreateLong(m_Value | obj.ToLong());
+            case Combine:
+                return getScript().CreateLong(m_Value & obj.ToLong());
+            case XOR:
+                return getScript().CreateLong(m_Value ^ obj.ToLong());
+            case Shr:
+                return getScript().CreateLong(m_Value >> obj.ToInt32());
+            case Shi:
+                return getScript().CreateLong(m_Value << obj.ToInt32());
+            default:
+                throw new ExecutionException("Long不支持的运算符 " + type);
+        }
     }
     @Override
-    public ScriptObject ComputeMultiply(ScriptNumber obj) {
-        return getScript().CreateLong(m_Value * obj.ToLong());
+    public ScriptObject AssignCompute(TokenType type, ScriptNumber obj) {
+        switch (type) {
+            case AssignPlus:
+                m_Value += obj.ToLong();
+                return this;
+            case AssignMinus:
+                m_Value -= obj.ToLong();
+                return this;
+            case AssignMultiply:
+                m_Value *= obj.ToLong();
+                return this;
+            case AssignDivide:
+                m_Value /= obj.ToLong();
+                return this;
+            case AssignModulo:
+                m_Value %= obj.ToLong();
+                return this;
+            case AssignInclusiveOr:
+                m_Value |= obj.ToLong();
+                return this;
+            case AssignCombine:
+                m_Value &= obj.ToLong();
+                return this;
+            case AssignXOR:
+                m_Value ^= obj.ToLong();
+                return this;
+            case AssignShr:
+                m_Value >>= obj.ToInt32();
+                return this;
+            case AssignShi:
+                m_Value <<= obj.ToInt32();
+                return this;
+            default:
+                throw new ExecutionException("Long不支持的运算符 " + type);
+        }
     }
     @Override
-    public ScriptObject ComputeDivide(ScriptNumber obj) {
-        return getScript().CreateLong(m_Value / obj.ToLong());
-    }
-    @Override
-    public ScriptObject ComputeModulo(ScriptNumber obj) {
-        return getScript().CreateLong(m_Value % obj.ToLong());
-    }
-    @Override
-    public ScriptObject AssignPlus(ScriptNumber obj) {
-        m_Value += obj.ToLong();
-        return this;
-    }
-    @Override
-    public ScriptObject AssignMinus(ScriptNumber obj) {
-        m_Value -= obj.ToLong();
-        return this;
-    }
-    @Override
-    public ScriptObject AssignMultiply(ScriptNumber obj) {
-        m_Value *= obj.ToLong();
-        return this;
-    }
-    @Override
-    public ScriptObject AssignDivide(ScriptNumber obj) {
-        m_Value /= obj.ToLong();
-        return this;
-    }
-    @Override
-    public ScriptObject AssignModulo(ScriptNumber obj) {
-        m_Value %= obj.ToLong();
-        return this;
-    }
-    @Override
-    public boolean Compare(TokenType type, CodeOperator oper, ScriptNumber num) {
+    public boolean Compare(TokenType type, ScriptNumber num) {
         ScriptNumberLong val = (ScriptNumberLong)((num instanceof ScriptNumberLong) ? num : null);
         if (val == null) {
             throw new ExecutionException("数字比较 两边的数字类型不一致 请先转换再比较 ");
@@ -116,8 +136,9 @@ public class ScriptNumberLong extends ScriptNumber {
                 return m_Value < val.m_Value;
             case LessOrEqual:
                 return m_Value <= val.m_Value;
+            default:
+                throw new ExecutionException("Number类型 操作符[" + type + "]不支持");
         }
-        return false;
     }
     @Override
     public ScriptObject clone() {

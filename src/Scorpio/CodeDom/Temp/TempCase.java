@@ -4,6 +4,8 @@ import Scorpio.*;
 import Scorpio.CodeDom.*;
 import Scorpio.Runtime.*;
 
+/**  switch语句中一个cast条件
+*/
 public class TempCase {
     public java.util.ArrayList<Object> Allow; //判断条件
     public ScriptExecutable Executable; //指令列表

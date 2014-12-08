@@ -3,9 +3,13 @@
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.charset.Charset;
+
+import Scorpio.Exception.ExecutionException;
+import Scorpio.Variable.*;
+import Scorpio.*;
 
 public final class Util {
     private static final java.lang.Class TYPE_VOID = void.class;
@@ -85,32 +89,16 @@ public final class Util {
         return IsEnum(obj.getClass());
     }
 
-    public static Object ChangeType(ScriptObject par, java.lang.Class type) throws Exception {
+    public static Object ChangeType(ScriptObject par, java.lang.Class type) {
         if (type == TYPE_OBJECT) {
-            if (par instanceof ScriptNumber) {
-                return ChangeType_impl(par.getObjectValue(), type);
-            }
-            else {
-                return par.getObjectValue();
-            }
+            return par.getObjectValue();
         }
         else {
-            if (type.isAssignableFrom(par.getClass())) {
-                return par;
+            if (par instanceof ScriptUserdata && Util.IsType(type)) {
+                return ((ScriptUserdata)par).getValueType();
             }
             else if (par instanceof ScriptNumber) {
-                return Util.IsEnum(type) ? ToEnum(type, ((ScriptNumber)par).ToLong()) : ChangeType_impl(par.getObjectValue(), type);
-            }
-            else if (par instanceof ScriptArray) {
-                return ChangeType_impl((ScriptArray)((par instanceof ScriptArray) ? par : null), type);
-            }
-            else if (par instanceof ScriptUserdata) {
-                if (Util.IsType(type)) {
-                    return ((ScriptUserdata)par).getValueType();
-                }
-                else {
-                    return par.getObjectValue();
-                }
+                return ChangeType_impl(par.getObjectValue(), type);
             }
             else {
                 return par.getObjectValue();
@@ -136,23 +124,17 @@ public final class Util {
             if (par instanceof ScriptString && Util.IsString(type)) {
                 return true;
             }
-            else if (par instanceof ScriptNumber && (IsNumber(type) || IsEnum(type))) {
+            else if (par instanceof ScriptNumber && IsNumber(type)) {
                 return true;
             }
             else if (par instanceof ScriptBoolean && IsBool(type)) {
                 return true;
             }
-            else if (par instanceof ScriptEnum && ((ScriptEnum)((par instanceof ScriptEnum) ? par : null)).getEnumType() == type) {
-                return true;
-            }
-            else if (par instanceof ScriptArray && type.isArray()) {
+            else if (par instanceof ScriptEnum && ((ScriptEnum)par).getEnumType() == type) {
                 return true;
             }
             else if (par instanceof ScriptUserdata) {
-                if (Util.IsType(type)) {
-                    return true;
-                }
-                else if (type.isAssignableFrom(((ScriptUserdata)par).getValueType())) {
+                if (Util.IsType(type) || type.isAssignableFrom(((ScriptUserdata)par).getValueType())) {
                     return true;
                 }
             }
@@ -203,14 +185,13 @@ public final class Util {
 	    }
 	    return null;
     }
-    public static Object ChangeType_impl(ScriptArray value, java.lang.Class conversionType) throws Exception {
-        int count = value.Count();
-        java.lang.Class elementType = conversionType.getComponentType();
-        Array array = (Array) Array.newInstance(elementType, count);
-        for (int i = 0; i < count;++i) {
-        	Array.set(array, i, ChangeType(value.GetValue(i), elementType));
+    public static void Assert(boolean b) {
+        Assert(b, "");
+    }
+    public static void Assert(boolean b, String message) {
+        if (!b) {
+            throw new ExecutionException(message);
         }
-        return array;
     }
     public static int ToInt32(Object value)
 	{
@@ -230,9 +211,4 @@ public final class Util {
     		return Long.parseLong((String)value);
     	return ((Number)value).longValue();
 	}
-    public static Object ToEnum(java.lang.Class type, Object number) throws Exception {
-    	Method values = type.getMethod("values");
-		Object[] rets = (Object[]) values.invoke(null);
-		return rets[(Integer) number];
-    }
 }

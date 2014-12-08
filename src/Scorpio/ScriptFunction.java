@@ -30,6 +30,9 @@ public class ScriptFunction extends ScriptObject {
     private ScorpioScriptFunction m_ScriptFunction; //脚本函数
     private ScorpioHandle m_Handle; //程序函数执行类
     private ScorpioMethod m_Method; //程序函数
+    public final ScorpioMethod getMethod() {
+        return m_Method;
+    }
     private java.util.HashMap<String, ScriptObject> m_stackObject = new java.util.HashMap<String, ScriptObject>(); //函数变量
     @Override
     public ObjectType getType() {
@@ -73,7 +76,7 @@ public class ScriptFunction extends ScriptObject {
             m_ScriptFunction.SetParentContext(context);
         }
     }
-    public final ScriptObject call(Object... args) throws Exception {
+    public final Object call(Object... args) throws Exception {
         int length = args.length;
         ScriptObject[] parameters = new ScriptObject[length];
         for (int i = 0; i < length; ++i) {
@@ -82,16 +85,16 @@ public class ScriptFunction extends ScriptObject {
         return Call(parameters);
     }
     @Override
-    public ScriptObject Call(ScriptObject[] parameters) throws Exception {
+    public Object Call(ScriptObject[] parameters) throws Exception {
         if (getFunctionType() == FunstionType.Script) {
             return m_ScriptFunction.Call(m_stackObject, parameters);
         }
         else {
             if (getFunctionType() == FunstionType.Handle) {
-                return getScript().CreateObject(m_Handle.Call(parameters));
+                return m_Handle.Call(parameters);
             }
             else if (getFunctionType() == FunstionType.Method) {
-                return getScript().CreateObject(m_Method.Call(parameters));
+                return m_Method.Call(parameters);
             }
         }
         return null;

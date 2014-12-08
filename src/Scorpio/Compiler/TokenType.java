@@ -8,315 +8,350 @@ public enum TokenType {
     */
     None(0),
     /** 
-     global
-     
-    */
-    Global(1),
-    /** 
      var
      
     */
-    Var(2),
+    Var(1),
     /** 
      {
      
     */
-    LeftBrace(3),
+    LeftBrace(2),
     /** 
      }
      
     */
-    RightBrace(4),
+    RightBrace(3),
     /** 
      (
      
     */
-    LeftPar(5),
+    LeftPar(4),
     /** 
      )
      
     */
-    RightPar(6),
+    RightPar(5),
     /** 
      [
      
     */
-    LeftBracket(7),
+    LeftBracket(6),
     /** 
      ]
      
     */
-    RightBracket(8),
+    RightBracket(7),
     /** 
      .
      
     */
-    Period(9),
+    Period(8),
     /** 
      ,
      
     */
-    Comma(10),
+    Comma(9),
     /** 
      :
      
     */
-    Colon(11),
+    Colon(10),
     /** 
      ;
      
     */
-    SemiColon(12),
+    SemiColon(11),
     /** 
      ?
      
     */
-    QuestionMark(13),
+    QuestionMark(12),
     /** 
      +
      
     */
-    Plus(14),
+    Plus(13),
     /** 
      ++
      
     */
-    Increment(15),
+    Increment(14),
     /** 
      +=
      
     */
-    AssignPlus(16),
+    AssignPlus(15),
     /** 
      -
      
     */
-    Minus(17),
+    Minus(16),
     /** 
      --
      
     */
-    Decrement(18),
+    Decrement(17),
     /** 
      -=
      
     */
-    AssignMinus(19),
+    AssignMinus(18),
     /** 
      *
      
     */
-    Multiply(20),
+    Multiply(19),
     /** 
      *=
      
     */
-    AssignMultiply(21),
+    AssignMultiply(20),
     /** 
      /
      
     */
-    Divide(22),
+    Divide(21),
     /** 
      /=
      
     */
-    AssignDivide(23),
+    AssignDivide(22),
     /** 
-     %
+     % 模运算
      
     */
-    Modulo(24),
+    Modulo(23),
     /** 
      %=
      
     */
-    AssignModulo(25),
+    AssignModulo(24),
     /** 
-     
+     | 或运算
      
     */
-    Power(26),
+    InclusiveOr(25),
     /** 
-     !
+     |=
      
     */
-    Not(27),
-    /** 
-     &&
-     
-    */
-    And(28),
+    AssignInclusiveOr(26),
     /** 
      ||
      
     */
-    Or(29),
+    Or(27),
+    /** 
+     & 并运算
+     
+    */
+    Combine(28),
+    /** 
+     &=
+     
+    */
+    AssignCombine(29),
+    /** 
+     &&
+     
+    */
+    And(30),
+    /** 
+     ^ 异或
+     
+    */
+    XOR(31),
+    /** 
+     ^=
+     
+    */
+    AssignXOR(32),
+    /** 
+     <<左移
+     
+    */
+    Shi(33),
+    /** 
+     <<=
+     
+    */
+    AssignShi(34),
+    /** 
+     >> 右移
+     
+    */
+    Shr(35),
+    /** 
+     >>=
+     
+    */
+    AssignShr(36),
+    /** 
+     !
+     
+    */
+    Not(37),
     /** 
      =
      
     */
-    Assign(30),
+    Assign(38),
     /** 
      ==
      
     */
-    Equal(31),
+    Equal(39),
     /** 
      !=
      
     */
-    NotEqual(32),
+    NotEqual(40),
     /** 
      >
      
     */
-    Greater(33),
+    Greater(41),
     /** 
      >=
      
     */
-    GreaterOrEqual(34),
+    GreaterOrEqual(42),
     /** 
       <
      
     */
-    Less(35),
+    Less(43),
     /** 
      <=
      
     */
-    LessOrEqual(36),
+    LessOrEqual(44),
     /** 
      ...
      
     */
-    Params(37),
+    Params(45),
     /** 
      if
      
     */
-    If(38),
+    If(46),
     /** 
      else
      
     */
-    Else(39),
+    Else(47),
     /** 
      elif
      
     */
-    ElseIf(40),
+    ElseIf(48),
     /** 
      for
      
     */
-    For(41),
+    For(49),
     /** 
      foreach
      
     */
-    Foreach(42),
+    Foreach(50),
     /** 
      in
      
     */
-    In(43),
+    In(51),
     /** 
      switch
      
     */
-    Switch(44),
+    Switch(52),
     /** 
      case
      
     */
-    Case(45),
+    Case(53),
     /** 
      default
      
     */
-    Default(46),
+    Default(54),
     /** 
      break
      
     */
-    Break(47),
+    Break(55),
     /** 
      continue
      
     */
-    Continue(48),
+    Continue(56),
     /** 
      return
      
     */
-    Return(49),
+    Return(57),
     /** 
      while
      
     */
-    While(50),
+    While(58),
     /** 
      function
      
     */
-    Function(51),
+    Function(59),
     /** 
      try
      
     */
-    Try(52),
+    Try(60),
     /** 
      catch
      
     */
-    Catch(53),
+    Catch(61),
     /** 
      throw
      
     */
-    Throw(54),
+    Throw(62),
     /** 
      bool true false
      
     */
-    Boolean(55),
+    Boolean(63),
     /** 
      int float
      
     */
-    Number(56),
+    Number(64),
     /** 
      string
      
     */
-    String(57),
+    String(65),
     /** 
      null
      
     */
-    Null(58),
-    /** 
-     require,include,import,using
-     
-    */
-    Require(59),
+    Null(66),
     /** 
      eval
      
     */
-    Eval(60),
+    Eval(67),
     /** 
      说明符
      
     */
-    Identifier(61),
+    Identifier(68),
     /** 
      结束
      
     */
-    Finished(62);
+    Finished(69);
 
     private int intValue;
     private static java.util.HashMap<Integer, TokenType> mappings;

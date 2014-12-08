@@ -1,6 +1,8 @@
 ﻿package Scorpio;
 
 import Scorpio.Variable.*;
+import Scorpio.Compiler.*;
+import Scorpio.Exception.*;
 
 //脚本字符串类型
 public class ScriptString extends ScriptObject {
@@ -30,6 +32,20 @@ public class ScriptString extends ScriptObject {
     public final ScriptObject AssignPlus(ScriptObject obj) {
         setValue(getValue() + obj.toString());
         return this;
+    }
+    public final boolean Compare(TokenType type, ScriptString str) {
+        switch (type) {
+            case Greater:
+                return getValue().compareTo(str.getValue()) < 0;
+            case GreaterOrEqual:
+                return getValue().compareTo(str.getValue()) <= 0;
+            case Less:
+                return getValue().compareTo(str.getValue()) > 0;
+            case LessOrEqual:
+                return getValue().compareTo(str.getValue()) >= 0;
+            default:
+                throw new ExecutionException("String类型 操作符[" + type + "]不支持");
+        }
     }
     @Override
     public ScriptObject clone() {

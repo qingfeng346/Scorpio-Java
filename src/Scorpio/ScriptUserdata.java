@@ -20,11 +20,11 @@ public abstract class ScriptUserdata extends ScriptObject {
     protected final void setValue(Object value) {
         privateValue = value;
     }
-    private java.lang.Class privateValueType;
-    public final java.lang.Class getValueType() {
+    private java.lang.Class<?> privateValueType;
+    public final java.lang.Class<?> getValueType() {
         return privateValueType;
     }
-    protected final void setValueType(java.lang.Class value) {
+    protected final void setValueType(java.lang.Class<?> value) {
         privateValueType = value;
     }
     public ScriptUserdata(Script script) {

@@ -27,11 +27,6 @@ public class ScriptNumberDouble extends ScriptNumber {
         m_Value = value;
     }
     @Override
-    public double ToDouble()
-    {
-    	return m_Value;
-    }
-    @Override
     public ScriptNumber Calc(CALC c) {
         switch (c) {
             case PRE_INCREMENT:
@@ -44,6 +39,8 @@ public class ScriptNumberDouble extends ScriptNumber {
                 return getScript().CreateDouble(m_Value++);
             case POST_DECREMENT:
                 return getScript().CreateDouble(m_Value--);
+            default:
+                return this;
         }
         return this;
     }
@@ -57,52 +54,50 @@ public class ScriptNumberDouble extends ScriptNumber {
         return getScript().CreateDouble(m_Value);
     }
     @Override
-    public ScriptObject ComputePlus(ScriptNumber obj) {
-        return getScript().CreateDouble(m_Value + obj.ToDouble());
+    public double ToDouble() {
+        return m_Value;
     }
     @Override
-    public ScriptObject ComputeMinus(ScriptNumber obj) {
-        return getScript().CreateDouble(m_Value - obj.ToDouble());
+    public ScriptObject Compute(TokenType type, ScriptNumber obj) {
+        switch (type) {
+            case Plus:
+                return getScript().CreateDouble(m_Value + obj.ToDouble());
+            case Minus:
+                return getScript().CreateDouble(m_Value - obj.ToDouble());
+            case Multiply:
+                return getScript().CreateDouble(m_Value * obj.ToDouble());
+            case Divide:
+                return getScript().CreateDouble(m_Value / obj.ToDouble());
+            case Modulo:
+                return getScript().CreateDouble(m_Value % obj.ToDouble());
+            default:
+                throw new ExecutionException("Double不支持的运算符 " + type);
+        }
     }
     @Override
-    public ScriptObject ComputeMultiply(ScriptNumber obj) {
-        return getScript().CreateDouble(m_Value * obj.ToDouble());
+    public ScriptObject AssignCompute(TokenType type, ScriptNumber obj) {
+        switch (type) {
+            case AssignPlus:
+                m_Value += obj.ToDouble();
+                return this;
+            case AssignMinus:
+                m_Value -= obj.ToDouble();
+                return this;
+            case AssignMultiply:
+                m_Value *= obj.ToDouble();
+                return this;
+            case AssignDivide:
+                m_Value /= obj.ToDouble();
+                return this;
+            case AssignModulo:
+                m_Value %= obj.ToDouble();
+                return this;
+            default:
+                throw new ExecutionException("Double不支持的运算符 " + type);
+        }
     }
     @Override
-    public ScriptObject ComputeDivide(ScriptNumber obj) {
-        return getScript().CreateDouble(m_Value / obj.ToDouble());
-    }
-    @Override
-    public ScriptObject ComputeModulo(ScriptNumber obj) {
-        return getScript().CreateDouble(m_Value % obj.ToDouble());
-    }
-    @Override
-    public ScriptObject AssignPlus(ScriptNumber obj) {
-        m_Value += obj.ToDouble();
-        return this;
-    }
-    @Override
-    public ScriptObject AssignMinus(ScriptNumber obj) {
-        m_Value -= obj.ToDouble();
-        return this;
-    }
-    @Override
-    public ScriptObject AssignMultiply(ScriptNumber obj) {
-        m_Value *= obj.ToDouble();
-        return this;
-    }
-    @Override
-    public ScriptObject AssignDivide(ScriptNumber obj) {
-        m_Value /= obj.ToDouble();
-        return this;
-    }
-    @Override
-    public ScriptObject AssignModulo(ScriptNumber obj) {
-        m_Value %= obj.ToDouble();
-        return this;
-    }
-    @Override
-    public boolean Compare(TokenType type, CodeOperator oper, ScriptNumber num) {
+    public boolean Compare(TokenType type, ScriptNumber num) {
         ScriptNumberDouble val = (ScriptNumberDouble)((num instanceof ScriptNumberDouble) ? num : null);
         if (val == null) {
             throw new ExecutionException("数字比较 两边的数字类型不一致 请先转换再比较 ");
@@ -116,8 +111,9 @@ public class ScriptNumberDouble extends ScriptNumber {
                 return m_Value < val.m_Value;
             case LessOrEqual:
                 return m_Value <= val.m_Value;
+            default:
+                throw new ExecutionException("Number类型 操作符[" + type + "]不支持");
         }
-        return false;
     }
     @Override
     public ScriptObject clone() {

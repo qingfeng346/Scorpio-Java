@@ -106,10 +106,10 @@ public class ScriptLexer {
                             setlexState(LexState.AssignOrEqual);
                             break;
                         case '&':
-                            setlexState(LexState.And);
+                            setlexState(LexState.AndOrCombine);
                             break;
                         case '|':
-                            setlexState(LexState.Or);
+                            setlexState(LexState.OrOrInclusiveOr);
                             break;
                         case '!':
                             setlexState(LexState.NotOrNotEqual);
@@ -119,6 +119,9 @@ public class ScriptLexer {
                             break;
                         case '<':
                             setlexState(LexState.LessOrLessEqual);
+                            break;
+                        case '^':
+                            setlexState(LexState.XorOrAssignXor);
                             break;
                         case '@':
                             setlexState(LexState.SimpleStringStart);
@@ -130,6 +133,10 @@ public class ScriptLexer {
                             if (ch == '_' || Character.isLetter(ch)) {
                                 setlexState(LexState.Identifier);
                                 m_strToken = "" + ch;
+                            }
+                            else if (ch == '0') {
+                                setlexState(LexState.NumberOrHexNumber);
+                                m_strToken = "";
                             }
                             else if (Character.isDigit(ch)) {
                                 setlexState(LexState.Number);
@@ -244,34 +251,45 @@ public class ScriptLexer {
                         UndoChar();
                     }
                     break;
-                case And:
+                case AndOrCombine:
                     if (ch == '&') {
                         AddToken(TokenType.And, "&&");
                     }
+                    else if (ch == '=') {
+                        AddToken(TokenType.AssignCombine, "&=");
+                    }
                     else {
-                        ThrowInvalidCharacterException(ch);
+                        AddToken(TokenType.Combine, "&");
+                        UndoChar();
                     }
                     break;
-                case Or:
+                case OrOrInclusiveOr:
                     if (ch == '|') {
                         AddToken(TokenType.Or, "||");
                     }
+                    else if (ch == '=') {
+                        AddToken(TokenType.AssignInclusiveOr, "|=");
+                    }
                     else {
-                        ThrowInvalidCharacterException(ch);
+                        AddToken(TokenType.InclusiveOr, "|");
+                        UndoChar();
                     }
                     break;
-                case NotOrNotEqual:
+                case XorOrAssignXor:
                     if (ch == '=') {
-                        AddToken(TokenType.NotEqual, "!=");
+                        AddToken(TokenType.AssignXOR, "^=");
                     }
                     else {
-                        AddToken(TokenType.Not, "!");
+                        AddToken(TokenType.XOR, "^");
                         UndoChar();
                     }
                     break;
                 case GreaterOrGreaterEqual:
                     if (ch == '=') {
                         AddToken(TokenType.GreaterOrEqual, ">=");
+                    }
+                    else if (ch == '>') {
+                        setlexState(LexState.ShrOrAssignShr);
                     }
                     else {
                         AddToken(TokenType.Greater, ">");
@@ -282,8 +300,38 @@ public class ScriptLexer {
                     if (ch == '=') {
                         AddToken(TokenType.LessOrEqual, "<=");
                     }
+                    else if (ch == '<') {
+                        setlexState(LexState.ShiOrAssignShi);
+                    }
                     else {
                         AddToken(TokenType.Less, "<");
+                        UndoChar();
+                    }
+                    break;
+                case ShrOrAssignShr:
+                    if (ch == '=') {
+                        AddToken(TokenType.AssignShr, ">>=");
+                    }
+                    else {
+                        AddToken(TokenType.Shr, ">>");
+                        UndoChar();
+                    }
+                    break;
+                case ShiOrAssignShi:
+                    if (ch == '=') {
+                        AddToken(TokenType.AssignShi, "<<=");
+                    }
+                    else {
+                        AddToken(TokenType.Shi, "<<");
+                        UndoChar();
+                    }
+                    break;
+                case NotOrNotEqual:
+                    if (ch == '=') {
+                        AddToken(TokenType.NotEqual, "!=");
+                    }
+                    else {
+                        AddToken(TokenType.Not, "!");
                         UndoChar();
                     }
                     break;
@@ -348,6 +396,16 @@ public class ScriptLexer {
                         ThrowInvalidCharacterException(ch);
                     }
                     break;
+                case NumberOrHexNumber:
+                    if (ch == 'x') {
+                        setlexState(LexState.HexNumber);
+                    }
+                    else {
+                        m_strToken = "0";
+                        setlexState(LexState.Number);
+                        UndoChar();
+                    }
+                    break;
                 case Number:
                     if (Character.isDigit(ch) || ch == '.') {
                         m_strToken += ch;
@@ -362,6 +420,19 @@ public class ScriptLexer {
                         UndoChar();
                     }
                     break;
+                case HexNumber:
+                    if (IsHexDigit(ch)) {
+                        m_strToken += ch;
+                    }
+                    else {
+                        if (Util.IsNullOrEmpty(m_strToken)) {
+                            ThrowInvalidCharacterException(ch);
+                        }
+                        long value = Long.parseLong(m_strToken, 16);
+                        AddToken(TokenType.Number, value);
+                        UndoChar();
+                    }
+                    break;
                 case Identifier:
                     if (ch == '_' || Character.isLetterOrDigit(ch)) {
                         m_strToken += ch;
@@ -370,17 +441,9 @@ public class ScriptLexer {
                         TokenType tokenType;
 //C# TO JAVA CONVERTER NOTE: The following 'switch' operated on a string member and was converted to Java 'if-else' logic:
 //                        switch (m_strToken)
-//ORIGINAL LINE: case "require":
-                        if (m_strToken.equals("require") || m_strToken.equals("include") || m_strToken.equals("import") || m_strToken.equals("using")) {
-                                tokenType = TokenType.Require;
-                        }
 //ORIGINAL LINE: case "eval":
-                        else if (m_strToken.equals("eval")) {
+                        if (m_strToken.equals("eval")) {
                                 tokenType = TokenType.Eval;
-                        }
-//ORIGINAL LINE: case "global":
-                        else if (m_strToken.equals("global")) {
-                                tokenType = TokenType.Global;
                         }
 //ORIGINAL LINE: case "var":
                         else if (m_strToken.equals("var") || m_strToken.equals("local")) {
@@ -522,42 +585,57 @@ public class ScriptLexer {
         /**  % 或者 %= 
         */
         ModuloOrAssignModulo(11),
-        /**  & 并且 
+        /**  & 或者 &= 或者 && 
         */
-        And(12),
-        /**  | 或者 
+        AndOrCombine(12),
+        /**  | 或者 |= 或者 || 
         */
-        Or(13),
+        OrOrInclusiveOr(13),
+        /**  ^ 或者 ^= 
+        */
+        XorOrAssignXor(14),
+        /**  << 或者 <<= 
+        */
+        ShiOrAssignShi(15),
+        /**  >> 或者 >>= 
+        */
+        ShrOrAssignShr(16),
         /**  ! 非或者不等于 
         */
-        NotOrNotEqual(14),
+        NotOrNotEqual(17),
         /**  > 大于或者大于等于 
         */
-        GreaterOrGreaterEqual(15),
+        GreaterOrGreaterEqual(18),
         /**  < 小于或者小于等于 
         */
-        LessOrLessEqual(16),
+        LessOrLessEqual(19),
         /**  " 字符串 </summary>
         */
-        String(17),
+        String(20),
         /**  \ 格式符 
         */
-        StringEscape(18),
+        StringEscape(21),
         /**  @ 开始字符串 
         */
-        SimpleStringStart(19),
+        SimpleStringStart(22),
         /**  @" 不格式化的字符串 类似c# @符号 </summary>
         */
-        SimpleString(20),
+        SimpleString(23),
         /**  字符串内出现"是引号还是结束符 </summary>
         */
-        SimpleStringQuotationMarkOrOver(21),
-        /**  数字 
+        SimpleStringQuotationMarkOrOver(24),
+        /**  十进制数字或者十六进制数字 
         */
-        Number(22),
+        NumberOrHexNumber(25),
+        /**  十进制数字 
+        */
+        Number(26),
+        /**  十六进制数字 
+        */
+        HexNumber(27),
         /**  描述符 
         */
-        Identifier(23);
+        Identifier(28);
 
         private int intValue;
         private static java.util.HashMap<Integer, LexState> mappings;
@@ -631,5 +709,17 @@ public class ScriptLexer {
     private void AddToken(TokenType type, Object lexeme) {
         m_listTokens.add(new Token(type, lexeme, m_iSourceLine, m_iSourceChar));
         setlexState(LexState.None);
+    }
+    private boolean IsHexDigit(char c) {
+        if(Character.isDigit(c)) {
+            return true;
+        }
+        if('a' <= c && c <= 'f') {
+            return true;
+        }
+        if('A' <= c && c <= 'F') {
+            return true;
+        }
+        return false;
     }
 }
