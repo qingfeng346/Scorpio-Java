@@ -1,4 +1,4 @@
-﻿package Scorpio;
+package Scorpio;
 
 public interface IScriptUserdataFactory {
     ScriptUserdata create(Script script, Object obj);

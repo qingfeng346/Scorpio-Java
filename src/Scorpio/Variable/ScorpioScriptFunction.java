@@ -1,4 +1,4 @@
-﻿package Scorpio.Variable;
+package Scorpio.Variable;
 
 import Scorpio.*;
 import Scorpio.Runtime.*;

@@ -3,7 +3,7 @@ package Scorpio;
 import Scorpio.CodeDom.*;
 import Scorpio.Exception.*;
 
-//脚本数组类型
+//鑴氭湰鏁扮粍绫诲瀷
 public class ScriptArray extends ScriptObject {
     @Override
     public ObjectType getType() {

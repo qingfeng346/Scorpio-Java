@@ -1,4 +1,4 @@
-﻿package Scorpio.CodeDom;
+package Scorpio.CodeDom;
 
 import Scorpio.Runtime.*;
 

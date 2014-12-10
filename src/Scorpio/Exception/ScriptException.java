@@ -1,4 +1,4 @@
-﻿package Scorpio.Exception;
+package Scorpio.Exception;
 
 //脚本异常
 public class ScriptException extends RuntimeException {

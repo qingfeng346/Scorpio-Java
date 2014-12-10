@@ -1,4 +1,4 @@
-﻿package Scorpio.Userdata;
+package Scorpio.Userdata;
 
 import java.lang.reflect.Method;
 

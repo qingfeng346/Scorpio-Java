@@ -1,4 +1,4 @@
-﻿package Scorpio;
+package Scorpio;
 
 //脚本table类型
 public class ScriptTable extends ScriptObject {

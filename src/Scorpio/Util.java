@@ -1,4 +1,4 @@
-﻿package Scorpio;
+package Scorpio;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -116,7 +116,7 @@ public final class Util {
         }
         return true;
     }
-    public static boolean CanChangeType(ScriptObject par, java.lang.Class type) {
+    public static boolean CanChangeType(ScriptObject par, java.lang.Class<?> type) {
         if (type == TYPE_OBJECT || par.getIsNull()) {
             return true;
         }

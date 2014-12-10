@@ -1,4 +1,4 @@
-﻿package Scorpio.Exception;
+package Scorpio.Exception;
 
 import Scorpio.*;
 

@@ -1,4 +1,4 @@
-﻿package Scorpio.Compiler;
+package Scorpio.Compiler;
 
 //脚本的表征
 public class Token {

@@ -1,4 +1,4 @@
-﻿package Scorpio.Runtime;
+package Scorpio.Runtime;
 
 //指令类型
 public enum Opcode {
