@@ -129,6 +129,9 @@ public class ScriptLexer {
                         case '\"':
                             setlexState(LexState.String);
                             break;
+                        case '\'':
+                            setlexState(LexState.SingleString);
+                            break;
                         default:
                             if (ch == '_' || Character.isLetter(ch)) {
                                 setlexState(LexState.Identifier);
@@ -349,9 +352,68 @@ public class ScriptLexer {
                         m_strToken += ch;
                     }
                     break;
+                case StringEscape:
+                    if (ch == '\\' || ch == '\"') {
+                        m_strToken += ch;
+                        setlexState(LexState.String);
+                    }
+                    else if (ch == 't') {
+                        m_strToken += '\t';
+                        setlexState(LexState.String);
+                    }
+                    else if (ch == 'r') {
+                        m_strToken += '\r';
+                        setlexState(LexState.String);
+                    }
+                    else if (ch == 'n') {
+                        m_strToken += '\n';
+                        setlexState(LexState.String);
+                    }
+                    else {
+                        ThrowInvalidCharacterException(ch);
+                    }
+                    break;
+                case SingleString:
+                    if (ch == '\'') {
+                        AddToken(TokenType.String, m_strToken);
+                    }
+                    else if (ch == '\\') {
+                        setlexState(LexState.SingleStringEscape);
+                    }
+                    else if (ch == '\r' || ch == '\n') {
+                        ThrowInvalidCharacterException(ch);
+                    }
+                    else {
+                        m_strToken += ch;
+                    }
+                    break;
+                case SingleStringEscape:
+                    if (ch == '\\' || ch == '\'') {
+                        m_strToken += ch;
+                        setlexState(LexState.SingleString);
+                    }
+                    else if (ch == 't') {
+                        m_strToken += '\t';
+                        setlexState(LexState.SingleString);
+                    }
+                    else if (ch == 'r') {
+                        m_strToken += '\r';
+                        setlexState(LexState.SingleString);
+                    }
+                    else if (ch == 'n') {
+                        m_strToken += '\n';
+                        setlexState(LexState.SingleString);
+                    }
+                    else {
+                        ThrowInvalidCharacterException(ch);
+                    }
+                    break;
                 case SimpleStringStart:
                     if (ch == '\"') {
                         setlexState(LexState.SimpleString);
+                    }
+                    else if (ch == '\'') {
+                        setlexState(LexState.SingleSimpleString);
                     }
                     else {
                         ThrowInvalidCharacterException(ch);
@@ -375,25 +437,22 @@ public class ScriptLexer {
                         UndoChar();
                     }
                     break;
-                case StringEscape:
-                    if (ch == '\\' || ch == '\"') {
-                        m_strToken += ch;
-                        setlexState(LexState.String);
-                    }
-                    else if (ch == 't') {
-                        m_strToken += '\t';
-                        setlexState(LexState.String);
-                    }
-                    else if (ch == 'r') {
-                        m_strToken += '\r';
-                        setlexState(LexState.String);
-                    }
-                    else if (ch == 'n') {
-                        m_strToken += '\n';
-                        setlexState(LexState.String);
+                case SingleSimpleString:
+                    if (ch == '\'') {
+                        setlexState(LexState.SingleSimpleStringQuotationMarkOrOver);
                     }
                     else {
-                        ThrowInvalidCharacterException(ch);
+                        m_strToken += ch;
+                    }
+                    break;
+                case SingleSimpleStringQuotationMarkOrOver:
+                    if (ch == '\'') {
+                        m_strToken += '\'';
+                        setlexState(LexState.SingleSimpleString);
+                    }
+                    else {
+                        AddToken(TokenType.String, m_strToken);
+                        UndoChar();
                     }
                     break;
                 case NumberOrHexNumber:
@@ -615,27 +674,39 @@ public class ScriptLexer {
         /**  \ 格式符 
         */
         StringEscape(21),
+        /**  ' 字符串 单引号开始结束
+        */
+        SingleString(22),
+        /**  \ 格式符
+        */
+        SingleStringEscape(23),
         /**  @ 开始字符串 
         */
-        SimpleStringStart(22),
+        SimpleStringStart(24),
         /**  @" 不格式化的字符串 类似c# @符号 </summary>
         */
-        SimpleString(23),
+        SimpleString(25),
         /**  字符串内出现"是引号还是结束符 </summary>
         */
-        SimpleStringQuotationMarkOrOver(24),
+        SimpleStringQuotationMarkOrOver(26),
+        /**  @" 不格式化的字符串 类似c# @符号 </summary>
+        */
+        SingleSimpleString(27),
+        /**  字符串内出现"是引号还是结束符 </summary>
+        */
+        SingleSimpleStringQuotationMarkOrOver(28),
         /**  十进制数字或者十六进制数字 
         */
-        NumberOrHexNumber(25),
+        NumberOrHexNumber(29),
         /**  十进制数字 
         */
-        Number(26),
+        Number(30),
         /**  十六进制数字 
         */
-        HexNumber(27),
+        HexNumber(31),
         /**  描述符 
         */
-        Identifier(28);
+        Identifier(32);
 
         private int intValue;
         private static java.util.HashMap<Integer, LexState> mappings;

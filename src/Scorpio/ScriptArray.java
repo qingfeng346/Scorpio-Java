@@ -54,4 +54,17 @@ public class ScriptArray extends ScriptObject {
     public String toString() {
         return "Array";
     }
+    @Override
+    public String ToJson() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        for (int i = 0; i < m_listObject.size();++i) {
+            if (i != 0) {
+                builder.append(",");
+            }
+            builder.append(m_listObject.get(i).ToJson());
+        }
+        builder.append("]");
+        return builder.toString();
+    }
 }

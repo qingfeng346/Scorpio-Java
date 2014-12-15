@@ -70,4 +70,24 @@ public class ScriptTable extends ScriptObject {
     public String toString() {
         return "Table";
     }
+    @Override
+    public String ToJson() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("{");
+        boolean first = true;
+        for (java.util.Map.Entry<Object, ScriptObject> pair : m_listObject.entrySet()) {
+            if (first) {
+                first = false;
+            }
+            else {
+                builder.append(",");
+            }
+            builder.append("\"");
+            builder.append(pair.getKey());
+            builder.append("\":");
+            builder.append(pair.getValue().ToJson());
+        }
+        builder.append("}");
+        return builder.toString();
+    }
 }

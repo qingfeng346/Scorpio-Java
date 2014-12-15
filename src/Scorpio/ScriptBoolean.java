@@ -31,4 +31,8 @@ public class ScriptBoolean extends ScriptObject {
     public static ScriptBoolean Get(boolean b) {
         return b ? True : False;
     }
+    @Override
+    public String ToJson() {
+        return getValue() ? "true" : "false";
+    }
 }

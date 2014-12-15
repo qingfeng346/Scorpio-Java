@@ -51,4 +51,8 @@ public class ScriptString extends ScriptObject {
     public ScriptObject clone() {
         return getScript().CreateString(getValue());
     }
+    @Override
+    public String ToJson() {
+        return "\"" + getValue() + "\"";
+    }
 }

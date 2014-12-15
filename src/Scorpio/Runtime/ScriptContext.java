@@ -82,49 +82,18 @@ public class ScriptContext {
         }
         return false;
     }
-    private int GetArrayMember(CodeMember member) throws Exception {
-        if (member.Type == MEMBER_TYPE.NUMBER) {
-            return member.MemberNumber;
-        }
-        else if (member.Type == MEMBER_TYPE.OBJECT) {
-            ScriptObject mem = ResolveOperand(member.Member);
-            if (!(mem instanceof ScriptNumber)) {
-                throw new ExecutionException("Array Element 错误的类型:" + mem.getType());
-            }
-            return ((ScriptNumber)mem).ToInt32();
-        }
-        else {
-            throw new ExecutionException("Array Element 不接受string类型");
-        }
-    }
-    private Object GetTableMember(CodeMember member) throws Exception {
-        if (member.Type == MEMBER_TYPE.NUMBER) {
-            return member.MemberNumberObject;
-        }
-        else if (member.Type == MEMBER_TYPE.STRING) {
-            return member.MemberString;
-        }
-        else {
-            ScriptObject mem = ResolveOperand(member.Member);
-            if (!(mem instanceof ScriptString || mem instanceof ScriptNumber)) {
-                throw new ExecutionException("Table Element 错误的类型:" + mem.getType());
-            }
-            return mem.getObjectValue();
-        }
-    }
-    private String GetUserdataMember(CodeMember member) throws Exception {
+    private Object GetMember(CodeMember member) throws Exception {
         if (member.Type == MEMBER_TYPE.STRING) {
             return member.MemberString;
         }
-        else if (member.Type == MEMBER_TYPE.OBJECT) {
-            ScriptObject mem = ResolveOperand(member.Member);
-            if (!(mem instanceof ScriptString)) {
-                throw new ExecutionException("Userdata Element 错误的类型:" + mem.getType());
-            }
-            return ((ScriptString)mem).getValue();
+        else if (member.Type == MEMBER_TYPE.INDEX) {
+            return member.MemberIndex;
+        }
+        else if (member.Type == MEMBER_TYPE.NUMBER) {
+            return member.MemberNumber;
         }
         else {
-            throw new ExecutionException("Userdata Element 不接受number类型");
+            return ResolveOperand(member.MemberObject).getObjectValue();
         }
     }
     private ScriptObject GetVariable(CodeMember member) throws Exception {
@@ -135,19 +104,7 @@ public class ScriptContext {
             ret = (obj == null ? m_script.GetValue(name) : obj);
         }
         else {
-            ScriptObject parent = ResolveOperand(member.Parent);
-            if (parent instanceof ScriptArray) {
-                ret = parent.GetValue(GetArrayMember(member));
-            }
-            else if (parent instanceof ScriptTable) {
-                ret = parent.GetValue(GetTableMember(member));
-            }
-            else if (parent instanceof ScriptUserdata) {
-                ret = parent.GetValue(GetUserdataMember(member));
-            }
-            else {
-                throw new ExecutionException("Member Parent 错误的类型:" + parent.getType());
-            }
+            return ResolveOperand(member.Parent).GetValueInternal(GetMember(member));
         }
         if (ret == null) {
             throw new ExecutionException("GetVariable member is error");
@@ -169,19 +126,7 @@ public class ScriptContext {
             }
         }
         else {
-            ScriptObject parent = ResolveOperand(member.Parent);
-            if (parent instanceof ScriptArray) {
-                parent.SetValue(GetArrayMember(member), variable);
-            }
-            else if (parent instanceof ScriptTable) {
-                parent.SetValue(GetTableMember(member), variable);
-            }
-            else if (parent instanceof ScriptUserdata) {
-                parent.SetValue(GetUserdataMember(member), variable);
-            }
-            else {
-                throw new ExecutionException("Member Parent 错误的类型:" + parent.getType());
-            }
+        	ResolveOperand(member.Parent).SetValueInternal(GetMember(member), variable);
         }
     }
     private void Reset() {

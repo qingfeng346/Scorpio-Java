@@ -33,6 +33,28 @@ public abstract class ScriptObject {
     public ScriptObject GetValue(Object key) {
         throw new ExecutionException("类型[" + getType() + "]不支持设置变量(object)");
     }
+    public final void SetValueInternal(Object key, ScriptObject value) throws Exception {
+        if (key instanceof String) {
+            SetValue((String)key, value);
+        }
+        else if (key instanceof Integer || key instanceof Double) {
+            SetValue(Util.ToInt32(key), value);
+        }
+        else {
+            SetValue(key, value);
+        }
+    }
+    public final ScriptObject GetValueInternal(Object key) throws Exception {
+        if (key instanceof String) {
+            return GetValue((String)key);
+        }
+        else if (key instanceof Integer || key instanceof Double) {
+            return GetValue(Util.ToInt32(key));
+        }
+        else {
+            return GetValue(key);
+        }
+    }
     //调用无参函数
     public final Object Call() throws Exception {
         return Call(NOPARAMETER);
@@ -46,6 +68,9 @@ public abstract class ScriptObject {
     }
     @Override
     public String toString() { // ToString
+        return getObjectValue().toString();
+    }
+    public String ToJson() { // ToJson
         return getObjectValue().toString();
     }
     public ScriptObject(Script script) { // 构图函数

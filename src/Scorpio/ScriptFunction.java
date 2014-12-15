@@ -112,4 +112,8 @@ public class ScriptFunction extends ScriptObject {
     public String toString() {
         return "Function(" + getName() + ")";
     }
+    @Override
+    public String ToJson() {
+        return "\"Function\"";
+    }
 }
