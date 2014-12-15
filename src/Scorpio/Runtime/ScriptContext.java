@@ -73,15 +73,6 @@ public class ScriptContext {
         }
         return false;
     }
-    private boolean ContainsVariable(String name) {
-        if (m_variableDictionary.containsKey(name)) {
-            return true;
-        }
-        if (m_parent != null) {
-            return m_parent.ContainsVariable(name);
-        }
-        return false;
-    }
     private Object GetMember(CodeMember member) throws Exception {
         if (member.Type == MEMBER_TYPE.STRING) {
             return member.MemberString;
@@ -104,7 +95,7 @@ public class ScriptContext {
             ret = (obj == null ? m_script.GetValue(name) : obj);
         }
         else {
-            return ResolveOperand(member.Parent).GetValueInternal(GetMember(member));
+            ret = ResolveOperand(member.Parent).GetValueInternal(GetMember(member));
         }
         if (ret == null) {
             throw new ExecutionException("GetVariable member is error");
