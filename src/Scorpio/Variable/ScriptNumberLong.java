@@ -46,8 +46,7 @@ public class ScriptNumberLong extends ScriptNumber {
     }
     @Override
     public ScriptNumber Negative() {
-        m_Value = -m_Value;
-        return this;
+    	return getScript().CreateDouble(-m_Value);
     }
     @Override
     public ScriptObject Assign() {

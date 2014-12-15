@@ -174,5 +174,6 @@ public class Script {
         LibraryArray.Load(this);
         LibraryString.Load(this);
         LibraryTable.Load(this);
+        LibraryJson.Load(this);
     }
 }
