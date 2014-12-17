@@ -620,6 +620,8 @@ public class ScriptParser {
         Token token = PeekToken();
         CodeArray ret = new CodeArray();
         while (token.getType() != TokenType.RightBracket) {
+            if (PeekToken().getType() == TokenType.RightBracket)
+                break;
             ret.Elements.add(GetObject());
             token = PeekToken();
             if (token.getType() == TokenType.Comma) {

@@ -326,14 +326,8 @@ public class ScriptContext {
             return false;
         }
         if (con.Allow != null) {
-            ScriptObject tempVar = ResolveOperand(con.Allow);
-            ScriptBoolean b = (ScriptBoolean)((tempVar instanceof ScriptBoolean) ? tempVar : null);
-            if (b == null) {
-                throw new ExecutionException("if 条件必须是一个bool型");
-            }
-            if (b.getValue() == false) {
-                return false;
-            }
+            Object b = ResolveOperand(con.Allow).getObjectValue();
+            if (b == null || b.equals(false)) return false;
         }
         con.Context.Initialize(this);
         con.Context.Execute();
