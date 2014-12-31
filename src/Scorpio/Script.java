@@ -14,6 +14,7 @@ public class Script {
     public static final String Version = "master";
     private static final String GLOBAL_TABLE = "_G"; //全局table
     private static final String GLOBAL_VERSION = "_VERSION"; //版本号
+    private static final String GLOBAL_SCRIPT = "_SCRIPT";         //Script对象
     private IScriptUserdataFactory m_UserdataFactory = null; //Userdata工厂
     private ScriptTable m_GlobalTable; //全局Table
     private java.util.ArrayList<StackInfo> m_StackInfoStack = new java.util.ArrayList<StackInfo>(); //堆栈数据
@@ -170,6 +171,7 @@ public class Script {
         m_GlobalTable = CreateTable();
         m_GlobalTable.SetValue(GLOBAL_TABLE, m_GlobalTable);
         m_GlobalTable.SetValue(GLOBAL_VERSION, CreateString(Version));
+        m_GlobalTable.SetValue(GLOBAL_SCRIPT, CreateObject(this));
         LibraryBasis.Load(this);
         LibraryArray.Load(this);
         LibraryString.Load(this);

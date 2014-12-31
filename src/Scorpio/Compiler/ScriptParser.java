@@ -664,7 +664,7 @@ public class ScriptParser {
                 ret.Functions.add(ParseFunctionDeclaration(true));
             }
             else {
-                throw new ParserException("Table开始关键字必须为 变量名称或者function关键字", token);
+                throw new ParserException("Table开始关键字必须为[变量名称]或者[function]关键字", token);
             }
         }
         ReadRightBrace();
