@@ -51,6 +51,7 @@ public class UserdataType {
         m_FieldInfos = new java.util.HashMap<String, UserdataField>();
         m_NestedTypes = new java.util.HashMap<String, ScriptUserdata>();
         m_Functions = new java.util.HashMap<String, UserdataMethod>();
+        m_ScorpioMethods = new java.util.HashMap<String, ScorpioMethod>();
     }
     private void InitializeConstructor() {
         if (m_InitializeConstructor == true) {
@@ -90,11 +91,12 @@ public class UserdataType {
         }
         return new ScorpioObjectMethod(obj, name, method);
     }
-    private UserdataField GetField(String name) throws Exception {
+    private UserdataField GetField(String name) {
         if (m_FieldInfos.containsKey(name)) {
             return m_FieldInfos.get(name);
         }
-        java.lang.reflect.Field fInfo = m_Type.getField(name);
+        java.lang.reflect.Field fInfo = null;
+		try { fInfo = m_Type.getField(name); } catch (Exception e) { }
         if (fInfo != null) {
             UserdataField info = new UserdataField(fInfo);
             m_FieldInfos.put(name, info);
