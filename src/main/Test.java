@@ -16,12 +16,12 @@ public class Test {
 		try {
 			script.LoadLibrary();
 			ScriptObject obj = script.LoadFile("C:/Users/while/Desktop/a.sco");
-			System.out.println("返回值为 : " + (obj == null ? "null" : obj.toString()));
-			System.out.println("执行耗时 : " + (System.currentTimeMillis() - start));
+			System.out.println("杩斿洖鍊间负 : " + (obj == null ? "null" : obj.toString()));
+			System.out.println("杩愯鏃堕棿: " + (System.currentTimeMillis() - start));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.out.println("执行堆栈 : " + script.GetStackInfo());
+			System.out.println("閿欒鍫嗘爤 : " + script.GetStackInfo());
 		}
 	}
 }

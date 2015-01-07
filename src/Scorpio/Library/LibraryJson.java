@@ -1,4 +1,4 @@
-﻿package Scorpio.Library;
+package Scorpio.Library;
 import Scorpio.*;
 public class LibraryJson {
     public static void Load(Script script) {
