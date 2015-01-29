@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="ScorpioCommons" default="dist" basedir=".">
-	<property name="target" value="ScorpioCommons"/>
-	<property name="export" value="ScorpioCommons"/>
+<project name="Scorpio" default="dist" basedir=".">
+	<property name="target" value="Scorpio"/>
+	<property name="export" value="Scorpio"/>
 	<property name="jre" location="${java.home}/lib"/>
 	<property name="src" location="src"/>
 	<property name="config" location="config"/>

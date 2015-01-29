@@ -26,12 +26,7 @@ public class Script {
         return LoadFile(fileName,Charset.forName(encoding));
     }
     public final ScriptObject LoadFile(String fileName, Charset encoding) throws Exception {
-        try {
-            return LoadString(fileName, Util.GetFileString(fileName, encoding));
-        }
-        catch (RuntimeException e) {
-            throw new ScriptException("load file [" + fileName + "] is error : " + e.toString());
-        }
+        return LoadString(fileName, Util.GetFileString(fileName, encoding));
     }
     public final ScriptObject LoadString(String strBuffer) throws Exception {
         return LoadString("", strBuffer);
@@ -40,21 +35,16 @@ public class Script {
         return LoadString(strBreviary, strBuffer, null);
     }
     public final ScriptObject LoadString(String strBreviary, String strBuffer, ScriptContext context) throws Exception {
-        try {
-            m_StackInfoStack.clear();
-            ScriptLexer scriptLexer = new ScriptLexer(strBuffer);
-            strBreviary = Util.IsNullOrEmpty(strBreviary) ? scriptLexer.GetBreviary() : strBreviary;
-            ScriptParser scriptParser = new ScriptParser(this, scriptLexer.GetTokens(), strBreviary);
-            ScriptExecutable scriptExecutable = scriptParser.Parse();
-            return new ScriptContext(this, scriptExecutable, context, Executable_Block.Context).Execute();
-        }
-        catch (RuntimeException e) {
-            throw new ScriptException("load buffer [" + strBreviary + "] is error : " + e.toString());
-        }
+        m_StackInfoStack.clear();
+        ScriptLexer scriptLexer = new ScriptLexer(strBuffer);
+        strBreviary = Util.IsNullOrEmpty(strBreviary) ? scriptLexer.GetBreviary() : strBreviary;
+        ScriptParser scriptParser = new ScriptParser(this, scriptLexer.GetTokens(), strBreviary);
+        ScriptExecutable scriptExecutable = scriptParser.Parse();
+        return new ScriptContext(this, scriptExecutable, context, Executable_Block.Context).Execute();
     }
     public final ScriptObject LoadType(String str) {
     	try {
-            java.lang.Class type = java.lang.Class.forName(str);
+            Class<?> type = java.lang.Class.forName(str);
             if (type != null) {
                 return CreateUserdata(type);
             }
