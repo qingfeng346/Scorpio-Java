@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 import Scorpio.Exception.ExecutionException;
+import Scorpio.Exception.ScriptException;
 import Scorpio.Variable.*;
 import Scorpio.*;
 
@@ -88,8 +89,26 @@ public final class Util {
     public static boolean IsEnumObject(Object obj) {
         return IsEnum(obj.getClass());
     }
-
-    public static Object ChangeType(ScriptObject par, java.lang.Class type) {
+    public static Object ChangeTypeCheck(ScriptObject par, java.lang.Class<?> type) {
+        if (type == TYPE_OBJECT) {
+            return par.getObjectValue();
+        }
+        else {
+            if (par instanceof ScriptUserdata && Util.IsType(type)) {
+                return ((ScriptUserdata)par).getValueType();
+            }
+            else if (par instanceof ScriptNumber) {
+                return ChangeType_impl(par.getObjectValue(), type);
+            }
+            else if (par.getObjectValue().getClass() != type) {
+                throw new ScriptException("不能从源类型转换成 目标类型 源:" + par.getObjectValue().getClass().getName() + " 目标:" + type.getName());
+            }
+            else {
+                return par.getObjectValue();
+            }
+        }
+    }
+    public static Object ChangeType(ScriptObject par, java.lang.Class<?> type) {
         if (type == TYPE_OBJECT) {
             return par.getObjectValue();
         }

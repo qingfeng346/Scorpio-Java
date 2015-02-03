@@ -138,7 +138,7 @@ public class UserdataMethod {
             Object[] objs = methodInfo.Args;
             int length = methodInfo.ParameterType.length;
             for (int i = 0; i < length; i++) {
-                objs[i] = Util.ChangeType(parameters[i], methodInfo.ParameterType[i]);
+                objs[i] = Util.ChangeTypeCheck(parameters[i], methodInfo.ParameterType[i]);
             }
             return methodInfo.invoke(obj, m_Type);
         }

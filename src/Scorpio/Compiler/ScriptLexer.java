@@ -223,7 +223,7 @@ public class ScriptLexer {
                         AddToken(TokenType.AssignModulo, "%=");
                     }
                     else {
-                        AddToken(TokenType.AssignModulo, "%");
+                        AddToken(TokenType.Modulo, "%");
                         UndoChar();
                     }
                     break;
