@@ -117,32 +117,24 @@ public final class Util {
         return true;
     }
     public static boolean CanChangeType(ScriptObject par, java.lang.Class<?> type) {
-        if (type == TYPE_OBJECT || par.getIsNull()) {
+    	if (type == TYPE_OBJECT)
             return true;
-        }
-        else {
-            if (par instanceof ScriptString && Util.IsString(type)) {
-                return true;
-            }
-            else if (par instanceof ScriptNumber && IsNumber(type)) {
-                return true;
-            }
-            else if (par instanceof ScriptBoolean && IsBool(type)) {
-                return true;
-            }
-            else if (par instanceof ScriptEnum && ((ScriptEnum)par).getEnumType() == type) {
-                return true;
-            }
-            else if (par instanceof ScriptUserdata) {
-                if (Util.IsType(type) || type.isAssignableFrom(((ScriptUserdata)par).getValueType())) {
-                    return true;
-                }
-            }
-            else if (type.isAssignableFrom(par.getClass())) {
-                return true;
-            }
-        }
-        return false;
+        else if (IsNumber(type))
+            return par instanceof ScriptNumber;
+        else if (IsBool(type))
+            return par instanceof ScriptBoolean;
+        else if (IsEnum(type))
+            return par instanceof ScriptEnum && ((ScriptEnum)par).getEnumType() == type;
+        else if (par instanceof ScriptNull)
+            return true;
+        else if (IsString(type))
+            return par instanceof ScriptString;
+        else if (IsType(type))
+            return par instanceof ScriptUserdata;
+        else if (par instanceof ScriptUserdata)
+            return type.isAssignableFrom(((ScriptUserdata)par).getValueType());
+        else
+            return type.isAssignableFrom(par.getClass());
     }
     public static String GetFileString(String fileName, Charset encoding) throws Exception {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
