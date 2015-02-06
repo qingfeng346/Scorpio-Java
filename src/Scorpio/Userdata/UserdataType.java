@@ -152,6 +152,10 @@ public class UserdataType {
         if (field == null) {
             throw new ScriptException("SetValue Type[" + m_Type + "] 变量 [" + name + "] 不存在");
         }
-        field.SetValue(obj, Util.ChangeTypeCheck(value, field.FieldType));
+        try {
+        	field.SetValue(obj, Util.ChangeType(value, field.FieldType));
+        } catch (Exception e) {
+            throw new ScriptException("不能从源类型:" + (value.getIsNull() ? "null" : value.getObjectValue().getClass().getName()) + " 转换成目标类型:" + field.FieldType.getName());
+        }
     }
 }

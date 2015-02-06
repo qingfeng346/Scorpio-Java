@@ -134,40 +134,39 @@ public class UserdataMethod {
                 }
             }
         }
-        if (methodInfo != null) {
-            Object[] objs = methodInfo.Args;
-            int length = methodInfo.ParameterType.length;
-            for (int i = 0; i < length; i++) {
-                objs[i] = Util.ChangeTypeCheck(parameters[i], methodInfo.ParameterType[i]);
-            }
-            return methodInfo.invoke(obj, m_Type);
-        }
-        else {
-            for (FunctionMethod method : m_Methods) {
-                int length = method.ParameterType.length;
-                if (method.Params && parameters.length >= length - 1) {
-                    boolean fit = true;
-                    for (int i = 0; i < parameters.length; ++i) {
-                        if (!Util.CanChangeType(parameters[i], i >= length - 1 ? method.ParamType : method.ParameterType[i])) {
-                            fit = false;
-                            break;
-                        }
-                    }
-                    if (fit) {
-                        Object[] objs = method.Args;
-                        for (int i = 0; i < length - 1; ++i) {
-                            objs[i] = Util.ChangeType(parameters[i], method.ParameterType[i]);
-                        }
-                        java.util.ArrayList<Object> param = new java.util.ArrayList<Object>();
-                        for (int i = length - 1; i < parameters.length; ++i) {
-                            param.add(Util.ChangeType(parameters[i], method.ParamType));
-                        }
-                        objs[length - 1] = param.toArray(new Object[]{});
-                        return method.invoke(obj, m_Type);
-                    }
-                }
-            }
-            throw new ScriptException("Type[" + m_Type.toString() + "] 找不到合适的函数 [" + getMethodName() + "]");
-        }
+        try {
+	        if (methodInfo != null) {
+	            Object[] objs = methodInfo.Args;
+	            int length = methodInfo.ParameterType.length;
+	            for (int i = 0; i < length; i++)
+	                objs[i] = Util.ChangeType(parameters[i], methodInfo.ParameterType[i]);
+	            return methodInfo.invoke(obj, m_Type);
+	        }
+	        else {
+	            for (FunctionMethod method : m_Methods) {
+	                int length = method.ParameterType.length;
+	                if (method.Params && parameters.length >= length - 1) {
+	                    boolean fit = true;
+	                    for (int i = 0; i < parameters.length; ++i) {
+	                        if (!Util.CanChangeType(parameters[i], i >= length - 1 ? method.ParamType : method.ParameterType[i])) {
+	                            fit = false;
+	                            break;
+	                        }
+	                    }
+	                    if (fit) {
+	                        Object[] objs = method.Args;
+	                        for (int i = 0; i < length - 1; ++i)
+	                            objs[i] = Util.ChangeType(parameters[i], method.ParameterType[i]);
+	                        java.util.ArrayList<Object> param = new java.util.ArrayList<Object>();
+	                        for (int i = length - 1; i < parameters.length; ++i)
+	                            param.add(Util.ChangeType(parameters[i], method.ParamType));
+	                        objs[length - 1] = param.toArray(new Object[]{});
+	                        return method.invoke(obj, m_Type);
+	                    }
+	                }
+	            }
+	        }
+        } catch (Exception e) { }
+        throw new ScriptException("Type[" + m_Type.toString() + "] 找不到合适的函数 [" + getMethodName() + "]");
     }
 }

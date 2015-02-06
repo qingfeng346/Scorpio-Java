@@ -30,9 +30,6 @@ public class ScriptContext {
         m_block = block;
         m_InstructionCount = m_scriptExecutable != null ? m_scriptExecutable.getCount() : 0;
     }
-    private boolean getIsBreak() {
-        return m_Break;
-    }
     private boolean getIsOver() {
         return m_Break || m_Over;
     }
@@ -247,7 +244,7 @@ public class ScriptContext {
             }
             blockContext.Initialize(context);
             blockContext.Execute();
-            if (blockContext.getIsBreak()) {
+            if (blockContext.getIsOver()) {
                 break;
             }
             context.Execute(code.LoopExecutable);
@@ -284,7 +281,7 @@ public class ScriptContext {
         	variables.put(code.Identifier, m_script.CreateNumber(i));
             code.BlockContext.Initialize(this, variables);
             code.BlockContext.Execute();
-            if (code.BlockContext.getIsBreak()) {
+            if (code.BlockContext.getIsOver()) {
                 break;
             }
         }
@@ -303,7 +300,7 @@ public class ScriptContext {
             }
             code.Context.Initialize(this, code.Identifier, obj);
             code.Context.Execute();
-            if (code.Context.getIsBreak()) {
+            if (code.Context.getIsOver()) {
                 break;
             }
         }
@@ -340,7 +337,7 @@ public class ScriptContext {
             if (!ProcessCondition(condition, Executable_Block.While)) {
                 break;
             }
-            if (condition.Context.getIsBreak()) {
+            if (condition.Context.getIsOver()) {
                 break;
             }
         }
