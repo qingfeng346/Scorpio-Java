@@ -11,40 +11,24 @@ public class ScriptTable extends ScriptObject {
         super(script);
     }
     @Override
-    public void SetValue(int key, ScriptObject value) {
-        SetValue_impl(key, value);
-    }
-    @Override
-    public ScriptObject GetValue(int key) {
-        return GetValue_impl(key);
-    }
-    @Override
-    public void SetValue(String key, ScriptObject value) {
-        SetValue_impl(key, value);
-    }
-    @Override
-    public ScriptObject GetValue(String key) {
-        return GetValue_impl(key);
-    }
-    @Override
     public void SetValue(Object key, ScriptObject value) {
-        SetValue_impl(key, value);
+    	Util.SetObject(m_listObject, key, value);
     }
     @Override
     public ScriptObject GetValue(Object key) {
-        return GetValue_impl(key);
-    }
-    public final void SetValue_impl(Object key, ScriptObject scriptObject) {
-        Util.SetObject(m_listObject, key, scriptObject);
-    }
-    public final ScriptObject GetValue_impl(Object key) {
-        return m_listObject.containsKey(key) ? m_listObject.get(key) : ScriptNull.getInstance();
+    	return m_listObject.containsKey(key) ? m_listObject.get(key) : ScriptNull.getInstance();
     }
     public final boolean HasValue(Object key) {
         return m_listObject.containsKey(key);
     }
     public final int Count() {
         return m_listObject.size();
+    }
+    public void Clear() {
+        m_listObject.clear();
+    }
+    public void Remove(Object key) {
+        m_listObject.remove(key);
     }
     public final java.util.Iterator<java.util.Map.Entry<Object, ScriptObject>> GetIterator() {
         return m_listObject.entrySet().iterator();

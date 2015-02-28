@@ -1,7 +1,5 @@
 package Scorpio.CodeDom;
 
-import Scorpio.*;
-
 //++或者--标识
 public enum CALC {
     NONE,

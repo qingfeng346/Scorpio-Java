@@ -12,28 +12,26 @@ public class DefaultScriptUserdataEnum extends ScriptUserdata {
         this.setValue(value);
         this.setValueType(value);
         m_Enums = new java.util.HashMap<String, ScriptEnum>();
-        try
-        {
+        try {
         	Method values = getValueType().getMethod("values");
     		Object[] rets = (Object[]) values.invoke(null);
-    		for (Object v : rets)
-    		{
+    		for (Object v : rets) {
     			m_Enums.put(v.toString(), script.CreateEnum(v));
     		}
-        } catch (Exception e)
-        {
-        	
-        }
+        } catch (Exception e) { }
     }
     @Override
     public ScriptObject Call(ScriptObject[] parameters) {
         throw new ScriptException("枚举类型不支持实例化");
     }
     @Override
-    public ScriptObject GetValue(String strName) {
-        if (!m_Enums.containsKey(strName)) {
-            throw new ScriptException("枚举[" + getValueType().toString() + "] 元素[" + strName + "] 不存在");
+    public ScriptObject GetValue(Object key) {
+        if (!(key instanceof String))
+            throw new ExecutionException("Enum GetValue只支持String类型");
+        String name = (String)key;
+        if (!m_Enums.containsKey(name)) {
+            throw new ScriptException("枚举[" + getValueType().toString() + "] 元素[" + name + "] 不存在");
         }
-        return m_Enums.get(strName);
+        return m_Enums.get(name);
     }
 }

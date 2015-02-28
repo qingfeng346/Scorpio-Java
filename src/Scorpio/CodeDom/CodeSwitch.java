@@ -1,6 +1,5 @@
 package Scorpio.CodeDom;
 
-import Scorpio.*;
 import Scorpio.CodeDom.Temp.*;
 
 //switch语句

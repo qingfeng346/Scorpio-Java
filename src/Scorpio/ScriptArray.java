@@ -1,6 +1,5 @@
 package Scorpio;
 
-import Scorpio.CodeDom.*;
 import Scorpio.Exception.*;
 
 //脚本数组类型
@@ -14,24 +13,43 @@ public class ScriptArray extends ScriptObject {
         super(script);
     }
     @Override
-    public ScriptObject GetValue(int index) {
-        if (index < 0 || index >= m_listObject.size()) {
-            throw new ExecutionException("index is < 0 or out of count ");
-        }
-        return m_listObject.get(index);
+    public ScriptObject GetValue(Object index) {
+    	if (!(index instanceof Double || index instanceof Integer || index instanceof Long))
+            throw new ExecutionException("Array GetValue只支持Number类型");
+    	int i = Util.ToInt32(index);
+        if (i < 0 || i >= m_listObject.size())
+        	throw new ExecutionException("Array GetValue索引小于0或者超过最大值");
+        return m_listObject.get(i);
     }
     @Override
-    public void SetValue(int index, ScriptObject obj) {
-        if (index < 0 || index >= m_listObject.size()) {
-            throw new ExecutionException("index is < 0 or out of count ");
-        }
-        m_listObject.set(index, obj);
+    public void SetValue(Object index, ScriptObject obj) {
+    	if (!(index instanceof Double || index instanceof Integer || index instanceof Long))
+            throw new ExecutionException("Array SetValue只支持Number类型");
+    	int i = Util.ToInt32(index);
+        if (i < 0 || i >= m_listObject.size())
+        	throw new ExecutionException("Array SetValue索引小于0或者超过最大值");
+        m_listObject.set(i, obj);
     }
     public final void Add(ScriptObject obj) {
         m_listObject.add(obj);
     }
     public final void Insert(int index, ScriptObject obj) {
         m_listObject.add(index, obj);
+    }
+    public void Remove(ScriptObject obj) {
+        m_listObject.remove(obj);
+    }
+    public void RemoveAt(int index) {
+        m_listObject.remove(index);
+    }
+    public boolean Contains(ScriptObject obj) {
+        return m_listObject.contains(obj);
+    }
+    public int IndexOf(ScriptObject obj) {
+        return m_listObject.indexOf(obj);
+    }
+    public int LastIndexOf(ScriptObject obj) {
+        return m_listObject.lastIndexOf(obj);
     }
     public final void Clear() {
         m_listObject.clear();

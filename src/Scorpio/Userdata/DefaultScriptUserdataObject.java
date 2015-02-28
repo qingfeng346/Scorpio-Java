@@ -1,7 +1,6 @@
 package Scorpio.Userdata;
 
 import Scorpio.*;
-import Scorpio.Variable.*;
 import Scorpio.Exception.*;
 
 /**  普通Object类型 
@@ -15,11 +14,15 @@ public class DefaultScriptUserdataObject extends ScriptUserdata {
         this.m_Type = type;
     }
     @Override
-    public ScriptObject GetValue(String strName) throws Exception {
-        return getScript().CreateObject(m_Type.GetValue(getValue(), strName));
+    public ScriptObject GetValue(Object key) throws Exception {
+    	if (!(key instanceof String))
+            throw new ExecutionException("Object GetValue只支持String类型");
+        return getScript().CreateObject(m_Type.GetValue(getValue(), (String)key));
     }
     @Override
-    public void SetValue(String strName, ScriptObject value) throws Exception {
-        m_Type.SetValue(getValue(), strName, value);
+    public void SetValue(Object key, ScriptObject value) throws Exception {
+    	if (!(key instanceof String))
+            throw new ExecutionException("Object GetValue只支持String类型");
+        m_Type.SetValue(getValue(), (String)key, value);
     }
 }

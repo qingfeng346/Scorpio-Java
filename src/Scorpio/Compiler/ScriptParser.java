@@ -552,11 +552,8 @@ public class ScriptParser {
                 ReadRightBracket();
                 if (member instanceof CodeScriptObject) {
                     ScriptObject obj = ((CodeScriptObject)member).getObject();
-                    if (obj instanceof ScriptNumber) {
-                        ret = new CodeMember((ScriptNumber)obj, ret);
-                    }
-                    else if (obj instanceof ScriptString) {
-                        ret = new CodeMember(((ScriptString)obj).getValue(), ret);
+                    if (obj instanceof ScriptNumber || obj instanceof ScriptString) {
+                        ret = new CodeMember(obj.getObjectValue(), ret);
                     }
                     else {
                         throw new ParserException("获取变量只能是 number或string", m);

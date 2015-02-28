@@ -71,28 +71,17 @@ public class ScriptContext {
         return false;
     }
     private Object GetMember(CodeMember member) throws Exception {
-        if (member.Type == MEMBER_TYPE.STRING) {
-            return member.MemberString;
-        }
-        else if (member.Type == MEMBER_TYPE.INDEX) {
-            return member.MemberIndex;
-        }
-        else if (member.Type == MEMBER_TYPE.NUMBER) {
-            return member.MemberNumber;
-        }
-        else {
-            return ResolveOperand(member.MemberObject).getObjectValue();
-        }
+    	return member.Type == MEMBER_TYPE.VALUE ? member.MemberValue : ResolveOperand(member.MemberObject).getObjectValue();
     }
     private ScriptObject GetVariable(CodeMember member) throws Exception {
         ScriptObject ret = null;
         if (member.Parent == null) {
-            String name = member.MemberString;
+        	String name = (String)member.MemberValue;
             ScriptObject obj = GetVariableObject(name);
             ret = (obj == null ? m_script.GetValue(name) : obj);
         }
         else {
-            ret = ResolveOperand(member.Parent).GetValueInternal(GetMember(member));
+            ret = ResolveOperand(member.Parent).GetValue(GetMember(member));
         }
         if (ret == null) {
             throw new ExecutionException("GetVariable member is error");
@@ -108,13 +97,13 @@ public class ScriptContext {
     }
     private void SetVariable(CodeMember member, ScriptObject variable) throws Exception {
         if (member.Parent == null) {
-            String name = member.MemberString;
+        	String name = (String)member.MemberValue;
             if (!SetVariableObject(name, variable)) {
                 m_script.SetObjectInternal(name, variable);
             }
         }
         else {
-        	ResolveOperand(member.Parent).SetValueInternal(GetMember(member), variable);
+        	ResolveOperand(member.Parent).SetValue(GetMember(member), variable);
         }
     }
     private void Reset() {

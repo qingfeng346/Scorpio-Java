@@ -10,50 +10,12 @@ public abstract class ScriptObject {
         return this;
     }
     //设置变量
-    public void SetValue(int key, ScriptObject value) {
-        throw new ExecutionException("类型[" + getType() + "]不支持获取变量(int)");
+    public void SetValue(Object key, ScriptObject value) throws Exception {
+        throw new ExecutionException("类型[" + getType() + "]不支持获取变量");
     }
     //获取变量
-    public ScriptObject GetValue(int key) {
-        throw new ExecutionException("类型[" + getType() + "]不支持设置变量(int)");
-    }
-    //设置变量
-    public void SetValue(String key, ScriptObject value) throws Exception {
-        throw new ExecutionException("类型[" + getType() + "]不支持获取变量(string)");
-    }
-    //获取变量
-    public ScriptObject GetValue(String key) throws Exception {
-        throw new ExecutionException("类型[" + getType() + "]不支持设置变量(string)");
-    }
-    //设置变量
-    public void SetValue(Object key, ScriptObject value) {
-        throw new ExecutionException("类型[" + getType() + "]不支持获取变量(object)");
-    }
-    //获取变量
-    public ScriptObject GetValue(Object key) {
-        throw new ExecutionException("类型[" + getType() + "]不支持设置变量(object)");
-    }
-    public final void SetValueInternal(Object key, ScriptObject value) throws Exception {
-        if (key instanceof String) {
-            SetValue((String)key, value);
-        }
-        else if (key instanceof Integer || key instanceof Double) {
-            SetValue(Util.ToInt32(key), value);
-        }
-        else {
-            SetValue(key, value);
-        }
-    }
-    public final ScriptObject GetValueInternal(Object key) throws Exception {
-        if (key instanceof String) {
-            return GetValue((String)key);
-        }
-        else if (key instanceof Integer || key instanceof Double) {
-            return GetValue(Util.ToInt32(key));
-        }
-        else {
-            return GetValue(key);
-        }
+    public ScriptObject GetValue(Object key) throws Exception {
+        throw new ExecutionException("类型[" + getType() + "]不支持设置变量");
     }
     //调用无参函数
     public final Object Call() throws Exception {
@@ -66,12 +28,18 @@ public abstract class ScriptObject {
     public ScriptObject clone() { // 复制一个变量
         return this;
     }
+    public String ToJson() { // ToJson
+        return getObjectValue().toString();
+    }
     @Override
     public String toString() { // ToString
         return getObjectValue().toString();
     }
-    public String ToJson() { // ToJson
-        return getObjectValue().toString();
+    @Override
+    public boolean equals(Object obj) {                                       // Equals
+        if (obj == null) return false;
+        if (!(obj instanceof ScriptObject)) return false;
+        return ((ScriptObject)obj).getObjectValue().equals(getObjectValue());
     }
     public ScriptObject(Script script) { // 构图函数
         setScript(script);
