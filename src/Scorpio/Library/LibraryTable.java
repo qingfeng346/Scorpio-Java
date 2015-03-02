@@ -36,8 +36,7 @@ public class LibraryTable {
     {
         public final Object Call(ScriptObject[] args)
         {
-            ((ScriptTable)args[0]).HasValue(args[1].getObjectValue());
-            return null;
+            return ((ScriptTable)args[0]).HasValue(args[1].getObjectValue());
         }
     }
 }
