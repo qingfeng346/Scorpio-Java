@@ -57,6 +57,16 @@ public class ScriptArray extends ScriptObject {
     public final int Count() {
         return m_listObject.size();
     }
+    public ScriptObject First() {
+        if (m_listObject.size() > 0)
+            return m_listObject.get(0);
+        return ScriptNull.getInstance();
+    }
+    public ScriptObject Last() {
+        if (m_listObject.size() > 0)
+            return m_listObject.get(m_listObject.size() - 1);
+        return ScriptNull.getInstance();
+    }
     public final java.util.Iterator<ScriptObject> GetIterator() {
         return m_listObject.iterator();
     }

@@ -14,6 +14,8 @@ public class LibraryArray {
         Table.SetValue("contains", script.CreateFunction(new contains()));
         Table.SetValue("indexof", script.CreateFunction(new indexof()));
         Table.SetValue("lastindexof", script.CreateFunction(new lastindexof()));
+        Table.SetValue("first", script.CreateFunction(new first()));
+        Table.SetValue("last", script.CreateFunction(new last()));
         script.SetObjectInternal("array", Table);
     }
     private static class count implements ScorpioHandle {
@@ -73,6 +75,20 @@ public class LibraryArray {
         public final Object Call(ScriptObject[] args)
         {
             return ((ScriptArray)args[0]).LastIndexOf(args[1]);
+        }
+    }
+    private static class first implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return ((ScriptArray)args[0]).First();
+        }
+    }
+    private static class last implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return ((ScriptArray)args[0]).Last();
         }
     }
 }

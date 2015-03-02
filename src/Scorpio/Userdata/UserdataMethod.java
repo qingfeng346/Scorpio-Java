@@ -1,5 +1,6 @@
 package Scorpio.Userdata;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -122,11 +123,8 @@ public class UserdataMethod {
         }
         FunctionMethod methodInfo = null;
         if (m_Count == 1) {
-            if (parameters.length == m_Methods[0].ParameterType.length) {
-                methodInfo = m_Methods[0];
-            }
-        }
-        else {
+            methodInfo = m_Methods[0];
+        } else {
             for (FunctionMethod method : m_Methods) {
                 if (Util.CanChangeType(parameters, method.ParameterType)) {
                     methodInfo = method;
@@ -135,9 +133,9 @@ public class UserdataMethod {
             }
         }
         try {
-	        if (methodInfo != null) {
+	        if (methodInfo != null && !methodInfo.Params) {
+	        	int length = methodInfo.ParameterType.length;
 	            Object[] objs = methodInfo.Args;
-	            int length = methodInfo.ParameterType.length;
 	            for (int i = 0; i < length; i++)
 	                objs[i] = Util.ChangeType(parameters[i], methodInfo.ParameterType[i]);
 	            return methodInfo.invoke(obj, m_Type);
@@ -157,16 +155,18 @@ public class UserdataMethod {
 	                        Object[] objs = method.Args;
 	                        for (int i = 0; i < length - 1; ++i)
 	                            objs[i] = Util.ChangeType(parameters[i], method.ParameterType[i]);
-	                        java.util.ArrayList<Object> param = new java.util.ArrayList<Object>();
+	                        Array array = (Array) Array.newInstance(method.ParamType, parameters.length - length + 1);
 	                        for (int i = length - 1; i < parameters.length; ++i)
-	                            param.add(Util.ChangeType(parameters[i], method.ParamType));
-	                        objs[length - 1] = param.toArray(new Object[]{});
+	                        	Array.set(array, i - length + 1, Util.ChangeType(parameters[i], method.ParamType));
+	                        objs[length - 1] = array;
 	                        return method.invoke(obj, m_Type);
 	                    }
 	                }
 	            }
 	        }
-        } catch (Exception e) { }
+        } catch (Exception e) { 
+        	throw new ScriptException("Type[" + m_Type.toString() + "] 调用函数出错 [" + getMethodName() + "] : " + e.getMessage());
+        }
         throw new ScriptException("Type[" + m_Type.toString() + "] 找不到合适的函数 [" + getMethodName() + "]");
     }
 }
