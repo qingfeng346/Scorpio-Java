@@ -40,17 +40,18 @@ public class ScriptParser {
     //解析区域代码内容( {} 之间的内容)
     private ScriptExecutable ParseStatementBlock(Executable_Block block, boolean readLeftBrace, TokenType finished) {
         BeginExecutable(block);
-        if (readLeftBrace) {
-            ReadLeftBrace();
-        }
-        TokenType tokenType;
-        while (HasMoreTokens()) {
-            tokenType = ReadToken().getType();
-            if (tokenType == finished) {
-                break;
-            }
-            UndoToken();
+        if (readLeftBrace && PeekToken().getType() != TokenType.LeftBrace) {
             ParseStatement();
+        } else {
+	        if (readLeftBrace) ReadLeftBrace();
+	        TokenType tokenType;
+	        while (HasMoreTokens()) {
+	            tokenType = ReadToken().getType();
+	            if (tokenType == finished)
+	                break;
+	            UndoToken();
+	            ParseStatement();
+	        }
         }
         ScriptExecutable ret = m_scriptExecutable;
         ret.EndScriptInstruction();

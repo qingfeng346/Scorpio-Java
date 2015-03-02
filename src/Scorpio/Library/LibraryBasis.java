@@ -95,10 +95,10 @@ public class LibraryBasis {
         }
     }
     private static class UserdataPairs implements ScorpioHandle {
-        private java.util.Iterator m_Enumerator;
+        private java.util.Iterator<?> m_Enumerator;
         public UserdataPairs(ScriptUserdata obj) {
             Object value = obj.getValue();
-            Iterable ienumerable = (Iterable)((value instanceof Iterable) ? value : null);
+            Iterable<?> ienumerable = (Iterable<?>)((value instanceof Iterable) ? value : null);
             if (ienumerable == null) {
                 throw new ExecutionException("pairs 只支持继承 IEnumerable 的类");
             }
@@ -117,6 +117,17 @@ public class LibraryBasis {
         script.SetObjectInternal("kpairs", script.CreateFunction(new kpairs(script)));
         script.SetObjectInternal("vpairs", script.CreateFunction(new vpairs(script)));
         script.SetObjectInternal("type", script.CreateFunction(new type()));
+        script.SetObjectInternal("is_null", script.CreateFunction(new is_null()));
+        script.SetObjectInternal("is_bool", script.CreateFunction(new is_bool()));
+        script.SetObjectInternal("is_number", script.CreateFunction(new is_number()));
+        script.SetObjectInternal("is_double", script.CreateFunction(new is_double()));
+        script.SetObjectInternal("is_long", script.CreateFunction(new is_long()));
+        script.SetObjectInternal("is_string", script.CreateFunction(new is_string()));
+        script.SetObjectInternal("is_function", script.CreateFunction(new is_function()));
+        script.SetObjectInternal("is_array", script.CreateFunction(new is_array()));
+        script.SetObjectInternal("is_table", script.CreateFunction(new is_table()));
+        script.SetObjectInternal("is_enum", script.CreateFunction(new is_enum()));
+        script.SetObjectInternal("is_userdata", script.CreateFunction(new is_userdata()));
         script.SetObjectInternal("branchtype", script.CreateFunction(new branchtype()));
         script.SetObjectInternal("typeof", script.CreateFunction(new userdatatype()));
         script.SetObjectInternal("tonumber", script.CreateFunction(new tonumber(script)));
@@ -192,6 +203,84 @@ public class LibraryBasis {
             return args[0].getType();
         }
     }
+    private static class is_null implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return args[0] instanceof ScriptNull;
+        }
+    }
+    private static class is_bool implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return args[0] instanceof ScriptBoolean;
+        }
+    }
+    private static class is_number implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return args[0] instanceof ScriptNumber;
+        }
+    }
+    private static class is_double implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return args[0] instanceof ScriptNumberDouble;
+        }
+    }
+    private static class is_long implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return args[0] instanceof ScriptNumberLong;
+        }
+    }
+    private static class is_string implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return args[0] instanceof ScriptString;
+        }
+    }
+    private static class is_function implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return args[0] instanceof ScriptFunction;
+        }
+    }
+    private static class is_array implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return args[0] instanceof ScriptArray;
+        }
+    }
+    private static class is_table implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return args[0] instanceof ScriptTable;
+        }
+    }
+    private static class is_enum implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return args[0] instanceof ScriptEnum;
+        }
+    }
+    private static class is_userdata implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return args[0] instanceof ScriptUserdata;
+        }
+    }
+    
     private static class branchtype implements ScorpioHandle {
         public final Object Call(ScriptObject[] args) {
             return args[0].getBranchType();
