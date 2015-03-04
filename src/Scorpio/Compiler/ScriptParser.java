@@ -644,10 +644,7 @@ public class ScriptParser {
             if (token.getType() == TokenType.Identifier || token.getType() == TokenType.String || token.getType() == TokenType.Number) {
                 Token next = ReadToken();
                 if (next.getType() == TokenType.Assign || next.getType() == TokenType.Colon) {
-                	if (token.getLexeme() instanceof Double)
-                		ret.Variables.add(new TableVariable(Util.ToInt32(token.getLexeme()), GetObject()));
-                	else
-                		ret.Variables.add(new TableVariable(token.getLexeme(), GetObject()));
+            		ret.Variables.add(new TableVariable(token.getLexeme(), GetObject()));
                     Token peek = PeekToken();
                     if (peek.getType() == TokenType.Comma || peek.getType() == TokenType.SemiColon) {
                         ReadToken();
