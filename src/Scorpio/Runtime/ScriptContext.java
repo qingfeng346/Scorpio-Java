@@ -1,7 +1,6 @@
 package Scorpio.Runtime;
 
 import Scorpio.*;
-import Scorpio.Runtime.*;
 import Scorpio.Compiler.*;
 import Scorpio.CodeDom.*;
 import Scorpio.CodeDom.Temp.*;
@@ -413,6 +412,9 @@ public class ScriptContext {
     private ScriptObject ResolveOperand_impl(CodeObject value) throws Exception {
         if (value instanceof CodeScriptObject) {
             return ParseScriptObject((CodeScriptObject)value);
+        } 
+        else if (value instanceof CodeRegion) {
+            return ParseRegion((CodeRegion)value);
         }
         else if (value instanceof CodeFunction) {
             return ParseFunction((CodeFunction)value);
@@ -464,6 +466,9 @@ public class ScriptContext {
     }
     private ScriptObject ParseScriptObject(CodeScriptObject obj) {
         return obj.getObject();
+    }
+    private ScriptObject ParseRegion(CodeRegion region) throws Exception {
+        return ResolveOperand(region.Context);
     }
     private ScriptFunction ParseFunction(CodeFunction func) {
         func.Func.SetParentContext(this);

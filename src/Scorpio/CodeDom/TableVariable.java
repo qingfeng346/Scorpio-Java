@@ -1,7 +1,5 @@
 package Scorpio.CodeDom;
 
-import Scorpio.*;
-
 public class TableVariable {
     public Object key;
     public CodeObject value;

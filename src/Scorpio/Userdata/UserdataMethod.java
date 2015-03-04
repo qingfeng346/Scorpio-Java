@@ -73,15 +73,13 @@ public class UserdataMethod {
             parameters.clear();
             
             Class<?>[] pars = method.getParameterTypes();
-            for (Class<?> par : pars)
-			{
+            for (Class<?> par : pars) {
 				parameters.add(par);
-				if (method.isVarArgs())
-				{
-					Params = true;
-					ParamType = par;
-				}
 			}
+            if (method.isVarArgs()) {
+            	Params = true;
+            	ParamType = pars[pars.length - 1].getComponentType();
+            }
             functionMethod.add(new FunctionMethod(method, parameters.toArray(new java.lang.Class[]{}), ParamType, Params));
         }
         m_Methods = functionMethod.toArray(new FunctionMethod[]{});
@@ -155,7 +153,7 @@ public class UserdataMethod {
 	                        Object[] objs = method.Args;
 	                        for (int i = 0; i < length - 1; ++i)
 	                            objs[i] = Util.ChangeType(parameters[i], method.ParameterType[i]);
-	                        Array array = (Array) Array.newInstance(method.ParamType, parameters.length - length + 1);
+	                        Object array = Array.newInstance(method.ParamType, parameters.length - length + 1);
 	                        for (int i = length - 1; i < parameters.length; ++i)
 	                        	Array.set(array, i - length + 1, Util.ChangeType(parameters[i], method.ParamType));
 	                        objs[length - 1] = array;

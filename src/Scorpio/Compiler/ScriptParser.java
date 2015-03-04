@@ -486,7 +486,7 @@ public class ScriptParser {
                 ret = new CodeFunction(ParseFunctionDeclaration(false));
                 break;
             case LeftPar:
-                ret = GetObject();
+            	ret = new CodeRegion(GetObject());
                 ReadRightParenthesis();
                 break;
             case LeftBracket:
