@@ -16,6 +16,7 @@ public class ScriptContext {
     private ScriptObject m_returnObject = null; //返回值
     private Executable_Block m_block = Executable_Block.forValue(0); //堆栈类型
     private boolean m_Break = false; //break跳出
+    private boolean m_Continue = false; //continue跳出
     private boolean m_Over = false; //函数是否已经结束
     private int m_InstructionCount = 0; //指令数量
     public ScriptContext(Script script, ScriptExecutable scriptExecutable) {
@@ -29,9 +30,14 @@ public class ScriptContext {
         m_block = block;
         m_InstructionCount = m_scriptExecutable != null ? m_scriptExecutable.getCount() : 0;
     }
+	//break 或者 return  跳出循环
     private boolean getIsOver() {
         return m_Break || m_Over;
     }
+	//continue break return 当前模块是否执行完成
+    private boolean getIsExecuted() {
+    	return m_Break || m_Over || m_Continue;
+    } 
     public final void Initialize(ScriptContext parent, java.util.HashMap<String, ScriptObject> variable) {
         m_parent = parent;
         m_variableDictionary = variable;
@@ -116,7 +122,7 @@ public class ScriptContext {
         while (iInstruction < m_InstructionCount) {
             m_scriptInstruction = m_scriptExecutable.getItem(iInstruction++);
             ExecuteInstruction();
-            if (getIsOver()) {
+            if (getIsExecuted()) {
                 break;
             }
         }
@@ -132,7 +138,7 @@ public class ScriptContext {
         while (iInstruction < iInstructionCount) {
             m_scriptInstruction = executable.getItem(iInstruction++);
             ExecuteInstruction();
-            if (getIsOver()) {
+            if (getIsExecuted()) {
                 break;
             }
         }
@@ -392,10 +398,10 @@ public class ScriptContext {
         }
     }
     private void InvokeContinue(CodeObject con) {
-        m_Over = true;
+        m_Continue = true;
         if (!SupportContinue()) {
             if (m_parent == null) {
-                throw new ExecutionException("this block is not support continue");
+                throw new ExecutionException("当前模块不支持continue语法");
             }
             m_parent.InvokeContinue(con);
         }
@@ -404,7 +410,7 @@ public class ScriptContext {
         m_Break = true;
         if (!SupportBreak()) {
             if (m_parent == null) {
-                throw new ExecutionException("this block is not support break");
+                throw new ExecutionException("当前模块不支持break语法");
             }
             m_parent.InvokeBreak(bre);
         }
@@ -465,7 +471,7 @@ public class ScriptContext {
         return ret;
     }
     private ScriptObject ParseScriptObject(CodeScriptObject obj) {
-        return obj.getObject();
+        return obj.getObject().clone();
     }
     private ScriptObject ParseRegion(CodeRegion region) throws Exception {
         return ResolveOperand(region.Context);

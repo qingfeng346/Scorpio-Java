@@ -67,6 +67,13 @@ public class ScriptArray extends ScriptObject {
             return m_listObject.get(m_listObject.size() - 1);
         return ScriptNull.getInstance();
     }
+    public ScriptObject Pop() {
+        if (m_listObject.size() == 0)
+            throw new ExecutionException("Array Pop 数组长度为0");
+        ScriptObject obj = m_listObject.get(0);
+        m_listObject.remove(0);
+        return obj;
+    }
     public final java.util.Iterator<ScriptObject> GetIterator() {
         return m_listObject.iterator();
     }
