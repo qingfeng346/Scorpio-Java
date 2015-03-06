@@ -1,7 +1,5 @@
 package Scorpio.Runtime;
 
-import Scorpio.*;
-
 public enum Executable_Block {
     None,
     //上下文

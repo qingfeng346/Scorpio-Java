@@ -12,6 +12,7 @@ public class LibraryString {
         Table.SetValue("toupper", script.CreateFunction(new toupper()));
         Table.SetValue("trim", script.CreateFunction(new trim()));
         Table.SetValue("replace", script.CreateFunction(new replace()));
+        Table.SetValue("isnullorempty", script.CreateFunction(new isnullorempty()));
         script.SetObjectInternal("string", Table);
     }
     private static final String DELIM_STR = "{}";
@@ -87,6 +88,13 @@ public class LibraryString {
             String oldValue = ((ScriptString)((args[1] instanceof ScriptString) ? args[1] : null)).getValue();
             String newValue = ((ScriptString)((args[2] instanceof ScriptString) ? args[2] : null)).getValue();
             return str.replace(oldValue, newValue);
+        }
+    }
+    private static class isnullorempty implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return Util.IsNullOrEmpty(((ScriptString)args[0]).getValue());
         }
     }
 }
