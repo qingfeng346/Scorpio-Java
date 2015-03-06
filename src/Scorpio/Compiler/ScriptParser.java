@@ -404,7 +404,7 @@ public class ScriptParser {
                 break;
             }
             TempOperator oper = operateStack.pop();
-            CodeOperator binexp = new CodeOperator(objectStack.pop(), objectStack.pop(), oper.Operator);
+            CodeOperator binexp = new CodeOperator(objectStack.pop(), objectStack.pop(), oper.Operator, m_strBreviary, PeekToken().getSourceLine());
             objectStack.push(binexp);
         }
         CodeObject ret = objectStack.pop();
@@ -444,7 +444,7 @@ public class ScriptParser {
             TempOperator oper = operateStack.peek();
             if (oper.Level >= curr.Level) {
                 operateStack.pop();
-                CodeOperator binexp = new CodeOperator(objectStack.pop(), objectStack.pop(), oper.Operator);
+                CodeOperator binexp = new CodeOperator(objectStack.pop(), objectStack.pop(), oper.Operator, m_strBreviary, PeekToken().getSourceLine());
                 objectStack.push(binexp);
             }
             else {

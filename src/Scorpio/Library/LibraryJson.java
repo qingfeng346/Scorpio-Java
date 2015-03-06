@@ -19,7 +19,7 @@ public class LibraryJson {
         }
         public final Object Call(ScriptObject[] args) {
             try {
-				return m_Script.LoadString("return " + args[0].toString());
+				return m_Script.LoadString(null, "return " + args[0].toString(), null, false);
 			} catch (Exception e) {
 				return null;
 			}

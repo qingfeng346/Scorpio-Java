@@ -32,10 +32,10 @@ public class Script {
         return LoadString("", strBuffer);
     }
     public final ScriptObject LoadString(String strBreviary, String strBuffer) throws Exception {
-        return LoadString(strBreviary, strBuffer, null);
+        return LoadString(strBreviary, strBuffer, null, true);
     }
-    public final ScriptObject LoadString(String strBreviary, String strBuffer, ScriptContext context) throws Exception {
-        m_StackInfoStack.clear();
+    public final ScriptObject LoadString(String strBreviary, String strBuffer, ScriptContext context, boolean clearStack) throws Exception {
+        if (clearStack) m_StackInfoStack.clear();
         ScriptLexer scriptLexer = new ScriptLexer(strBuffer);
         strBreviary = Util.IsNullOrEmpty(strBreviary) ? scriptLexer.GetBreviary() : strBreviary;
         ScriptParser scriptParser = new ScriptParser(this, scriptLexer.GetTokens(), strBreviary);
@@ -56,6 +56,9 @@ public class Script {
     }
     public final void PushStackInfo() {
         m_StackInfoStack.add(m_StackInfo);
+    }
+    public void ClearStackInfo() {
+        m_StackInfoStack.clear();
     }
     public final String GetStackInfo() {
         StringBuilder builder = new StringBuilder();

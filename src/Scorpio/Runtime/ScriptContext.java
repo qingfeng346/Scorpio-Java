@@ -659,6 +659,6 @@ public class ScriptContext {
         if (obj == null) {
             throw new ExecutionException("Eval参数必须是一个字符串");
         }
-        return m_script.LoadString("", obj.getValue(), this);
+        return m_script.LoadString("", obj.getValue(), this, false);
     }
 }
