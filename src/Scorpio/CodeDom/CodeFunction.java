@@ -8,4 +8,8 @@ public class CodeFunction extends CodeObject {
     public CodeFunction(ScriptFunction func) {
         this.Func = func;
     }
+    public CodeFunction(ScriptFunction func, String breviary, int line) {
+    	super(breviary, line);
+        this.Func = func;
+    }
 }

@@ -28,6 +28,10 @@ public class ScriptParser {
         m_Executables.pop();
         m_scriptExecutable = (m_Executables.size() > 0) ? m_Executables.peek() : null;
     }
+    private int GetSourceLine()
+    {
+        return PeekToken().getSourceLine();
+    }
     //解析脚本
     public final ScriptExecutable Parse() {
         m_iNextToken = 0;
@@ -116,9 +120,10 @@ public class ScriptParser {
     //解析函数（全局函数或类函数）
     private void ParseFunction() {
         if (m_scriptExecutable.getBlock() == Executable_Block.Context) {
+        	Token token = PeekToken();
             UndoToken();
             ScriptFunction func = ParseFunctionDeclaration(true);
-            m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.MOV, new CodeMember(func.getName()), new CodeFunction(func)));
+            m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.MOV, new CodeMember(func.getName()), new CodeFunction(func, m_strBreviary, token.getSourceLine())));
         }
     }
     //解析函数（返回一个函数）
@@ -360,7 +365,7 @@ public class ScriptParser {
     private void ParseReturn() {
         Token peek = PeekToken();
         if (peek.getType() == TokenType.RightBrace || peek.getType() == TokenType.SemiColon || peek.getType() == TokenType.Finished) {
-            m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.RET, new CodeScriptObject(m_script, null)));
+            m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.RET, new CodeScriptObject(m_script, null, m_strBreviary, peek.getSourceLine())));
         }
         else {
             m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.RET, GetObject()));
@@ -404,7 +409,7 @@ public class ScriptParser {
                 break;
             }
             TempOperator oper = operateStack.pop();
-            CodeOperator binexp = new CodeOperator(objectStack.pop(), objectStack.pop(), oper.Operator, m_strBreviary, PeekToken().getSourceLine());
+            CodeOperator binexp = new CodeOperator(objectStack.pop(), objectStack.pop(), oper.Operator, m_strBreviary, GetSourceLine());
             objectStack.push(binexp);
         }
         CodeObject ret = objectStack.pop();
@@ -444,7 +449,7 @@ public class ScriptParser {
             TempOperator oper = operateStack.peek();
             if (oper.Level >= curr.Level) {
                 operateStack.pop();
-                CodeOperator binexp = new CodeOperator(objectStack.pop(), objectStack.pop(), oper.Operator, m_strBreviary, PeekToken().getSourceLine());
+                CodeOperator binexp = new CodeOperator(objectStack.pop(), objectStack.pop(), oper.Operator, m_strBreviary, GetSourceLine());
                 objectStack.push(binexp);
             }
             else {
@@ -572,6 +577,7 @@ public class ScriptParser {
                 UndoToken();
                 break;
             }
+            ret.StackInfo = new StackInfo(m_strBreviary, m.getSourceLine());
         }
         return ret;
     }
