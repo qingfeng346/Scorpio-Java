@@ -74,6 +74,13 @@ public class ScriptArray extends ScriptObject {
         m_listObject.remove(0);
         return obj;
     }
+    public ScriptObject SafePop() {
+        if (m_listObject.size() == 0)
+            return ScriptNull.getInstance();
+        ScriptObject obj = m_listObject.get(0);
+        m_listObject.remove(0);
+        return obj;
+    }
     public final java.util.Iterator<ScriptObject> GetIterator() {
         return m_listObject.iterator();
     }

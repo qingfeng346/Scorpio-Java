@@ -17,6 +17,7 @@ public class LibraryArray {
         Table.SetValue("first", script.CreateFunction(new first()));
         Table.SetValue("last", script.CreateFunction(new last()));
         Table.SetValue("pop", script.CreateFunction(new pop()));
+        Table.SetValue("safepop", script.CreateFunction(new safepop()));
         script.SetObjectInternal("array", Table);
     }
     private static class count implements ScorpioHandle {
@@ -97,6 +98,13 @@ public class LibraryArray {
         public final Object Call(ScriptObject[] args)
         {
             return ((ScriptArray)args[0]).Pop();
+        }
+    }
+    private static class safepop implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return ((ScriptArray)args[0]).SafePop();
         }
     }
 }
