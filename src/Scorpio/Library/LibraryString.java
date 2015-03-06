@@ -94,7 +94,8 @@ public class LibraryString {
     {
         public final Object Call(ScriptObject[] args)
         {
-            return Util.IsNullOrEmpty(((ScriptString)args[0]).getValue());
+        	Object val = args[0].getObjectValue();
+        	return Util.IsNullOrEmpty(val instanceof String ? (String)val : null);
         }
     }
 }
