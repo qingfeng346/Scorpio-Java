@@ -39,6 +39,7 @@ public class UserdataMethod {
             return m_Type == 1 ? m_Method.invoke(obj, Args) : m_Constructor.newInstance(Args);
         }
     }
+    private Script m_Script;				//所在脚本引擎
     private java.lang.Class m_Type; 		//所在类型
     private int m_Count; 					//相同名字函数数量
     private FunctionMethod[] m_Methods; 	//所有函数对象
@@ -54,7 +55,8 @@ public class UserdataMethod {
     {
     	return m_IsStatic;
     }
-    public UserdataMethod(java.lang.Class type, String methodName, java.lang.reflect.Method[] methods) {
+    public UserdataMethod(Script script, java.lang.Class type, String methodName, java.lang.reflect.Method[] methods) {
+    	m_Script = script;
         m_Type = type;
         m_IsStatic = Modifier.isStatic(methods[0].getModifiers());
         setMethodName(methodName);
@@ -85,7 +87,8 @@ public class UserdataMethod {
         m_Methods = functionMethod.toArray(new FunctionMethod[]{});
         m_Count = m_Methods.length;
     }
-    public UserdataMethod(java.lang.Class type, String methodName, java.lang.reflect.Constructor[] methods) {
+    public UserdataMethod(Script script, java.lang.Class type, String methodName, java.lang.reflect.Constructor[] methods) {
+    	m_Script = script;
     	m_Type = type;
     	setMethodName(methodName);
     	m_IsStatic = false;
@@ -135,7 +138,7 @@ public class UserdataMethod {
 	        	int length = methodInfo.ParameterType.length;
 	            Object[] objs = methodInfo.Args;
 	            for (int i = 0; i < length; i++)
-	                objs[i] = Util.ChangeType(parameters[i], methodInfo.ParameterType[i]);
+	                objs[i] = Util.ChangeType(m_Script, parameters[i], methodInfo.ParameterType[i]);
 	            return methodInfo.invoke(obj, m_Type);
 	        }
 	        else {
@@ -152,10 +155,10 @@ public class UserdataMethod {
 	                    if (fit) {
 	                        Object[] objs = method.Args;
 	                        for (int i = 0; i < length - 1; ++i)
-	                            objs[i] = Util.ChangeType(parameters[i], method.ParameterType[i]);
+	                            objs[i] = Util.ChangeType(m_Script, parameters[i], method.ParameterType[i]);
 	                        Object array = Array.newInstance(method.ParamType, parameters.length - length + 1);
 	                        for (int i = length - 1; i < parameters.length; ++i)
-	                        	Array.set(array, i - length + 1, Util.ChangeType(parameters[i], method.ParamType));
+	                        	Array.set(array, i - length + 1, Util.ChangeType(m_Script, parameters[i], method.ParamType));
 	                        objs[length - 1] = array;
 	                        return method.invoke(obj, m_Type);
 	                    }

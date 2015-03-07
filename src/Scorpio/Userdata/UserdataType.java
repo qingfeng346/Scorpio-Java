@@ -58,7 +58,7 @@ public class UserdataType {
             return;
         }
         m_InitializeConstructor = true;
-        m_Constructor = new UserdataMethod(m_Type, m_Type.toString(), m_Type.getConstructors());
+        m_Constructor = new UserdataMethod(m_Script, m_Type, m_Type.toString(), m_Type.getConstructors());
     }
     private void InitializeMethods() {
         if (m_InitializeMethods == true) {
@@ -71,7 +71,7 @@ public class UserdataType {
         InitializeMethods();
         for (int i = 0; i < m_Methods.length; ++i) {
             if (m_Methods[i].getName().equals(name)) {
-                UserdataMethod method = new UserdataMethod(m_Type, name, m_Methods);
+                UserdataMethod method = new UserdataMethod(m_Script, m_Type, name, m_Methods);
                 m_Functions.put(name, method);
                 return method;
             }
@@ -153,7 +153,7 @@ public class UserdataType {
             throw new ScriptException("SetValue Type[" + m_Type + "] 变量 [" + name + "] 不存在");
         }
         try {
-        	field.SetValue(obj, Util.ChangeType(value, field.FieldType));
+        	field.SetValue(obj, Util.ChangeType(m_Script, value, field.FieldType));
         } catch (Exception e) {
             throw new ScriptException("不能从源类型:" + (value.getIsNull() ? "null" : value.getObjectValue().getClass().getName()) + " 转换成目标类型:" + field.FieldType.getName());
         }

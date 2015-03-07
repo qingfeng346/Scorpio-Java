@@ -159,6 +159,9 @@ public class Script {
     public final ScriptFunction CreateFunction(ScorpioMethod value) {
         return new ScriptFunction(this, value);
     }
+    public IScriptUserdataFactory GetUserdataFactory() {
+        return m_UserdataFactory;
+    }
     public final void LoadLibrary() {
         m_UserdataFactory = new DefaultScriptUserdataFactory(this);
         m_GlobalTable = CreateTable();

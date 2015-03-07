@@ -89,7 +89,7 @@ public final class Util {
     public static boolean IsEnumObject(Object obj) {
         return IsEnum(obj.getClass());
     }
-    public static Object ChangeType(ScriptObject par, java.lang.Class<?> type) {
+    public static Object ChangeType(Script script, ScriptObject par, java.lang.Class<?> type) {
         if (type == TYPE_OBJECT) {
             return par.getObjectValue();
         }
