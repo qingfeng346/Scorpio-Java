@@ -370,7 +370,8 @@ public class ScriptLexer {
                         setlexState(LexState.String);
                     }
                     else {
-                        ThrowInvalidCharacterException(ch);
+                    	m_strToken += ch;
+                    	setlexState(LexState.String);
                     }
                     break;
                 case SingleString:
@@ -405,7 +406,8 @@ public class ScriptLexer {
                         setlexState(LexState.SingleString);
                     }
                     else {
-                        ThrowInvalidCharacterException(ch);
+                    	m_strToken += ch;
+                    	setlexState(LexState.String);
                     }
                     break;
                 case SimpleStringStart:
