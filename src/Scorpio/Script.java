@@ -54,6 +54,10 @@ public class Script {
     public final void SetStackInfo(StackInfo info) {
         m_StackInfo = info;
     }
+    public final StackInfo GetCurrentStackInfo()
+    {
+        return m_StackInfo;
+    }
     public final void PushStackInfo() {
         m_StackInfoStack.add(m_StackInfo);
     }
