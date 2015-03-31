@@ -1,5 +1,6 @@
 package Scorpio;
 
+import Scorpio.Exception.ExecutionException;
 import Scorpio.Runtime.*;
 import Scorpio.Variable.*;
 
@@ -71,6 +72,19 @@ public class ScriptFunction extends ScriptObject {
             m_stackObject.put("self", table);
         }
     }
+    @Override
+    public void SetValue(Object key, ScriptObject value)
+    {
+        if (!(key instanceof String)) throw new ExecutionException(getScript(), "Function SetValue只支持String类型");
+        m_stackObject.put((String)key, value);
+    }
+    @Override
+    public ScriptObject GetValue(Object key)
+    {
+        if (!(key instanceof String)) throw new ExecutionException(getScript(), "Function GetValue只支持String类型");
+        return m_stackObject.get((String)key);
+    }
+    
     public final void SetParentContext(ScriptContext context) {
         if (getFunctionType() == FunstionType.Script) {
             m_ScriptFunction.SetParentContext(context);

@@ -33,6 +33,12 @@ public class ScriptString extends ScriptObject {
         setValue(getValue() + obj.toString());
         return this;
     }
+    @Override
+    public final ScriptObject GetValue(Object index)
+    {
+    	if (!(index instanceof Double || index instanceof Integer || index instanceof Long)) throw new ExecutionException("String GetValue只支持Number类型");
+        return getScript().CreateString(privateValue.charAt(Util.ToInt32(index)) + "");
+    }
     public final boolean Compare(TokenType type, ScriptString str) {
         switch (type) {
             case Greater:
