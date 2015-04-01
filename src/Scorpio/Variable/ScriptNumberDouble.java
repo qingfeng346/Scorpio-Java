@@ -70,7 +70,7 @@ public class ScriptNumberDouble extends ScriptNumber {
             case Modulo:
                 return getScript().CreateDouble(m_Value % obj.ToDouble());
             default:
-                throw new ExecutionException("Double不支持的运算符 " + type);
+                throw new ExecutionException(getScript(), "Double不支持的运算符 " + type);
         }
     }
     @Override
@@ -92,14 +92,14 @@ public class ScriptNumberDouble extends ScriptNumber {
                 m_Value %= obj.ToDouble();
                 return this;
             default:
-                throw new ExecutionException("Double不支持的运算符 " + type);
+                throw new ExecutionException(getScript(), "Double不支持的运算符 " + type);
         }
     }
     @Override
     public boolean Compare(TokenType type, ScriptNumber num) {
         ScriptNumberDouble val = (ScriptNumberDouble)((num instanceof ScriptNumberDouble) ? num : null);
         if (val == null) {
-            throw new ExecutionException("数字比较 两边的数字类型不一致 请先转换再比较 ");
+            throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
         }
         switch (type) {
             case Greater:
@@ -111,7 +111,7 @@ public class ScriptNumberDouble extends ScriptNumber {
             case LessOrEqual:
                 return m_Value <= val.m_Value;
             default:
-                throw new ExecutionException("Number类型 操作符[" + type + "]不支持");
+                throw new ExecutionException(getScript(), "Number类型 操作符[" + type + "]不支持");
         }
     }
     @Override

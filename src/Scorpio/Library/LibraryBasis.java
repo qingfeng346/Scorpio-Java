@@ -95,12 +95,14 @@ public class LibraryBasis {
         }
     }
     private static class UserdataPairs implements ScorpioHandle {
+    	private Script m_Script;
         private java.util.Iterator<?> m_Enumerator;
-        public UserdataPairs(ScriptUserdata obj) {
+        public UserdataPairs(Script script, ScriptUserdata obj) {
+        	m_Script = script;
             Object value = obj.getValue();
             Iterable<?> ienumerable = (Iterable<?>)((value instanceof Iterable) ? value : null);
             if (ienumerable == null) {
-                throw new ExecutionException("pairs 只支持继承 IEnumerable 的类");
+                throw new ExecutionException(m_Script, "pairs 只支持继承 IEnumerable 的类");
             }
             m_Enumerator = ienumerable.iterator();
         }
@@ -161,9 +163,9 @@ public class LibraryBasis {
                 return m_script.CreateFunction(new TablePairs(m_script, (ScriptTable)obj));
             }
             else if (obj instanceof ScriptUserdata) {
-                return m_script.CreateFunction(new UserdataPairs((ScriptUserdata)obj));
+                return m_script.CreateFunction(new UserdataPairs(m_script, (ScriptUserdata)obj));
             }
-            throw new ExecutionException("pairs必须用语table或array或者继承IEnumerable的userdata 类型");
+            throw new ExecutionException(m_script, "pairs必须用语table或array或者继承IEnumerable的userdata 类型");
         }
     }
     private static class kpairs implements ScorpioHandle {
@@ -179,7 +181,7 @@ public class LibraryBasis {
             else if (obj instanceof ScriptTable) {
                 return m_script.CreateFunction(new TableKPairs((ScriptTable)obj));
             }
-            throw new ExecutionException("kpairs必须用语table或array类型");
+            throw new ExecutionException(m_script, "kpairs必须用语table或array类型");
         }
     }
     private static class vpairs implements ScorpioHandle {
@@ -195,7 +197,7 @@ public class LibraryBasis {
             else if (obj instanceof ScriptTable) {
                 return m_script.CreateFunction(new TableVPairs((ScriptTable)obj));
             }
-            throw new ExecutionException("vpairs必须用语table或array类型");
+            throw new ExecutionException(m_script, "vpairs必须用语table或array类型");
         }
     }
     private static class type implements ScorpioHandle {
@@ -301,7 +303,7 @@ public class LibraryBasis {
             if (obj instanceof ScriptNumber || obj instanceof ScriptString || obj instanceof ScriptEnum) {
                 return m_script.CreateNumber(Util.ToDouble(obj.getObjectValue()));
             }
-            throw new ExecutionException("不能从类型 " + obj.getType() + " 转换成Number类型");
+            throw new ExecutionException(m_script, "不能从类型 " + obj.getType() + " 转换成Number类型");
         }
     }
     private static class tolong implements ScorpioHandle {
@@ -314,7 +316,7 @@ public class LibraryBasis {
             if (obj instanceof ScriptNumber || obj instanceof ScriptString || obj instanceof ScriptEnum) {
                 return m_script.CreateNumber(Util.ToInt64(obj.getObjectValue()));
             }
-            throw new ExecutionException("不能从类型 " + obj.getType() + " 转换成Long类型");
+            throw new ExecutionException(m_script, "不能从类型 " + obj.getType() + " 转换成Long类型");
         }
     }
     private static class tostring implements ScorpioHandle {
@@ -342,11 +344,11 @@ public class LibraryBasis {
         }
         public final Object Call(ScriptObject[] args) {
             ScriptString str = (ScriptString)((args[0] instanceof ScriptString) ? args[0] : null);
-            Util.Assert(str != null, "require 参数必须是 string");
+            Util.Assert(str != null, m_script, "require 参数必须是 string");
             try {
             	return m_script.LoadFile(m_script.GetValue("searchpath") + "/" + str.getValue());
             } catch (Exception ex) {
-            	throw new ExecutionException("require is error : " + ex.getMessage()); 
+            	throw new ExecutionException(m_script, "require is error : " + ex.getMessage()); 
             }
         }
     }
@@ -358,7 +360,7 @@ public class LibraryBasis {
         public final Object Call(ScriptObject[] args) {
             ScriptString str = (ScriptString)((args[0] instanceof ScriptString) ? args[0] : null);
             if (str == null) {
-                throw new ExecutionException("import_type 参数必须是 string");
+                throw new ExecutionException(m_script, "import_type 参数必须是 string");
             }
             return m_script.LoadType(str.getValue());
         }

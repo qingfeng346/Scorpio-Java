@@ -36,7 +36,8 @@ public class ScriptString extends ScriptObject {
     @Override
     public final ScriptObject GetValue(Object index)
     {
-    	if (!(index instanceof Double || index instanceof Integer || index instanceof Long)) throw new ExecutionException("String GetValue只支持Number类型");
+    	if (!(index instanceof Double || index instanceof Integer || index instanceof Long))
+    		throw new ExecutionException(getScript(), "String GetValue只支持Number类型");
         return getScript().CreateString(privateValue.charAt(Util.ToInt32(index)) + "");
     }
     public final boolean Compare(TokenType type, ScriptString str) {
@@ -50,7 +51,7 @@ public class ScriptString extends ScriptObject {
             case LessOrEqual:
                 return getValue().compareTo(str.getValue()) >= 0;
             default:
-                throw new ExecutionException("String类型 操作符[" + type + "]不支持");
+                throw new ExecutionException(getScript(), "String类型 操作符[" + type + "]不支持");
         }
     }
     @Override

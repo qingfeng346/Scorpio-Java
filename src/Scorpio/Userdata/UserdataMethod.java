@@ -120,7 +120,7 @@ public class UserdataMethod {
     }
     public final Object Call(Object obj, ScriptObject[] parameters) throws Exception {
         if (m_Count == 0) {
-            throw new ScriptException("找不到函数 [" + getMethodName() + "]");
+            throw new ExecutionException(m_Script, "找不到函数 [" + getMethodName() + "]");
         }
         FunctionMethod methodInfo = null;
         if (m_Count == 1) {
@@ -166,8 +166,8 @@ public class UserdataMethod {
 	            }
 	        }
         } catch (Exception e) { 
-        	throw new ScriptException("Type[" + m_Type.toString() + "] 调用函数出错 [" + getMethodName() + "] : " + e.getMessage());
+        	throw new ExecutionException(m_Script, "Type[" + m_Type.toString() + "] 调用函数出错 [" + getMethodName() + "] : " + e.getMessage());
         }
-        throw new ScriptException("Type[" + m_Type.toString() + "] 找不到合适的函数 [" + getMethodName() + "]");
+        throw new ExecutionException(m_Script, "Type[" + m_Type.toString() + "] 找不到合适的函数 [" + getMethodName() + "]");
     }
 }

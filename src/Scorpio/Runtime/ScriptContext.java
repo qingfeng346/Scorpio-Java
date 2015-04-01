@@ -89,12 +89,12 @@ public class ScriptContext {
             ret = ResolveOperand(member.Parent).GetValue(GetMember(member));
         }
         if (ret == null) {
-            throw new ExecutionException("GetVariable member is error");
+            throw new ExecutionException(m_script, "GetVariable member is error");
         }
         if (member.Calc != CALC.NONE) {
             ScriptNumber num = (ScriptNumber)((ret instanceof ScriptNumber) ? ret : null);
             if (num == null) {
-                throw new ExecutionException("++或者--只能应用于Number类型");
+                throw new ExecutionException(m_script, "++或者--只能应用于Number类型");
             }
             return num.Calc(member.Calc);
         }
@@ -230,7 +230,7 @@ public class ScriptContext {
                 Object tempVar = context.ResolveOperand(code.Condition);
                 Condition = (ScriptBoolean)((tempVar instanceof ScriptBoolean) ? tempVar : null);
                 if (Condition == null) {
-                    throw new ExecutionException("for 跳出条件必须是一个bool型");
+                    throw new ExecutionException(m_script, "for 跳出条件必须是一个bool型");
                 }
                 if (!Condition.getValue()) {
                     break;
@@ -249,12 +249,12 @@ public class ScriptContext {
         ScriptObject tempVar = ResolveOperand(code.Begin);
         ScriptNumber beginNumber = (ScriptNumber)((tempVar instanceof ScriptNumber) ? tempVar : null);
         if (beginNumber == null) {
-            throw new ExecutionException("forsimple 初始值必须是number");
+            throw new ExecutionException(m_script, "forsimple 初始值必须是number");
         }
         ScriptObject tempVar2 = ResolveOperand(code.Finished);
         ScriptNumber finishedNumber = (ScriptNumber)((tempVar2 instanceof ScriptNumber) ? tempVar2 : null);
         if (finishedNumber == null) {
-            throw new ExecutionException("forsimple 最大值必须是number");
+            throw new ExecutionException(m_script, "forsimple 最大值必须是number");
         }
         int begin = beginNumber.ToInt32();
         int finished = finishedNumber.ToInt32();
@@ -263,7 +263,7 @@ public class ScriptContext {
             ScriptObject tempVar3 = ResolveOperand(code.Step);
             ScriptNumber stepNumber = (ScriptNumber)((tempVar3 instanceof ScriptNumber) ? tempVar3 : null);
             if (stepNumber == null) {
-                throw new ExecutionException("forsimple Step必须是number");
+                throw new ExecutionException(m_script, "forsimple Step必须是number");
             }
             step = stepNumber.ToInt32();
         }
@@ -284,7 +284,7 @@ public class ScriptContext {
         CodeForeach code = (CodeForeach)m_scriptInstruction.getOperand0();
         ScriptObject loop = ResolveOperand(code.LoopObject);
         if (!loop.getIsFunction()) {
-            throw new ExecutionException("foreach函数必须返回一个ScriptFunction");
+            throw new ExecutionException(m_script, "foreach函数必须返回一个ScriptFunction");
         }
         ScriptObject obj;
         for (; ;) {
@@ -401,7 +401,7 @@ public class ScriptContext {
         m_Continue = true;
         if (!SupportContinue()) {
             if (m_parent == null) {
-                throw new ExecutionException("当前模块不支持continue语法");
+                throw new ExecutionException(m_script, "当前模块不支持continue语法");
             }
             m_parent.InvokeContinue(con);
         }
@@ -410,7 +410,7 @@ public class ScriptContext {
         m_Break = true;
         if (!SupportBreak()) {
             if (m_parent == null) {
-                throw new ExecutionException("当前模块不支持break语法");
+                throw new ExecutionException(m_script, "当前模块不支持break语法");
             }
             m_parent.InvokeBreak(bre);
         }
@@ -457,14 +457,14 @@ public class ScriptContext {
         if (value.Not) {
             ScriptBoolean b = (ScriptBoolean)((ret instanceof ScriptBoolean) ? ret : null);
             if (b == null) {
-                throw new ExecutionException("Script Object Type [" + ret.getType() + "] is cannot use [!] sign");
+                throw new ExecutionException(m_script, "Script Object Type [" + ret.getType() + "] is cannot use [!] sign");
             }
             ret = b.Inverse();
         }
         else if (value.Negative) {
             ScriptNumber b = (ScriptNumber)((ret instanceof ScriptNumber) ? ret : null);
             if (b == null) {
-                throw new ExecutionException("Script Object Type [" + ret.getType() + "] is cannot use [-] sign");
+                throw new ExecutionException(m_script, "Script Object Type [" + ret.getType() + "] is cannot use [-] sign");
             }
             ret = b.Negative();
         }
@@ -522,18 +522,18 @@ public class ScriptContext {
                 return ((ScriptNumber)left).Compute(TokenType.Plus, (ScriptNumber)right);
             }
             else {
-                throw new ExecutionException("operate [+] left right is not same type");
+                throw new ExecutionException(m_script, "operate [+] left right is not same type");
             }
         }
         else if (type == TokenType.Minus || type == TokenType.Multiply || type == TokenType.Divide || type == TokenType.Modulo || type == TokenType.InclusiveOr || type == TokenType.Combine || type == TokenType.XOR || type == TokenType.Shr || type == TokenType.Shi) {
             ScriptNumber leftNumber = (ScriptNumber)((left instanceof ScriptNumber) ? left : null);
             if (leftNumber == null) {
-                throw new ExecutionException("运算符[左边]必须是number类型");
+                throw new ExecutionException(m_script, "运算符[左边]必须是number类型");
             }
             ScriptObject tempVar = ResolveOperand(operate.Right);
             ScriptNumber rightNumber = (ScriptNumber)((tempVar instanceof ScriptNumber) ? tempVar : null);
             if (rightNumber == null) {
-                throw new ExecutionException("运算符[右边]必须是number类型");
+                throw new ExecutionException(m_script, "运算符[右边]必须是number类型");
             }
             return leftNumber.Compute(type, rightNumber);
         }
@@ -547,7 +547,7 @@ public class ScriptContext {
                     ScriptObject tempVar2 = ResolveOperand(operate.Right);
                     ScriptBoolean right = (ScriptBoolean)((tempVar2 instanceof ScriptBoolean) ? tempVar2 : null);
                     if (right == null) {
-                        throw new ExecutionException("operate [&&] right is not a bool");
+                        throw new ExecutionException(m_script, "operate [&&] right is not a bool");
                     }
                     return right.getValue() ? ScriptBoolean.True : ScriptBoolean.False;
                 }
@@ -558,7 +558,7 @@ public class ScriptContext {
                     ScriptObject tempVar3 = ResolveOperand(operate.Right);
                     ScriptBoolean right = (ScriptBoolean)((tempVar3 instanceof ScriptBoolean) ? tempVar3 : null);
                     if (right == null) {
-                        throw new ExecutionException("operate [||] right is not a bool");
+                        throw new ExecutionException(m_script, "operate [||] right is not a bool");
                     }
                     return right.getValue() ? ScriptBoolean.True : ScriptBoolean.False;
                 }
@@ -566,7 +566,7 @@ public class ScriptContext {
                     ScriptObject tempVar4 = ResolveOperand(operate.Right);
                     ScriptBoolean right = (ScriptBoolean)((tempVar4 instanceof ScriptBoolean) ? tempVar4 : null);
                     if (right == null) {
-                        throw new ExecutionException("operate [==] [!=] right is not a bool");
+                        throw new ExecutionException(m_script, "operate [==] [!=] right is not a bool");
                     }
                     boolean b2 = right.getValue();
                     if (type == TokenType.Equal) {
@@ -576,7 +576,7 @@ public class ScriptContext {
                         return b1 != b2 ? ScriptBoolean.True : ScriptBoolean.False;
                     }
                     else {
-                        throw new ExecutionException("nonsupport operate [" + type + "]  with bool");
+                        throw new ExecutionException(m_script, "nonsupport operate [" + type + "]  with bool");
                     }
                 }
             }
@@ -591,7 +591,7 @@ public class ScriptContext {
                         ret = (left != right);
                     }
                     else {
-                        throw new ExecutionException("nonsupport operate [" + type + "] with null");
+                        throw new ExecutionException(m_script, "nonsupport operate [" + type + "] with null");
                     }
                     return ret ? ScriptBoolean.True : ScriptBoolean.False;
                 }
@@ -602,7 +602,7 @@ public class ScriptContext {
                     return !left.getObjectValue().equals(right.getObjectValue()) ? ScriptBoolean.True : ScriptBoolean.False;
                 }
                 if (left.getType() != right.getType()) {
-                    throw new ExecutionException("[operate] left right is not same type");
+                    throw new ExecutionException(m_script, "[operate] left right is not same type");
                 }
                 if (left instanceof ScriptString) {
                     return ((ScriptString)left).Compare(type, (ScriptString)right) ? ScriptBoolean.True : ScriptBoolean.False;
@@ -611,7 +611,7 @@ public class ScriptContext {
                     return ((ScriptNumber)left).Compare(type, (ScriptNumber)right) ? ScriptBoolean.True : ScriptBoolean.False;
                 }
                 else {
-                    throw new ExecutionException("nonsupport operate [" + type + "] with " + left.getType());
+                    throw new ExecutionException(m_script, "nonsupport operate [" + type + "] with " + left.getType());
                 }
             }
         }
@@ -620,7 +620,7 @@ public class ScriptContext {
         ScriptObject tempVar = ResolveOperand(ternary.Allow);
         ScriptBoolean b = (ScriptBoolean)((tempVar instanceof ScriptBoolean) ? tempVar : null);
         if (b == null) {
-            throw new ExecutionException("三目运算符 条件必须是一个bool型");
+            throw new ExecutionException(m_script, "三目运算符 条件必须是一个bool型");
         }
         return b.getValue() ? ResolveOperand(ternary.True) : ResolveOperand(ternary.False);
     }
@@ -638,7 +638,7 @@ public class ScriptContext {
                     return str.AssignPlus(ResolveOperand(assign.value));
                 }
                 else {
-                    throw new ExecutionException("string类型只支持[+=]赋值操作");
+                    throw new ExecutionException(m_script, "string类型只支持[+=]赋值操作");
                 }
             }
             ScriptNumber num = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
@@ -646,18 +646,18 @@ public class ScriptContext {
                 ScriptObject tempVar = ResolveOperand(assign.value);
                 ScriptNumber right = (ScriptNumber)((tempVar instanceof ScriptNumber) ? tempVar : null);
                 if (right == null) {
-                    throw new ExecutionException("[+= -=...]值只能为 number类型");
+                    throw new ExecutionException(m_script, "[+= -=...]值只能为 number类型");
                 }
                 return num.AssignCompute(assign.AssignType, right);
             }
-            throw new ExecutionException("[+= -=...]左边值只能为number或者string");
+            throw new ExecutionException(m_script, "[+= -=...]左边值只能为number或者string");
         }
     }
     private ScriptObject ParseEval(CodeEval eval) throws Exception {
         ScriptObject tempVar = ResolveOperand(eval.EvalObject);
         ScriptString obj = (ScriptString)((tempVar instanceof ScriptString) ? tempVar : null);
         if (obj == null) {
-            throw new ExecutionException("Eval参数必须是一个字符串");
+            throw new ExecutionException(m_script, "Eval参数必须是一个字符串");
         }
         return m_script.LoadString("", obj.getValue(), this, false);
     }

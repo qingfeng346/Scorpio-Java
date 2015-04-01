@@ -5,15 +5,17 @@ import Scorpio.Userdata.*;
 
 //类函数
 public class ScorpioTypeMethod extends ScorpioMethod {
-    public ScorpioTypeMethod(String name, UserdataMethod method) {
+	private Script m_script;
+    public ScorpioTypeMethod(Script script, String name, UserdataMethod method) {
+    	m_script = script;
         setMethod(method);
         setMethodName(name);
     }
     @Override
     public Object Call(ScriptObject[] parameters) throws Exception {
         int length = parameters.length;
-        Util.Assert(length > 0, "length > 0");
-        Util.Assert(parameters[0] instanceof ScriptUserdata, "parameters[0] is ScriptUserdata");
+        Util.Assert(length > 0, m_script, "length > 0");
+        Util.Assert(parameters[0] instanceof ScriptUserdata, m_script, "parameters[0] is ScriptUserdata");
         if (length > 1) {
             ScriptObject[] pars = new ScriptObject[parameters.length - 1];
             System.arraycopy(parameters, 1, pars, 0, pars.length);

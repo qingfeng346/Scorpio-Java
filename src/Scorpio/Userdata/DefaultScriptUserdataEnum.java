@@ -22,15 +22,15 @@ public class DefaultScriptUserdataEnum extends ScriptUserdata {
     }
     @Override
     public ScriptObject Call(ScriptObject[] parameters) {
-        throw new ScriptException("枚举类型不支持实例化");
+        throw new ExecutionException(getScript(), "枚举类型不支持实例化");
     }
     @Override
     public ScriptObject GetValue(Object key) {
         if (!(key instanceof String))
-            throw new ExecutionException("Enum GetValue只支持String类型");
+            throw new ExecutionException(getScript(), "Enum GetValue只支持String类型");
         String name = (String)key;
         if (!m_Enums.containsKey(name)) {
-            throw new ScriptException("枚举[" + getValueType().toString() + "] 元素[" + name + "] 不存在");
+            throw new ExecutionException(getScript(), "枚举[" + getValueType().toString() + "] 元素[" + name + "] 不存在");
         }
         return m_Enums.get(name);
     }

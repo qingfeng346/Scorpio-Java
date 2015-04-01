@@ -11,10 +11,12 @@ import Scorpio.Variable.*;
 */
 public class UserdataType {
     private static class UserdataField {
+    	private Script m_Script;
         public String Name;
         public java.lang.Class FieldType;
         private java.lang.reflect.Field m_Field;
-        public UserdataField(java.lang.reflect.Field info) {
+        public UserdataField(Script script, java.lang.reflect.Field info) {
+        	m_Script = script;
             m_Field = info;
             Name = info.getName();
             FieldType = info.getType();
@@ -23,13 +25,13 @@ public class UserdataType {
             if (m_Field != null) {
                 return m_Field.get(obj);
             }
-            throw new ScriptException("变量 [" + Name + "] 不支持GetValue");
+            throw new ExecutionException(m_Script, "变量 [" + Name + "] 不支持GetValue");
         }
         public final void SetValue(Object obj, Object val) throws Exception {
             if (m_Field != null) {
                 m_Field.set(obj, val);
             } else {
-                throw new ScriptException("变量 [" + Name + "] 不支持SetValue");
+                throw new ExecutionException(m_Script, "变量 [" + Name + "] 不支持SetValue");
             }
         }
     }
@@ -85,7 +87,7 @@ public class UserdataType {
             return ret;
         }
         else if (obj == null) {
-            ScorpioMethod ret = new ScorpioTypeMethod(name, method);
+            ScorpioMethod ret = new ScorpioTypeMethod(m_Script, name, method);
             m_ScorpioMethods.put(name, ret);
             return ret;
         }
@@ -98,7 +100,7 @@ public class UserdataType {
         java.lang.reflect.Field fInfo = null;
 		try { fInfo = m_Type.getField(name); } catch (Exception e) { }
         if (fInfo != null) {
-            UserdataField info = new UserdataField(fInfo);
+            UserdataField info = new UserdataField(m_Script, fInfo);
             m_FieldInfos.put(name, info);
             return info;
         }
@@ -142,7 +144,7 @@ public class UserdataType {
         if (func != null) {
             return GetMethod(obj, name, func);
         }
-        throw new ScriptException("GetValue Type[" + m_Type.toString() + "] 变量 [" + name + "] 不存在");
+        throw new ExecutionException(m_Script, "GetValue Type[" + m_Type.toString() + "] 变量 [" + name + "] 不存在");
     }
     /**  设置一个类变量 
      * @throws Exception 
@@ -150,12 +152,12 @@ public class UserdataType {
     public final void SetValue(Object obj, String name, ScriptObject value) throws Exception {
         UserdataField field = GetField(name);
         if (field == null) {
-            throw new ScriptException("SetValue Type[" + m_Type + "] 变量 [" + name + "] 不存在");
+            throw new ExecutionException(m_Script, "SetValue Type[" + m_Type + "] 变量 [" + name + "] 不存在");
         }
         try {
         	field.SetValue(obj, Util.ChangeType(m_Script, value, field.FieldType));
         } catch (Exception e) {
-            throw new ScriptException("不能从源类型:" + (value.getIsNull() ? "null" : value.getObjectValue().getClass().getName()) + " 转换成目标类型:" + field.FieldType.getName());
+            throw new ExecutionException(m_Script, "不能从源类型:" + (value.getIsNull() ? "null" : value.getObjectValue().getClass().getName()) + " 转换成目标类型:" + field.FieldType.getName());
         }
     }
 }

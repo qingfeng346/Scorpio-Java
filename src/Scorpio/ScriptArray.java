@@ -15,19 +15,19 @@ public class ScriptArray extends ScriptObject {
     @Override
     public ScriptObject GetValue(Object index) {
     	if (!(index instanceof Double || index instanceof Integer || index instanceof Long))
-            throw new ExecutionException("Array GetValue只支持Number类型");
+            throw new ExecutionException(getScript(), "Array GetValue只支持Number类型");
     	int i = Util.ToInt32(index);
         if (i < 0 || i >= m_listObject.size())
-        	throw new ExecutionException("Array GetValue索引小于0或者超过最大值");
+        	throw new ExecutionException(getScript(), "Array GetValue索引小于0或者超过最大值");
         return m_listObject.get(i);
     }
     @Override
     public void SetValue(Object index, ScriptObject obj) {
     	if (!(index instanceof Double || index instanceof Integer || index instanceof Long))
-            throw new ExecutionException("Array SetValue只支持Number类型");
+            throw new ExecutionException(getScript(), "Array SetValue只支持Number类型");
     	int i = Util.ToInt32(index);
         if (i < 0 || i >= m_listObject.size())
-        	throw new ExecutionException("Array SetValue索引小于0或者超过最大值");
+        	throw new ExecutionException(getScript(), "Array SetValue索引小于0或者超过最大值");
         m_listObject.set(i, obj);
     }
     public final void Add(ScriptObject obj) {
@@ -69,7 +69,7 @@ public class ScriptArray extends ScriptObject {
     }
     public ScriptObject Pop() {
         if (m_listObject.size() == 0)
-            throw new ExecutionException("Array Pop 数组长度为0");
+            throw new ExecutionException(getScript(), "Array Pop 数组长度为0");
         ScriptObject obj = m_listObject.get(0);
         m_listObject.remove(0);
         return obj;

@@ -80,7 +80,7 @@ public class ScriptNumberLong extends ScriptNumber {
             case Shi:
                 return getScript().CreateLong(m_Value << obj.ToInt32());
             default:
-                throw new ExecutionException("Long不支持的运算符 " + type);
+                throw new ExecutionException(getScript(), "Long不支持的运算符 " + type);
         }
     }
     @Override
@@ -117,14 +117,14 @@ public class ScriptNumberLong extends ScriptNumber {
                 m_Value <<= obj.ToInt32();
                 return this;
             default:
-                throw new ExecutionException("Long不支持的运算符 " + type);
+                throw new ExecutionException(getScript(), "Long不支持的运算符 " + type);
         }
     }
     @Override
     public boolean Compare(TokenType type, ScriptNumber num) {
         ScriptNumberLong val = (ScriptNumberLong)((num instanceof ScriptNumberLong) ? num : null);
         if (val == null) {
-            throw new ExecutionException("数字比较 两边的数字类型不一致 请先转换再比较 ");
+            throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
         }
         switch (type) {
             case Greater:
@@ -136,7 +136,7 @@ public class ScriptNumberLong extends ScriptNumber {
             case LessOrEqual:
                 return m_Value <= val.m_Value;
             default:
-                throw new ExecutionException("Number类型 操作符[" + type + "]不支持");
+                throw new ExecutionException(getScript(), "Number类型 操作符[" + type + "]不支持");
         }
     }
     @Override

@@ -177,12 +177,9 @@ public final class Util {
 	    }
 	    return null;
     }
-    public static void Assert(boolean b) {
-        Assert(b, "");
-    }
-    public static void Assert(boolean b, String message) {
+    public static void Assert(boolean b, Script script, String message) {
         if (!b) {
-            throw new ExecutionException(message);
+            throw new ExecutionException(script, message);
         }
     }
     public static int ToInt32(Object value)

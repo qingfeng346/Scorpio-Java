@@ -11,11 +11,11 @@ public abstract class ScriptObject {
     }
     //设置变量
     public void SetValue(Object key, ScriptObject value) throws Exception {
-        throw new ExecutionException("类型[" + getType() + "]不支持获取变量");
+        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持获取变量");
     }
     //获取变量
     public ScriptObject GetValue(Object key) throws Exception {
-        throw new ExecutionException("类型[" + getType() + "]不支持设置变量");
+        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持设置变量");
     }
     //调用无参函数
     public final Object Call() throws Exception {
@@ -23,7 +23,7 @@ public abstract class ScriptObject {
     }
     //调用函数
     public Object Call(ScriptObject[] parameters) throws Exception {
-        throw new ExecutionException("类型[" + getType() + "]不支持函数调用");
+        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持函数调用");
     }
     public ScriptObject clone() { // 复制一个变量
         return this;

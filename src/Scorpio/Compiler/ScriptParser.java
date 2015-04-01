@@ -330,7 +330,7 @@ public class ScriptParser {
             vals.add(val.getLexeme());
         }
         else {
-            throw new ParserException("case 语句 只支持 string和number类型");
+            throw new ParserException("case 语句 只支持 string和number类型", val);
         }
         ReadColon();
         if (ReadToken().getType() == TokenType.Case) {

@@ -750,7 +750,7 @@ public class ScriptLexer {
     }
     private char ReadChar() {
         if (getEndOfSource()) {
-            throw new LexerException("End of source reached.", m_iSourceLine);
+            throw new LexerException("End of source reached.");
         }
         char ch = m_listSourceLines.get(m_iSourceLine).charAt(m_iSourceChar++);
         if (m_iSourceChar >= m_listSourceLines.get(m_iSourceLine).length()) {
@@ -761,7 +761,7 @@ public class ScriptLexer {
     }
     private void UndoChar() {
         if (m_iSourceLine == 0 && m_iSourceChar == 0) {
-            throw new LexerException("Cannot undo char beyond start of source.", m_iSourceLine);
+            throw new LexerException("Cannot undo char beyond start of source.");
         }
         --m_iSourceChar;
         if (m_iSourceChar < 0) {
