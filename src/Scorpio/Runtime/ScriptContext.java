@@ -53,7 +53,7 @@ public class ScriptContext {
     }
     private void ApplyVariableObject(String name) {
         if (!m_variableDictionary.containsKey(name)) {
-            m_variableDictionary.put(name, ScriptNull.getInstance());
+            m_variableDictionary.put(name, m_script.Null);
         }
     }
     private ScriptObject GetVariableObject(String name) {
@@ -449,7 +449,7 @@ public class ScriptContext {
         else if (value instanceof CodeEval) {
             return ParseEval((CodeEval)((value instanceof CodeEval) ? value : null));
         }
-        return ScriptNull.getInstance();
+        return m_script.Null;
     }
     private ScriptObject ResolveOperand(CodeObject value) throws Exception {
         m_script.SetStackInfo(value.StackInfo);
@@ -542,25 +542,25 @@ public class ScriptContext {
                 boolean b1 = ((ScriptBoolean)left).getValue();
                 if (type == TokenType.And) {
                     if (b1 == false) {
-                        return ScriptBoolean.False;
+                        return m_script.False;
                     }
                     ScriptObject tempVar2 = ResolveOperand(operate.Right);
                     ScriptBoolean right = (ScriptBoolean)((tempVar2 instanceof ScriptBoolean) ? tempVar2 : null);
                     if (right == null) {
                         throw new ExecutionException(m_script, "operate [&&] right is not a bool");
                     }
-                    return right.getValue() ? ScriptBoolean.True : ScriptBoolean.False;
+                    return right.getValue() ? m_script.True : m_script.False;
                 }
                 else if (type == TokenType.Or) {
                     if (b1 == true) {
-                        return ScriptBoolean.True;
+                        return m_script.True;
                     }
                     ScriptObject tempVar3 = ResolveOperand(operate.Right);
                     ScriptBoolean right = (ScriptBoolean)((tempVar3 instanceof ScriptBoolean) ? tempVar3 : null);
                     if (right == null) {
                         throw new ExecutionException(m_script, "operate [||] right is not a bool");
                     }
-                    return right.getValue() ? ScriptBoolean.True : ScriptBoolean.False;
+                    return right.getValue() ? m_script.True : m_script.False;
                 }
                 else {
                     ScriptObject tempVar4 = ResolveOperand(operate.Right);
@@ -570,10 +570,10 @@ public class ScriptContext {
                     }
                     boolean b2 = right.getValue();
                     if (type == TokenType.Equal) {
-                        return b1 == b2 ? ScriptBoolean.True : ScriptBoolean.False;
+                        return b1 == b2 ? m_script.True : m_script.False;
                     }
                     else if (type == TokenType.NotEqual) {
-                        return b1 != b2 ? ScriptBoolean.True : ScriptBoolean.False;
+                        return b1 != b2 ? m_script.True : m_script.False;
                     }
                     else {
                         throw new ExecutionException(m_script, "nonsupport operate [" + type + "]  with bool");
@@ -593,22 +593,22 @@ public class ScriptContext {
                     else {
                         throw new ExecutionException(m_script, "nonsupport operate [" + type + "] with null");
                     }
-                    return ret ? ScriptBoolean.True : ScriptBoolean.False;
+                    return ret ? m_script.True : m_script.False;
                 }
                 if (type == TokenType.Equal) {
-                    return left.getObjectValue().equals(right.getObjectValue()) ? ScriptBoolean.True : ScriptBoolean.False;
+                    return left.getObjectValue().equals(right.getObjectValue()) ? m_script.True : m_script.False;
                 }
                 else if (type == TokenType.NotEqual) {
-                    return !left.getObjectValue().equals(right.getObjectValue()) ? ScriptBoolean.True : ScriptBoolean.False;
+                    return !left.getObjectValue().equals(right.getObjectValue()) ? m_script.True : m_script.False;
                 }
                 if (left.getType() != right.getType()) {
                     throw new ExecutionException(m_script, "[operate] left right is not same type");
                 }
                 if (left instanceof ScriptString) {
-                    return ((ScriptString)left).Compare(type, (ScriptString)right) ? ScriptBoolean.True : ScriptBoolean.False;
+                    return ((ScriptString)left).Compare(type, (ScriptString)right) ? m_script.True : m_script.False;
                 }
                 else if (left instanceof ScriptNumber) {
-                    return ((ScriptNumber)left).Compare(type, (ScriptNumber)right) ? ScriptBoolean.True : ScriptBoolean.False;
+                    return ((ScriptNumber)left).Compare(type, (ScriptNumber)right) ? m_script.True : m_script.False;
                 }
                 else {
                     throw new ExecutionException(m_script, "nonsupport operate [" + type + "] with " + left.getType());

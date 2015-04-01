@@ -60,12 +60,12 @@ public class ScriptArray extends ScriptObject {
     public ScriptObject First() {
         if (m_listObject.size() > 0)
             return m_listObject.get(0);
-        return ScriptNull.getInstance();
+        return getScript().Null;
     }
     public ScriptObject Last() {
         if (m_listObject.size() > 0)
             return m_listObject.get(m_listObject.size() - 1);
-        return ScriptNull.getInstance();
+        return getScript().Null;
     }
     public ScriptObject Pop() {
         if (m_listObject.size() == 0)
@@ -76,7 +76,7 @@ public class ScriptArray extends ScriptObject {
     }
     public ScriptObject SafePop() {
         if (m_listObject.size() == 0)
-            return ScriptNull.getInstance();
+            return getScript().Null;
         ScriptObject obj = m_listObject.get(0);
         m_listObject.remove(0);
         return obj;

@@ -16,7 +16,7 @@ public class ScriptTable extends ScriptObject {
     }
     @Override
     public ScriptObject GetValue(Object key) {
-    	return m_listObject.containsKey(key) ? m_listObject.get(key) : ScriptNull.getInstance();
+    	return m_listObject.containsKey(key) ? m_listObject.get(key) : getScript().Null;
     }
     public final boolean HasValue(Object key) {
         return m_listObject.containsKey(key);

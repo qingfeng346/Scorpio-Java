@@ -37,7 +37,7 @@ public class ScorpioScriptFunction {
         if (m_Params) {
             m_ParamsArray.Clear();
             for (int i = 0; i < m_ParameterCount - 1; ++i) {
-                objs.put(m_ListParameters.get(i), (parameters != null && length > i) ? parameters[i] : ScriptNull.getInstance());
+                objs.put(m_ListParameters.get(i), (parameters != null && length > i) ? parameters[i] : m_Script.Null);
             }
             for (int i = m_ParameterCount - 1; i < length; ++i) {
                 m_ParamsArray.Add(parameters[i]);
@@ -46,7 +46,7 @@ public class ScorpioScriptFunction {
         }
         else {
             for (int i = 0; i < m_ParameterCount; ++i) {
-                objs.put(m_ListParameters.get(i), (parameters != null && length > i) ? parameters[i] : ScriptNull.getInstance());
+                objs.put(m_ListParameters.get(i), (parameters != null && length > i) ? parameters[i] : m_Script.Null);
             }
         }
         m_Context.Initialize(m_ParentContext, objs);

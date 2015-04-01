@@ -19,6 +19,19 @@ public class Script {
     private ScriptTable m_GlobalTable; //全局Table
     private java.util.ArrayList<StackInfo> m_StackInfoStack = new java.util.ArrayList<StackInfo>(); //堆栈数据
     private StackInfo m_StackInfo = new StackInfo(); //最近堆栈数据
+    
+    public ScriptNull Null;                            //null对象
+    public ScriptBoolean True;                         //true对象
+    public ScriptBoolean False;                        //false对象
+    public ScriptBoolean GetBoolean(boolean value) {
+        return value ? True : False; 
+    }
+    public Script()
+    {
+        Null = new ScriptNull(this);
+        True = new ScriptBoolean(this, true);
+        False = new ScriptBoolean(this, false);
+    }
     public final ScriptObject LoadFile(String strFileName) throws Exception {
         return LoadFile(strFileName, "UTF8");
     }
@@ -49,7 +62,7 @@ public class Script {
                 return CreateUserdata(type);
             }
     	} catch (Exception e) {}
-        return ScriptNull.getInstance();
+        return Null;
     }
     public final void SetStackInfo(StackInfo info) {
         m_StackInfo = info;
@@ -102,7 +115,7 @@ public class Script {
     }
     public final ScriptObject CreateObject(Object value) {
         if (value == null) {
-            return ScriptNull.getInstance();
+            return Null;
         }
         else if (value instanceof ScriptObject) {
             return (ScriptObject)value;
@@ -128,7 +141,7 @@ public class Script {
         return CreateUserdata(value);
     }
     public final ScriptBoolean CreateBool(boolean value) {
-        return ScriptBoolean.Get(value);
+        return GetBoolean(value);
     }
     public final ScriptString CreateString(String value) {
         return new ScriptString(this, value);
