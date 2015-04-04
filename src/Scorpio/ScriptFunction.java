@@ -102,14 +102,16 @@ public class ScriptFunction extends ScriptObject {
     public Object Call(ScriptObject[] parameters) throws Exception {
         if (getFunctionType() == FunstionType.Script) {
             return m_ScriptFunction.Call(m_stackObject, parameters);
-        }
-        else {
-            if (getFunctionType() == FunstionType.Handle) {
-                return m_Handle.Call(parameters);
-            }
-            else if (getFunctionType() == FunstionType.Method) {
-                return m_Method.Call(parameters);
-            }
+        } else {
+        	try {
+	            if (getFunctionType() == FunstionType.Handle) {
+	                return m_Handle.Call(parameters);
+	            } else if (getFunctionType() == FunstionType.Method) {
+	                return m_Method.Call(parameters);
+	            }
+        	} catch (Exception ex) {
+        		throw new ExecutionException(getScript(), "CallFunction [" + getName() + "] is error : " + ex.toString());
+        	}
         }
         return null;
     }
