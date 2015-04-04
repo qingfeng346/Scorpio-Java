@@ -23,19 +23,20 @@ public class LibraryString {
     private static final String DELIM_STR = "{}";
     private static class format implements ScorpioHandle {
         public final Object Call(ScriptObject[] args) {
-            if (args == null || args.length == 0) {
-                return null;
-            }
+            if (args == null || args.length == 0) return null;
             String messagePattern = ((ScriptString)((args[0] instanceof ScriptString) ? args[0] : null)).getValue();
-            if (args.length == 1) {
-                return messagePattern;
-            }
-            int i = 0;
-            int j;
+            if (args.length == 1) return messagePattern;
             StringBuilder sbuf = new StringBuilder();
-            int length = args.length;
             int L;
-            for (L = 1; L < length; L++) {
+            if (args[1] instanceof ScriptArray) {
+                L = 0;
+                args = ((ScriptArray)args[1]).ToArray();
+            } else {
+                L = 1;
+            }
+            int length = args.length;
+            int i = 0, j = 0;
+            for (; L < length; L++) {
                 j = messagePattern.indexOf(DELIM_STR, i);
                 if (j == -1) {
                     if (i == 0) {

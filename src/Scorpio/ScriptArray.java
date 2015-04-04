@@ -84,6 +84,10 @@ public class ScriptArray extends ScriptObject {
     public final java.util.Iterator<ScriptObject> GetIterator() {
         return m_listObject.iterator();
     }
+    public ScriptObject[] ToArray()
+    {
+        return m_listObject.toArray(new ScriptObject[0]);
+    }
     @Override
     public ScriptObject clone() {
         ScriptArray ret = getScript().CreateArray();
