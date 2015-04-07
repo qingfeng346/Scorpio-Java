@@ -1,5 +1,7 @@
 package Scorpio;
 
+import java.util.Map;
+
 import Scorpio.Exception.ExecutionException;
 import Scorpio.Runtime.*;
 import Scorpio.Variable.*;
@@ -85,10 +87,15 @@ public class ScriptFunction extends ScriptObject {
         return m_stackObject.get((String)key);
     }
     
-    public final void SetParentContext(ScriptContext context) {
+    public final ScriptFunction SetParentVariable(java.util.HashMap<String, ScriptObject> variables)
+    {
         if (getFunctionType() == FunstionType.Script) {
-            m_ScriptFunction.SetParentContext(context);
+            for (Map.Entry<String, ScriptObject> pair : variables.entrySet()) {
+                if (!m_stackObject.containsKey(pair.getValue()))
+                    m_stackObject.put(pair.getKey(), pair.getValue().clone());
+            }
         }
+        return this;
     }
     public final Object call(Object... args) throws Exception {
         int length = args.length;

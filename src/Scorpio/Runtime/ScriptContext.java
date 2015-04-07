@@ -1,5 +1,7 @@
 package Scorpio.Runtime;
 
+import java.util.Map;
+
 import Scorpio.*;
 import Scorpio.Compiler.*;
 import Scorpio.CodeDom.*;
@@ -50,6 +52,19 @@ public class ScriptContext {
     private void Initialize(ScriptContext parent) {
         m_parent = parent;
         m_variableDictionary.clear();
+    }
+    private java.util.HashMap<String, ScriptObject> GetContextVariables()
+    {
+    	java.util.HashMap<String, ScriptObject> vars = new java.util.HashMap<String, ScriptObject>();
+        ScriptContext context = this;
+        while (context != null) {
+            for (Map.Entry<String, ScriptObject> pair : context.m_variableDictionary.entrySet()) {
+                if (!vars.containsKey(pair.getKey()))
+                    vars.put(pair.getKey(), pair.getValue());
+            }
+            context = context.m_parent;
+        }
+        return vars;
     }
     private void ApplyVariableObject(String name) {
         if (!m_variableDictionary.containsKey(name)) {
@@ -477,8 +492,7 @@ public class ScriptContext {
         return ResolveOperand(region.Context);
     }
     private ScriptFunction ParseFunction(CodeFunction func) {
-        func.Func.SetParentContext(this);
-        return func.Func;
+    	return ((ScriptFunction)func.Func.clone()).SetParentVariable(GetContextVariables());
     }
     private ScriptObject ParseCall(CodeCallFunction scriptFunction, boolean needRet) throws Exception {
         ScriptObject obj = ResolveOperand(scriptFunction.Member);
