@@ -1,6 +1,8 @@
 package Scorpio;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 import Scorpio.Runtime.*;
 import Scorpio.Compiler.*;
@@ -48,12 +50,21 @@ public class Script {
         return LoadString(strBreviary, strBuffer, null, true);
     }
     public final ScriptObject LoadString(String strBreviary, String strBuffer, ScriptContext context, boolean clearStack) throws Exception {
-        if (clearStack) m_StackInfoStack.clear();
+        if (Util.IsNullOrEmpty(strBuffer)) return Null;
+    	if (clearStack) m_StackInfoStack.clear();
         ScriptLexer scriptLexer = new ScriptLexer(strBuffer);
         strBreviary = Util.IsNullOrEmpty(strBreviary) ? scriptLexer.GetBreviary() : strBreviary;
         ScriptParser scriptParser = new ScriptParser(this, scriptLexer.GetTokens(), strBreviary);
         ScriptExecutable scriptExecutable = scriptParser.Parse();
         return new ScriptContext(this, scriptExecutable, context, Executable_Block.Context).Execute();
+    }
+    public ScriptObject LoadTokens(String strBreviary, ArrayList<Token> tokens) throws Exception
+    {
+        if (tokens.size() == 0) return Null;
+        m_StackInfoStack.clear();
+        ScriptParser scriptParser = new ScriptParser(this, tokens, strBreviary);
+        ScriptExecutable scriptExecutable = scriptParser.Parse();
+        return new ScriptContext(this, scriptExecutable, null, Executable_Block.Context).Execute();
     }
     public final ScriptObject LoadType(String str) {
     	try {
