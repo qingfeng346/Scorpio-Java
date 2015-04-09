@@ -136,15 +136,19 @@ public final class Util {
         else
             return type.isAssignableFrom(par.getClass());
     }
-    public static String GetFileString(String fileName, Charset encoding) throws Exception {
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
+    @SuppressWarnings("resource")
+	public static byte[] GetFileBuffer(String fileName) throws Exception {
+    	ByteArrayOutputStream output = new ByteArrayOutputStream();
 		FileInputStream stream = new FileInputStream(new File(fileName));
         int n = 0;
         byte[] buffer = new byte[4096];
         while (-1 != (n = stream.read(buffer))) {
             output.write(buffer, 0, n);
         }
-        return new String(output.toByteArray(), encoding);
+        return output.toByteArray();
+    }
+    public static String GetFileString(String fileName, Charset encoding) throws Exception {
+        return new String(GetFileBuffer(fileName), encoding);
     }
     public static boolean IsNullOrEmpty(String str) {
     	return str == null || str.isEmpty();
