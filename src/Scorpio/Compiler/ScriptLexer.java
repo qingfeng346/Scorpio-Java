@@ -15,14 +15,13 @@ public class ScriptLexer {
     public ScriptLexer(String buffer) {
         m_listSourceLines = new java.util.ArrayList<String>();
         m_listTokens = new java.util.ArrayList<Token>();
-        String strSource = buffer.replace("\r\n", "\r");
-        String[] strLines = strSource.split("[\\r]", -1);
+        String[] strLines = buffer.split("\n");
         m_strBreviary = strLines.length > 0 ? strLines[0] : "";
         if (m_strBreviary.length() > BREVIARY_CHAR) {
             m_strBreviary = m_strBreviary.substring(0, BREVIARY_CHAR);
         }
         for (String strLine : strLines) {
-            m_listSourceLines.add(strLine + "\r\n");
+            m_listSourceLines.add(strLine + '\n');
         }
         m_iSourceLine = 0;
         m_iSourceChar = 0;
