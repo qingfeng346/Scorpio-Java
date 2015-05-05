@@ -434,7 +434,7 @@ public class ScriptLexer {
                         setlexState(LexState.SimpleString);
                     }
                     else {
-                        AddToken(TokenType.String, m_strToken);
+                        AddToken(TokenType.SimpleString, m_strToken);
                         UndoChar();
                     }
                     break;
@@ -452,7 +452,7 @@ public class ScriptLexer {
                         setlexState(LexState.SingleSimpleString);
                     }
                     else {
-                        AddToken(TokenType.String, m_strToken);
+                        AddToken(TokenType.SimpleString, m_strToken);
                         UndoChar();
                     }
                     break;

@@ -325,12 +325,12 @@ public class ScriptParser {
     }
     //解析case
     private void ParseCase(java.util.ArrayList<Object> vals) {
-        Token val = ReadToken();
-        if (val.getType() == TokenType.String || val.getType() == TokenType.Number) {
-            vals.add(val.getLexeme());
+        Token token = ReadToken();
+        if (token.getType() == TokenType.String || token.getType() == TokenType.SimpleString || token.getType() == TokenType.Number) {
+            vals.add(token.getLexeme());
         }
         else {
-            throw new ParserException("case 语句 只支持 string和number类型", val);
+            throw new ParserException("case 语句 只支持 string和number类型", token);
         }
         ReadColon();
         if (ReadToken().getType() == TokenType.Case) {
@@ -509,6 +509,7 @@ public class ScriptParser {
             case Boolean:
             case Number:
             case String:
+            case SimpleString:
                 ret = new CodeScriptObject(m_script, token.getLexeme());
                 break;
             default:
@@ -647,7 +648,7 @@ public class ScriptParser {
         ReadLeftBrace();
         while (PeekToken().getType() != TokenType.RightBrace) {
             Token token = ReadToken();
-            if (token.getType() == TokenType.Identifier || token.getType() == TokenType.String || token.getType() == TokenType.Number) {
+            if (token.getType() == TokenType.Identifier || token.getType() == TokenType.String || token.getType() == TokenType.SimpleString || token.getType() == TokenType.Number) {
                 Token next = ReadToken();
                 if (next.getType() == TokenType.Assign || next.getType() == TokenType.Colon) {
             		ret.Variables.add(new TableVariable(token.getLexeme(), GetObject()));
