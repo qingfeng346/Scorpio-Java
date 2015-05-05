@@ -1,8 +1,5 @@
 package Scorpio;
 
-import Scorpio.CodeDom.*;
-import Scorpio.Exception.*;
-
 public enum ObjectType {
     Null, //Null
     Boolean, //布尔

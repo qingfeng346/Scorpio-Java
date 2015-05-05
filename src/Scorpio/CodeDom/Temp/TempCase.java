@@ -1,7 +1,6 @@
 package Scorpio.CodeDom.Temp;
 
 import Scorpio.*;
-import Scorpio.CodeDom.*;
 import Scorpio.Runtime.*;
 
 /**  switch语句中一个cast条件

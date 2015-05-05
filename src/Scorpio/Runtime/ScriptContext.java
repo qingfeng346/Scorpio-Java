@@ -431,40 +431,30 @@ public class ScriptContext {
         }
     }
     private ScriptObject ResolveOperand_impl(CodeObject value) throws Exception {
-        if (value instanceof CodeScriptObject) {
-            return ParseScriptObject((CodeScriptObject)value);
-        } 
-        else if (value instanceof CodeRegion) {
-            return ParseRegion((CodeRegion)value);
-        }
-        else if (value instanceof CodeFunction) {
-            return ParseFunction((CodeFunction)value);
-        }
-        else if (value instanceof CodeCallFunction) {
-            return ParseCall((CodeCallFunction)((value instanceof CodeCallFunction) ? value : null), true);
-        }
-        else if (value instanceof CodeMember) {
-            return GetVariable((CodeMember)((value instanceof CodeMember) ? value : null));
-        }
-        else if (value instanceof CodeArray) {
-            return ParseArray((CodeArray)((value instanceof CodeArray) ? value : null));
-        }
-        else if (value instanceof CodeTable) {
-            return ParseTable((CodeTable)((value instanceof CodeTable) ? value : null));
-        }
-        else if (value instanceof CodeOperator) {
-            return ParseOperate((CodeOperator)((value instanceof CodeOperator) ? value : null));
-        }
-        else if (value instanceof CodeTernary) {
-            return ParseTernary((CodeTernary)((value instanceof CodeTernary) ? value : null));
-        }
-        else if (value instanceof CodeAssign) {
-            return ParseAssign((CodeAssign)((value instanceof CodeAssign) ? value : null));
-        }
-        else if (value instanceof CodeEval) {
-            return ParseEval((CodeEval)((value instanceof CodeEval) ? value : null));
-        }
-        return m_script.Null;
+		if (value instanceof CodeScriptObject) {
+			return ParseScriptObject((CodeScriptObject)value);
+		} else if (value instanceof CodeRegion) {
+			return ParseRegion((CodeRegion)value);
+		} else if (value instanceof CodeFunction) {
+			return ParseFunction((CodeFunction)value);
+		} else if (value instanceof CodeCallFunction) {
+			return ParseCall((CodeCallFunction)value, true);
+		} else if (value instanceof CodeMember) {
+			return GetVariable((CodeMember)value);
+		} else if (value instanceof CodeArray) {
+			return ParseArray((CodeArray)value);
+		} else if (value instanceof CodeTable) {
+			return ParseTable((CodeTable)value);
+		} else if (value instanceof CodeOperator) {
+			return ParseOperate((CodeOperator)value);
+		} else if (value instanceof CodeTernary) {
+			return ParseTernary((CodeTernary)value);
+		} else if (value instanceof CodeAssign) {
+			return ParseAssign((CodeAssign)value);
+		} else if (value instanceof CodeEval) {
+			return ParseEval((CodeEval)value);
+		}
+		return m_script.Null;
     }
     private ScriptObject ResolveOperand(CodeObject value) throws Exception {
         m_script.SetStackInfo(value.StackInfo);

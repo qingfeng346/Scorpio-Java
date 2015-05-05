@@ -1,8 +1,4 @@
 package Scorpio;
-
-import Scorpio.Runtime.*;
-import Scorpio.Variable.*;
-
 /**  函数类型 
 */
 public enum FunstionType {

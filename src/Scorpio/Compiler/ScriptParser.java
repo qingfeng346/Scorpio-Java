@@ -435,6 +435,18 @@ public class ScriptParser {
                         break;
                 }
             }
+        } else {
+            Token token = ReadToken();
+            if (token.getType() == TokenType.QuestionMark) {
+                CodeTernary ternary = new CodeTernary();
+                ternary.Allow = ret;
+                ternary.True = GetObject();
+                ReadColon();
+                ternary.False = GetObject();
+                return ternary;
+            } else {
+                UndoToken();
+            }
         }
         return ret;
     }
@@ -518,7 +530,6 @@ public class ScriptParser {
         ret.StackInfo = new StackInfo(m_strBreviary, token.getSourceLine());
         ret = GetVariable(ret);
         ret.Not = not;
-        ret = GetTernary(ret);
         ret.Negative = negative;
         if (ret instanceof CodeMember) {
             if (calc != CALC.NONE) {
@@ -581,19 +592,6 @@ public class ScriptParser {
             ret.StackInfo = new StackInfo(m_strBreviary, m.getSourceLine());
         }
         return ret;
-    }
-    //返回三元运算符
-    private CodeObject GetTernary(CodeObject parent) {
-        if (PeekToken().getType() == TokenType.QuestionMark) {
-            CodeTernary ret = new CodeTernary();
-            ret.Allow = parent;
-            ReadToken();
-            ret.True = GetObject();
-            ReadColon();
-            ret.False = GetObject();
-            return ret;
-        }
-        return parent;
     }
     //返回一个调用函数 Object
     private CodeCallFunction GetFunction(CodeObject member) {
