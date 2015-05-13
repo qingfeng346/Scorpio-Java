@@ -136,7 +136,6 @@ public final class Util {
         else
             return type.isAssignableFrom(par.getClass());
     }
-    @SuppressWarnings("resource")
 	public static byte[] GetFileBuffer(String fileName) throws Exception {
     	ByteArrayOutputStream output = new ByteArrayOutputStream();
 		FileInputStream stream = new FileInputStream(new File(fileName));
@@ -145,6 +144,7 @@ public final class Util {
         while (-1 != (n = stream.read(buffer))) {
             output.write(buffer, 0, n);
         }
+        stream.close();
         return output.toByteArray();
     }
     public static String GetFileString(String fileName, Charset encoding) throws Exception {
