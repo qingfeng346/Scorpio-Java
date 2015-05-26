@@ -1,7 +1,6 @@
 package Scorpio;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 
 import Scorpio.Runtime.*;
@@ -33,6 +32,11 @@ public class Script {
         Null = new ScriptNull(this);
         True = new ScriptBoolean(this, true);
         False = new ScriptBoolean(this, false);
+        m_UserdataFactory = new DefaultScriptUserdataFactory(this);
+        m_GlobalTable = CreateTable();
+        m_GlobalTable.SetValue(GLOBAL_TABLE, m_GlobalTable);
+        m_GlobalTable.SetValue(GLOBAL_VERSION, CreateString(Version));
+        m_GlobalTable.SetValue(GLOBAL_SCRIPT, CreateObject(this));
     }
     public final ScriptObject LoadFile(String strFileName) throws Exception {
         return LoadFile(strFileName, "UTF8");
@@ -54,17 +58,20 @@ public class Script {
     	if (clearStack) m_StackInfoStack.clear();
         ScriptLexer scriptLexer = new ScriptLexer(strBuffer);
         strBreviary = Util.IsNullOrEmpty(strBreviary) ? scriptLexer.GetBreviary() : strBreviary;
-        ScriptParser scriptParser = new ScriptParser(this, scriptLexer.GetTokens(), strBreviary);
-        ScriptExecutable scriptExecutable = scriptParser.Parse();
-        return new ScriptContext(this, scriptExecutable, context, Executable_Block.Context).Execute();
+        return Load(strBreviary, scriptLexer.GetTokens(), context);
     }
-    public ScriptObject LoadTokens(String strBreviary, ArrayList<Token> tokens) throws Exception
+    public final ScriptObject LoadTokens(String strBreviary, List<Token> tokens) throws Exception
     {
         if (tokens.size() == 0) return Null;
         m_StackInfoStack.clear();
+        return Load(strBreviary, tokens, null);
+    }
+    private final ScriptObject Load(String strBreviary, List<Token> tokens, ScriptContext context) throws Exception
+    {
+        if (tokens.size() == 0) return Null;
         ScriptParser scriptParser = new ScriptParser(this, tokens, strBreviary);
         ScriptExecutable scriptExecutable = scriptParser.Parse();
-        return new ScriptContext(this, scriptExecutable, null, Executable_Block.Context).Execute();
+        return new ScriptContext(this, scriptExecutable, context, Executable_Block.Context).Execute();
     }
     public final ScriptObject LoadType(String str) {
     	try {
@@ -191,11 +198,6 @@ public class Script {
         return m_UserdataFactory;
     }
     public final void LoadLibrary() {
-        m_UserdataFactory = new DefaultScriptUserdataFactory(this);
-        m_GlobalTable = CreateTable();
-        m_GlobalTable.SetValue(GLOBAL_TABLE, m_GlobalTable);
-        m_GlobalTable.SetValue(GLOBAL_VERSION, CreateString(Version));
-        m_GlobalTable.SetValue(GLOBAL_SCRIPT, CreateObject(this));
         LibraryBasis.Load(this);
         LibraryArray.Load(this);
         LibraryString.Load(this);

@@ -1,5 +1,7 @@
 package Scorpio.Library;
 
+import java.lang.reflect.Method;
+
 import Scorpio.*;
 import Scorpio.Exception.*;
 import Scorpio.Variable.*;
@@ -134,6 +136,7 @@ public class LibraryBasis {
         script.SetObjectInternal("typeof", script.CreateFunction(new userdatatype()));
         script.SetObjectInternal("tonumber", script.CreateFunction(new tonumber(script)));
         script.SetObjectInternal("tolong", script.CreateFunction(new tolong(script)));
+        script.SetObjectInternal("toenum", script.CreateFunction(new toenum(script)));
         script.SetObjectInternal("tostring", script.CreateFunction(new tostring(script)));
         script.SetObjectInternal("clone", script.CreateFunction(new clone()));
         script.SetObjectInternal("require", script.CreateFunction(new require(script)));
@@ -317,6 +320,25 @@ public class LibraryBasis {
                 return m_script.CreateNumber(Util.ToInt64(obj.getObjectValue()));
             }
             throw new ExecutionException(m_script, "不能从类型 " + obj.getType() + " 转换成Long类型");
+        }
+    }
+    private static class toenum implements ScorpioHandle {
+        private Script m_script;
+        public toenum(Script script)
+        {
+            m_script = script;
+        }
+        public final Object Call(ScriptObject[] args) {
+        	try {
+                Util.Assert(args.length == 2, m_script, "toenum 第一个参数是枚举类 第二个参数必须是number类型");
+                ScriptUserdata obj = (ScriptUserdata)args[0];
+                ScriptNumber number = (ScriptNumber)args[1];
+                Method values = obj.getValueType().getMethod("values");
+        		Object[] rets = (Object[]) values.invoke(null);
+                return m_script.CreateEnum(rets[number.ToInt32()]);
+        	} catch (Exception e) {
+        		throw new ExecutionException(m_script, "toenum 第一个参数是枚举类 第二个参数必须是number类型");
+        	}
         }
     }
     private static class tostring implements ScorpioHandle {

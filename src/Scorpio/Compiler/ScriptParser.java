@@ -14,7 +14,7 @@ public class ScriptParser {
     private java.util.ArrayList<Token> m_listTokens; //token列表
     private java.util.Stack<ScriptExecutable> m_Executables = new java.util.Stack<ScriptExecutable>(); //指令栈
     private ScriptExecutable m_scriptExecutable; //当前指令栈
-    public ScriptParser(Script script, java.util.ArrayList<Token> listTokens, String strBreviary) {
+    public ScriptParser(Script script, java.util.List<Token> listTokens, String strBreviary) {
         m_script = script;
         m_strBreviary = strBreviary;
         m_iNextToken = 0;
@@ -518,6 +518,8 @@ public class ScriptParser {
                 ret = GetEval();
                 break;
             case Null:
+            	ret = new CodeScriptObject(m_script, null);
+            	break;
             case Boolean:
             case Number:
             case String:
