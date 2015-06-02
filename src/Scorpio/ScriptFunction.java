@@ -3,7 +3,6 @@ package Scorpio;
 import java.util.Map;
 
 import Scorpio.Exception.ExecutionException;
-import Scorpio.Runtime.*;
 import Scorpio.Variable.*;
 
 //脚本函数类型
@@ -92,7 +91,7 @@ public class ScriptFunction extends ScriptObject {
         if (getFunctionType() == FunstionType.Script) {
             for (Map.Entry<String, ScriptObject> pair : variables.entrySet()) {
                 if (!m_stackObject.containsKey(pair.getValue()))
-                    m_stackObject.put(pair.getKey(), pair.getValue().clone());
+                    m_stackObject.put(pair.getKey(), pair.getValue());
             }
         }
         return this;
