@@ -1,6 +1,5 @@
 package Scorpio;
 
-import Scorpio.CodeDom.*;
 import Scorpio.Exception.*;
 
 //脚本数据类型

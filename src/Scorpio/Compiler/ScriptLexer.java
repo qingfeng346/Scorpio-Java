@@ -723,7 +723,8 @@ public class ScriptLexer {
             LexState.getMappings().put(value, this);
         }
 
-        public int getValue() {
+        @SuppressWarnings("unused")
+		public int getValue() {
             return intValue;
         }
 

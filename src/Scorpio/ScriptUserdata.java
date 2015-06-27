@@ -1,8 +1,4 @@
 package Scorpio;
-
-import Scorpio.Variable.*;
-import Scorpio.Exception.*;
-
 //语言数据
 public abstract class ScriptUserdata extends ScriptObject {
     @Override

@@ -13,7 +13,7 @@ public class UserdataType {
     private static class UserdataField {
     	private Script m_Script;
         public String Name;
-        public java.lang.Class FieldType;
+        public java.lang.Class<?> FieldType;
         private java.lang.reflect.Field m_Field;
         public UserdataField(Script script, java.lang.reflect.Field info) {
         	m_Script = script;
@@ -36,7 +36,7 @@ public class UserdataType {
         }
     }
     private Script m_Script; //脚本系统
-    private java.lang.Class m_Type; //类型
+    private java.lang.Class<?> m_Type; //类型
     private boolean m_InitializeConstructor; //是否初始化过所有构造函数
     private boolean m_InitializeMethods; //是否初始化过所有函数
     private UserdataMethod m_Constructor; //所有构造函数
@@ -45,7 +45,7 @@ public class UserdataType {
     private java.util.HashMap<String, ScriptUserdata> m_NestedTypes; //所有的类中类
     private java.util.HashMap<String, UserdataMethod> m_Functions; //所有的函数
     private java.util.HashMap<String, ScorpioMethod> m_ScorpioMethods; //所有的静态函数和类函数（不包含对象函数）
-    public UserdataType(Script script, java.lang.Class type) {
+    public UserdataType(Script script, java.lang.Class<?> type) {
         m_Script = script;
         m_Type = type;
         m_InitializeConstructor = false;

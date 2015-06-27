@@ -3,40 +3,37 @@ package Scorpio;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import Scorpio.Exception.ExecutionException;
-import Scorpio.Exception.ScriptException;
-import Scorpio.Variable.*;
-import Scorpio.*;
 
 public final class Util {
-    private static final java.lang.Class TYPE_VOID = void.class;
-    private static final java.lang.Class TYPE_OBJECT = Object.class;
-    private static final java.lang.Class TYPE_TYPE = java.lang.Class.class;
-    private static final java.lang.Class TYPE_BOOL = Boolean.class;
-    private static final java.lang.Class TYPE_BOOL_PRI = Boolean.TYPE;
-    private static final java.lang.Class TYPE_STRING = String.class;
-    private static final java.lang.Class TYPE_SBYTE = Byte.class;
-    private static final java.lang.Class TYPE_SBYTE_PRI = Byte.TYPE;
-    private static final java.lang.Class TYPE_BYTE = Byte.class;
-    private static final java.lang.Class TYPE_BYTE_PRI = Byte.TYPE;
-    private static final java.lang.Class TYPE_SHORT = Short.class;
-    private static final java.lang.Class TYPE_SHORT_PRI = Short.TYPE;
-    private static final java.lang.Class TYPE_USHORT = Short.class;
-    private static final java.lang.Class TYPE_USHORT_PRI = Short.TYPE;
-    private static final java.lang.Class TYPE_INT = Integer.class;
-    private static final java.lang.Class TYPE_INT_PRI = Integer.TYPE;
-    private static final java.lang.Class TYPE_UINT = Integer.class;
-    private static final java.lang.Class TYPE_UINT_PRI = Integer.TYPE;
-    private static final java.lang.Class TYPE_LONG = Long.class;
-    private static final java.lang.Class TYPE_LONG_PRI = Long.TYPE;
-    private static final java.lang.Class TYPE_FLOAT = Float.class;
-    private static final java.lang.Class TYPE_FLOAT_PRI = Float.TYPE;
-    private static final java.lang.Class TYPE_DOUBLE = Double.class;
-    private static final java.lang.Class TYPE_DOUBLE_PRI = Double.TYPE;
+    private static final java.lang.Class<?> TYPE_VOID = void.class;
+    private static final java.lang.Class<?> TYPE_OBJECT = Object.class;
+    private static final java.lang.Class<?> TYPE_TYPE = java.lang.Class.class;
+    private static final java.lang.Class<?> TYPE_BOOL = Boolean.class;
+    private static final java.lang.Class<?> TYPE_BOOL_PRI = Boolean.TYPE;
+    private static final java.lang.Class<?> TYPE_STRING = String.class;
+    private static final java.lang.Class<?> TYPE_SBYTE = Byte.class;
+    private static final java.lang.Class<?> TYPE_SBYTE_PRI = Byte.TYPE;
+    private static final java.lang.Class<?> TYPE_BYTE = Byte.class;
+    private static final java.lang.Class<?> TYPE_BYTE_PRI = Byte.TYPE;
+    private static final java.lang.Class<?> TYPE_SHORT = Short.class;
+    private static final java.lang.Class<?> TYPE_SHORT_PRI = Short.TYPE;
+    private static final java.lang.Class<?> TYPE_USHORT = Short.class;
+    private static final java.lang.Class<?> TYPE_USHORT_PRI = Short.TYPE;
+    private static final java.lang.Class<?> TYPE_INT = Integer.class;
+    private static final java.lang.Class<?> TYPE_INT_PRI = Integer.TYPE;
+    private static final java.lang.Class<?> TYPE_UINT = Integer.class;
+    private static final java.lang.Class<?> TYPE_UINT_PRI = Integer.TYPE;
+    private static final java.lang.Class<?> TYPE_LONG = Long.class;
+    private static final java.lang.Class<?> TYPE_LONG_PRI = Long.TYPE;
+    private static final java.lang.Class<?> TYPE_FLOAT = Float.class;
+    private static final java.lang.Class<?> TYPE_FLOAT_PRI = Float.TYPE;
+    private static final java.lang.Class<?> TYPE_DOUBLE = Double.class;
+    private static final java.lang.Class<?> TYPE_DOUBLE_PRI = Double.TYPE;
 
     public static void SetObject(java.util.HashMap<Object, ScriptObject> variables, Object key, ScriptObject obj) {
         variables.put(key, obj.Assign());
@@ -44,31 +41,31 @@ public final class Util {
     public static void SetObject(java.util.HashMap<String, ScriptObject> variables, String key, ScriptObject obj) {
         variables.put(key, obj.Assign());
     }
-    public static boolean IsBool(java.lang.Class type) {
+    public static boolean IsBool(java.lang.Class<?> type) {
         return type == TYPE_BOOL || type == TYPE_BOOL_PRI;
     }
-    public static boolean IsString(java.lang.Class type) {
+    public static boolean IsString(java.lang.Class<?> type) {
         return type == TYPE_STRING;
     }
-    public static boolean IsDouble(java.lang.Class type) {
+    public static boolean IsDouble(java.lang.Class<?> type) {
         return type == TYPE_DOUBLE || type == TYPE_DOUBLE_PRI;
     }
-    public static boolean IsLong(java.lang.Class type) {
+    public static boolean IsLong(java.lang.Class<?> type) {
         return type == TYPE_LONG || type == TYPE_LONG_PRI;
     }
-    public static boolean IsNumber(java.lang.Class type) {
+    public static boolean IsNumber(java.lang.Class<?> type) {
         return (type == TYPE_SBYTE || type == TYPE_BYTE || type == TYPE_SHORT || type == TYPE_USHORT || type == TYPE_INT || 
         		type == TYPE_UINT || type == TYPE_FLOAT || type == TYPE_DOUBLE || type == TYPE_LONG ||
         		type == TYPE_SBYTE_PRI || type == TYPE_BYTE_PRI || type == TYPE_SHORT_PRI || type == TYPE_USHORT_PRI || type == TYPE_INT_PRI || 
         		type == TYPE_UINT_PRI || type == TYPE_FLOAT_PRI || type == TYPE_DOUBLE_PRI || type == TYPE_LONG_PRI);
     }
-    public static boolean IsEnum(java.lang.Class type) {
+    public static boolean IsEnum(java.lang.Class<?> type) {
         return type.isEnum();
     }
-    public static boolean IsVoid(java.lang.Class type) {
+    public static boolean IsVoid(java.lang.Class<?> type) {
         return type == TYPE_VOID;
     }
-    public static boolean IsType(java.lang.Class type) {
+    public static boolean IsType(java.lang.Class<?> type) {
         return type == TYPE_TYPE;
     }
     public static boolean IsBoolObject(Object obj) {
@@ -105,7 +102,7 @@ public final class Util {
             }
         }
     }
-    public static boolean CanChangeType(ScriptObject[] pars, java.lang.Class[] types) {
+    public static boolean CanChangeType(ScriptObject[] pars, java.lang.Class<?>[] types) {
         if (pars.length != types.length) {
             return false;
         }
@@ -147,13 +144,34 @@ public final class Util {
         stream.close();
         return output.toByteArray();
     }
-    public static String GetFileString(String fileName, Charset encoding) throws Exception {
-        return new String(GetFileBuffer(fileName), encoding);
+    public static void WriteString(ByteBuffer writer, String value) {
+    	try {
+            if (value == null || value == "")  {
+            	writer.put((byte)0);
+            } else {
+            	writer.put(value.getBytes("utf-8"));
+            	writer.put((byte)0);
+            }
+    	} catch (Exception e) { }
+	}
+    public static String ReadString(ByteBuffer reader) {
+    	try	{
+            List<Byte> sb = new ArrayList<Byte>();
+            byte ch;
+            while ((ch = reader.get()) != 0)
+            	sb.add(ch);
+            byte[] bytes = new byte[sb.size()];
+            for (int i=0;i<sb.size();++i)
+            	bytes[i] = sb.get(i);
+            return new String(bytes, "utf-8");
+    	} catch (Exception e) {}
+    	return "";
     }
+    
     public static boolean IsNullOrEmpty(String str) {
     	return str == null || str.isEmpty();
     }
-    public static Object ChangeType_impl(Object value, java.lang.Class conversionType) {
+    public static Object ChangeType_impl(Object value, java.lang.Class<?> conversionType) {
     	Number num = (Number)value;
     	if (conversionType == TYPE_BYTE || conversionType == TYPE_BYTE_PRI)
 	    {

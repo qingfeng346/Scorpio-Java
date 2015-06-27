@@ -4,6 +4,10 @@ import Scorpio.Script;
 
 //执行代码异常
 public class ExecutionException extends ScriptException {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String m_Source = "";
 	public ExecutionException(Script script, String strMessage) {
 		super(strMessage);

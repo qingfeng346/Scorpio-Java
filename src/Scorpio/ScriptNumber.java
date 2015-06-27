@@ -1,9 +1,7 @@
 package Scorpio;
 
 import Scorpio.CodeDom.*;
-import Scorpio.Variable.*;
 import Scorpio.Compiler.*;
-import Scorpio.Exception.*;
 
 //脚本数字类型
 public abstract class ScriptNumber extends ScriptObject {

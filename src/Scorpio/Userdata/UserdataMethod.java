@@ -1,7 +1,6 @@
 package Scorpio.Userdata;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
@@ -14,12 +13,12 @@ public class UserdataMethod {
     private static class FunctionMethod {
         private int m_Type; //是普通函数还是构造函数
         private java.lang.reflect.Method m_Method; //普通函数对象
-        private java.lang.reflect.Constructor m_Constructor; //构造函数对象
-        public java.lang.Class[] ParameterType; //所有参数类型
+        private java.lang.reflect.Constructor<?> m_Constructor; //构造函数对象
+        public java.lang.Class<?>[] ParameterType; //所有参数类型
         public boolean Params; //是否是变长参数
-        public java.lang.Class ParamType; //变长参数类型
+        public java.lang.Class<?> ParamType; //变长参数类型
         public Object[] Args; //参数数组（预创建 可以共用）
-        public FunctionMethod(java.lang.reflect.Constructor Constructor, java.lang.Class[] ParameterType, java.lang.Class ParamType, boolean Params) {
+        public FunctionMethod(java.lang.reflect.Constructor<?> Constructor, java.lang.Class<?>[] ParameterType, java.lang.Class<?> ParamType, boolean Params) {
             m_Type = 0;
             m_Constructor = Constructor;
             this.ParameterType = ParameterType;
@@ -27,7 +26,7 @@ public class UserdataMethod {
             this.Params = Params;
             this.Args = new Object[ParameterType.length];
         }
-        public FunctionMethod(java.lang.reflect.Method Method, java.lang.Class[] ParameterType, java.lang.Class ParamType, boolean Params) {
+        public FunctionMethod(java.lang.reflect.Method Method, java.lang.Class<?>[] ParameterType, java.lang.Class<?> ParamType, boolean Params) {
             m_Type = 1;
             m_Method = Method;
             this.ParameterType = ParameterType;
@@ -35,12 +34,12 @@ public class UserdataMethod {
             this.Params = Params;
             this.Args = new Object[ParameterType.length];
         }
-        public final Object invoke(Object obj, java.lang.Class type) throws Exception {
+        public final Object invoke(Object obj, java.lang.Class<?> type) throws Exception {
             return m_Type == 1 ? m_Method.invoke(obj, Args) : m_Constructor.newInstance(Args);
         }
     }
     private Script m_Script;				//所在脚本引擎
-    private java.lang.Class m_Type; 		//所在类型
+    private java.lang.Class<?> m_Type; 		//所在类型
     private int m_Count; 					//相同名字函数数量
     private FunctionMethod[] m_Methods; 	//所有函数对象
     private boolean m_IsStatic;				//是否是静态函数
@@ -55,16 +54,16 @@ public class UserdataMethod {
     {
     	return m_IsStatic;
     }
-    public UserdataMethod(Script script, java.lang.Class type, String methodName, java.lang.reflect.Method[] methods) {
+    public UserdataMethod(Script script, java.lang.Class<?> type, String methodName, java.lang.reflect.Method[] methods) {
     	m_Script = script;
         m_Type = type;
         m_IsStatic = Modifier.isStatic(methods[0].getModifiers());
         setMethodName(methodName);
     	java.util.ArrayList<FunctionMethod> functionMethod = new java.util.ArrayList<FunctionMethod>();
         boolean Params = false;
-        java.lang.Class ParamType = null;
+        java.lang.Class<?> ParamType = null;
         Method method = null;
-        java.util.ArrayList<java.lang.Class> parameters = new java.util.ArrayList<java.lang.Class>();
+        java.util.ArrayList<java.lang.Class<?>> parameters = new java.util.ArrayList<java.lang.Class<?>>();
         int length = methods.length;
         for (int i = 0; i < length; ++i) {
         	method = methods[i];
@@ -87,16 +86,16 @@ public class UserdataMethod {
         m_Methods = functionMethod.toArray(new FunctionMethod[]{});
         m_Count = m_Methods.length;
     }
-    public UserdataMethod(Script script, java.lang.Class type, String methodName, java.lang.reflect.Constructor[] methods) {
+    public UserdataMethod(Script script, java.lang.Class<?> type, String methodName, java.lang.reflect.Constructor<?>[] methods) {
     	m_Script = script;
     	m_Type = type;
     	setMethodName(methodName);
     	m_IsStatic = false;
         java.util.ArrayList<FunctionMethod> functionMethod = new java.util.ArrayList<FunctionMethod>();
         boolean Params = false;
-        java.lang.Class ParamType = null;
-        java.lang.reflect.Constructor method = null;
-        java.util.ArrayList<java.lang.Class> parameters = new java.util.ArrayList<java.lang.Class>();
+        java.lang.Class<?> ParamType = null;
+        java.lang.reflect.Constructor<?> method = null;
+        java.util.ArrayList<java.lang.Class<?>> parameters = new java.util.ArrayList<java.lang.Class<?>>();
         int length = methods.length;
         for (int i = 0; i < length; ++i) {
             Params = false;

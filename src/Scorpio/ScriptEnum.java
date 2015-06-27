@@ -9,11 +9,11 @@ public class ScriptEnum extends ScriptObject {
     public Object getObjectValue() {
         return m_Object;
     }
-    private java.lang.Class privateEnumType;
-    public final java.lang.Class getEnumType() {
+    private java.lang.Class<?> privateEnumType;
+    public final java.lang.Class<?> getEnumType() {
         return privateEnumType;
     }
-    private void setEnumType(java.lang.Class value) {
+    private void setEnumType(java.lang.Class<?> value) {
         privateEnumType = value;
     }
     public Object m_Object;

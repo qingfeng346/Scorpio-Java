@@ -4,6 +4,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import Scorpio.Runtime.*;
+import Scorpio.Serialize.ScorpioMaker;
 import Scorpio.Compiler.*;
 import Scorpio.Exception.*;
 import Scorpio.Library.*;
@@ -45,7 +46,11 @@ public class Script {
         return LoadFile(fileName,Charset.forName(encoding));
     }
     public final ScriptObject LoadFile(String fileName, Charset encoding) throws Exception {
-        return LoadString(fileName, Util.GetFileString(fileName, encoding));
+    	byte[] buffer = Util.GetFileBuffer(fileName);
+    	if (buffer.length > 0 && buffer[0] == 0)
+    		return LoadTokens(fileName, ScorpioMaker.Deserialize(buffer));
+    	else
+    		return LoadString(fileName, new String(buffer, encoding));
     }
     public final ScriptObject LoadString(String strBuffer) throws Exception {
         return LoadString("", strBuffer);
