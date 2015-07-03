@@ -83,15 +83,19 @@ public class ScriptFunction extends ScriptObject {
     public ScriptObject GetValue(Object key)
     {
         if (!(key instanceof String)) throw new ExecutionException(getScript(), "Function GetValue只支持String类型");
-        return m_stackObject.get((String)key);
+        String skey = (String)key;
+        return m_stackObject.containsKey(skey) ? m_stackObject.get(skey) : getScript().Null;
     }
     
     public final ScriptFunction SetParentVariable(java.util.HashMap<String, ScriptObject> variables)
     {
         if (getFunctionType() == FunstionType.Script) {
+        	ScriptObject value = null;
             for (Map.Entry<String, ScriptObject> pair : variables.entrySet()) {
-                if (!m_stackObject.containsKey(pair.getValue()))
-                    m_stackObject.put(pair.getKey(), pair.getValue());
+                if (!m_stackObject.containsKey(pair.getValue())) {
+                	value = pair.getValue();
+                	m_stackObject.put(pair.getKey(), value instanceof ScriptNumber || value instanceof ScriptString ? value.clone() : value);
+                }
             }
         }
         return this;

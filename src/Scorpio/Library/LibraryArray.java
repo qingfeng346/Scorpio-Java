@@ -16,8 +16,12 @@ public class LibraryArray {
         Table.SetValue("lastindexof", script.CreateFunction(new lastindexof()));
         Table.SetValue("first", script.CreateFunction(new first()));
         Table.SetValue("last", script.CreateFunction(new last()));
-        Table.SetValue("pop", script.CreateFunction(new pop()));
-        Table.SetValue("safepop", script.CreateFunction(new safepop()));
+        Table.SetValue("pop", script.CreateFunction(new popfirst()));
+        Table.SetValue("safepop", script.CreateFunction(new safepopfirst()));
+        Table.SetValue("popfirst", script.CreateFunction(new popfirst()));
+        Table.SetValue("safepopfirst", script.CreateFunction(new safepopfirst()));
+        Table.SetValue("poplast", script.CreateFunction(new poplast()));
+        Table.SetValue("safepoplast", script.CreateFunction(new safepoplast()));
         script.SetObjectInternal("array", Table);
     }
     private static class count implements ScorpioHandle {
@@ -93,18 +97,32 @@ public class LibraryArray {
             return ((ScriptArray)args[0]).Last();
         }
     }
-    private static class pop implements ScorpioHandle
+    private static class popfirst implements ScorpioHandle
     {
         public final Object Call(ScriptObject[] args)
         {
-            return ((ScriptArray)args[0]).Pop();
+            return ((ScriptArray)args[0]).PopFirst();
         }
     }
-    private static class safepop implements ScorpioHandle
+    private static class safepopfirst implements ScorpioHandle
     {
         public final Object Call(ScriptObject[] args)
         {
-            return ((ScriptArray)args[0]).SafePop();
+            return ((ScriptArray)args[0]).SafePopFirst();
+        }
+    }
+    private static class poplast implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return ((ScriptArray)args[0]).PopLast();
+        }
+    }
+    private static class safepoplast implements ScorpioHandle
+    {
+        public final Object Call(ScriptObject[] args)
+        {
+            return ((ScriptArray)args[0]).SafePopLast();
         }
     }
 }

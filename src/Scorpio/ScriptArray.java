@@ -67,20 +67,39 @@ public class ScriptArray extends ScriptObject {
             return m_listObject.get(m_listObject.size() - 1);
         return getScript().Null;
     }
-    public ScriptObject Pop() {
+    public ScriptObject PopFirst() {
         if (m_listObject.size() == 0)
             throw new ExecutionException(getScript(), "Array Pop 数组长度为0");
         ScriptObject obj = m_listObject.get(0);
         m_listObject.remove(0);
         return obj;
     }
-    public ScriptObject SafePop() {
+    public ScriptObject SafePopFirst() {
         if (m_listObject.size() == 0)
             return getScript().Null;
         ScriptObject obj = m_listObject.get(0);
         m_listObject.remove(0);
         return obj;
     }
+    public ScriptObject PopLast()
+    {
+        if (m_listObject.size() == 0)
+            throw new ExecutionException(getScript(), "Array Pop 数组长度为0");
+        int index = m_listObject.size() - 1;
+        ScriptObject obj = m_listObject.get(index);
+        m_listObject.remove(index);
+        return obj;
+    }
+    public ScriptObject SafePopLast()
+    {
+        if (m_listObject.size() == 0)
+            return getScript().Null;
+        int index = m_listObject.size() - 1;
+        ScriptObject obj = m_listObject.get(index);
+        m_listObject.remove(index);
+        return obj;
+    }
+    
     public final java.util.Iterator<ScriptObject> GetIterator() {
         return m_listObject.iterator();
     }

@@ -42,7 +42,9 @@ public class ScriptContext {
     } 
     public final void Initialize(ScriptContext parent, java.util.HashMap<String, ScriptObject> variable) {
         m_parent = parent;
-        m_variableDictionary = variable;
+        m_variableDictionary.clear();
+        for (Map.Entry<String, ScriptObject> pair : variable.entrySet())
+        	m_variableDictionary.put(pair.getKey(), pair.getValue());
     }
     private void Initialize(ScriptContext parent, String name, ScriptObject obj) {
         m_parent = parent;

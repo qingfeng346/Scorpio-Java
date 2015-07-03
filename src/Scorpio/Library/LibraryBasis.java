@@ -11,18 +11,17 @@ public class LibraryBasis {
         private Script m_Script;
         private java.util.Iterator<ScriptObject> m_Enumerator;
         private int m_Index = 0;
-        private ScriptTable m_Table;
         public ArrayPairs(Script script, ScriptArray obj) {
             m_Script = script;
             m_Index = 0;
-            m_Table = m_Script.CreateTable();
             m_Enumerator = obj.GetIterator();
         }
         public final Object Call(ScriptObject[] args) {
             if (m_Enumerator.hasNext()) {
-                m_Table.SetValue("key", m_Script.CreateObject(m_Index++));
-                m_Table.SetValue("value", m_Enumerator.next());
-                return m_Table;
+            	ScriptTable table = m_Script.CreateTable();
+            	table.SetValue("key", m_Script.CreateObject(m_Index++));
+            	table.SetValue("value", m_Enumerator.next());
+                return table;
             }
             return null;
         }
@@ -56,18 +55,17 @@ public class LibraryBasis {
     private static class TablePairs implements ScorpioHandle {
         private Script m_Script;
         private java.util.Iterator<java.util.Map.Entry<Object, ScriptObject>> m_Enumerator;
-        private ScriptTable m_Table;
         public TablePairs(Script script, ScriptTable obj) {
             m_Script = script;
-            m_Table = m_Script.CreateTable();
             m_Enumerator = obj.GetIterator();
         }
         public final Object Call(ScriptObject[] args) {
             if (m_Enumerator.hasNext()) {
+            	ScriptTable table = m_Script.CreateTable();
                 java.util.Map.Entry<Object, ScriptObject> v = m_Enumerator.next();
-                m_Table.SetValue("key", m_Script.CreateObject(v.getKey()));
-                m_Table.SetValue("value", v.getValue());
-                return m_Table;
+                table.SetValue("key", m_Script.CreateObject(v.getKey()));
+                table.SetValue("value", v.getValue());
+                return table;
             }
             return null;
         }
