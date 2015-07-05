@@ -1,5 +1,8 @@
 package Scorpio;
 
+import java.util.Collections;
+import java.util.Comparator;
+
 import Scorpio.Exception.*;
 
 //脚本数组类型
@@ -56,6 +59,17 @@ public class ScriptArray extends ScriptObject {
     }
     public final int Count() {
         return m_listObject.size();
+    }
+    public final void Sort(final ScriptFunction func) {
+    	Collections.sort(m_listObject, new Comparator<ScriptObject>() {
+			@Override
+			public int compare(ScriptObject o1, ScriptObject o2) {
+				try {
+					return (int)Util.ChangeType(getScript(), (ScriptObject)func.Call(new ScriptObject[] { o1, o2}), Integer.class);
+				} catch (Exception e) {}
+				return 0;
+			}
+		});
     }
     public ScriptObject First() {
         if (m_listObject.size() > 0)

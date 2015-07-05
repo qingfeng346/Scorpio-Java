@@ -569,20 +569,16 @@ public class ScriptContext {
                     return right.getValue() ? m_script.True : m_script.False;
                 }
                 else {
+                    if (type != TokenType.Equal && type != TokenType.NotEqual)
+                        throw new ExecutionException(m_script, "nonsupport operate [" + type + "]  with bool");
                     ScriptObject tempVar4 = ResolveOperand(operate.Right);
                     ScriptBoolean right = (ScriptBoolean)((tempVar4 instanceof ScriptBoolean) ? tempVar4 : null);
-                    if (right == null) {
-                        throw new ExecutionException(m_script, "operate [==] [!=] right is not a bool");
-                    }
+                    if (right == null) return type == TokenType.Equal ? m_script.False : m_script.True;
                     boolean b2 = right.getValue();
                     if (type == TokenType.Equal) {
                         return b1 == b2 ? m_script.True : m_script.False;
-                    }
-                    else if (type == TokenType.NotEqual) {
+                    } else {
                         return b1 != b2 ? m_script.True : m_script.False;
-                    }
-                    else {
-                        throw new ExecutionException(m_script, "nonsupport operate [" + type + "]  with bool");
                     }
                 }
             }
