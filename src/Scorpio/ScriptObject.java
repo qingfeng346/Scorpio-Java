@@ -38,6 +38,7 @@ public abstract class ScriptObject {
     public boolean equals(Object obj) {                                       // Equals
         if (obj == null) return false;
         if (!(obj instanceof ScriptObject)) return false;
+        if (obj == this) return true;
         return ((ScriptObject)obj).getObjectValue().equals(getObjectValue());
     }
     public ScriptObject(Script script) { // 构图函数
