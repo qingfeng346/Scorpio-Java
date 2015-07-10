@@ -30,6 +30,20 @@ public class ScriptTable extends ScriptObject {
     public void Remove(Object key) {
         m_listObject.remove(key);
     }
+    public ScriptArray GetKeys() {
+		ScriptArray ret = getScript().CreateArray ();
+		for (java.util.Map.Entry<Object, ScriptObject> pair : m_listObject.entrySet()) {
+			ret.Add(getScript().CreateObject(pair.getKey()));
+		}
+		return ret;
+	}
+	public ScriptArray GetValues() {
+		ScriptArray ret = getScript().CreateArray ();
+		for (java.util.Map.Entry<Object, ScriptObject> pair : m_listObject.entrySet()) {
+			ret.Add(pair.getValue().Assign());
+		}
+		return ret;
+	}
     public final java.util.Iterator<java.util.Map.Entry<Object, ScriptObject>> GetIterator() {
         return m_listObject.entrySet().iterator();
     }

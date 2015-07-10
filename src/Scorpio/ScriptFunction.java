@@ -90,12 +90,9 @@ public class ScriptFunction extends ScriptObject {
     public final ScriptFunction SetParentVariable(java.util.HashMap<String, ScriptObject> variables)
     {
         if (getFunctionType() == FunstionType.Script) {
-        	ScriptObject value = null;
             for (Map.Entry<String, ScriptObject> pair : variables.entrySet()) {
-                if (!m_stackObject.containsKey(pair.getValue())) {
-                	value = pair.getValue();
-                	m_stackObject.put(pair.getKey(), value instanceof ScriptNumber || value instanceof ScriptString ? value.clone() : value);
-                }
+                if (!m_stackObject.containsKey(pair.getKey()))
+                	m_stackObject.put(pair.getKey(), pair.getValue().Assign());
             }
         }
         return this;

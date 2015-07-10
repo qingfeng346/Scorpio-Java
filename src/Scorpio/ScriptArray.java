@@ -65,9 +65,12 @@ public class ScriptArray extends ScriptObject {
 			@Override
 			public int compare(ScriptObject o1, ScriptObject o2) {
 				try {
-					return (int)Util.ChangeType(getScript(), (ScriptObject)func.Call(new ScriptObject[] { o1, o2}), Integer.class);
-				} catch (Exception e) {}
-				return 0;
+					Object ret = func.Call(new ScriptObject[] { o1, o2 });
+					if (!(ret instanceof ScriptNumber)) throw new Exception("Sort 返回值 必须是Number类型");
+					return ((ScriptNumber)ret).ToInt32();
+				} catch (Exception e1) {
+					throw new ExecutionException(getScript(), "Sort出错:" + e1.getMessage());
+				}
 			}
 		});
     }

@@ -284,6 +284,7 @@ public class ScriptParser {
     private void ParseForeach() {
         CodeForeach ret = new CodeForeach();
         ReadLeftParenthesis();
+        if (PeekToken().getType() == TokenType.Var) ReadToken();
         ret.Identifier = ReadIdentifier();
         ReadIn();
         ret.LoopObject = GetObject();
