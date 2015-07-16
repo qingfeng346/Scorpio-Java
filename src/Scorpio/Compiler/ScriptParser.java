@@ -430,25 +430,23 @@ public class ScriptParser {
                     case AssignXOR:
                     case AssignShr:
                     case AssignShi:
-                        return new CodeAssign(member, GetObject(), token.getType(), m_strBreviary, token.getSourceLine());
+                        ret = new CodeAssign(member, GetObject(), token.getType(), m_strBreviary, token.getSourceLine());
+                        break;
                     default:
                         UndoToken();
                         break;
                 }
             }
-        } else {
-            Token token = ReadToken();
-            if (token.getType() == TokenType.QuestionMark) {
-                CodeTernary ternary = new CodeTernary();
-                ternary.Allow = ret;
-                ternary.True = GetObject();
-                ReadColon();
-                ternary.False = GetObject();
-                return ternary;
-            } else {
-                UndoToken();
-            }
         }
+		if (PeekToken ().getType() == TokenType.QuestionMark) {
+			ReadToken();
+			CodeTernary ternary = new CodeTernary();
+			ternary.Allow = ret;
+			ternary.True = GetObject();
+			ReadColon();
+			ternary.False = GetObject();
+			return ternary;
+		}
         return ret;
     }
     //解析操作符
