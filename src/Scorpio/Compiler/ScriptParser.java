@@ -229,6 +229,7 @@ public class ScriptParser {
     private void ParseFor() {
         ReadLeftParenthesis();
         int partIndex = m_iNextToken;
+        if (PeekToken().getType() == TokenType.Var) ReadToken ();
         Token token = ReadToken();
         if (token.getType() == TokenType.Identifier) {
             Token assign = ReadToken();
