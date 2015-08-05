@@ -80,8 +80,11 @@ public final class Util {
     public static boolean IsLongObject(Object obj) {
         return obj instanceof Long;
     }
+    public static boolean IsIntObject(Object obj) {
+        return obj instanceof Integer;
+    }
     public static boolean IsNumberObject(Object obj) {
-        return (obj instanceof Byte || obj instanceof Byte || obj instanceof Short || obj instanceof Short || obj instanceof Integer || obj instanceof Integer || obj instanceof Float || obj instanceof Double || obj instanceof java.math.BigDecimal || obj instanceof Long);
+        return (obj instanceof Byte || obj instanceof Short || obj instanceof Integer || obj instanceof Float || obj instanceof Double || obj instanceof java.math.BigDecimal || obj instanceof Long);
     }
     public static boolean IsEnumObject(Object obj) {
         return IsEnum(obj.getClass());

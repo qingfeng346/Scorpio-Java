@@ -124,6 +124,7 @@ public class LibraryBasis {
         script.SetObjectInternal("is_number", script.CreateFunction(new is_number()));
         script.SetObjectInternal("is_double", script.CreateFunction(new is_double()));
         script.SetObjectInternal("is_long", script.CreateFunction(new is_long()));
+        script.SetObjectInternal("is_int", script.CreateFunction(new is_int()));
         script.SetObjectInternal("is_string", script.CreateFunction(new is_string()));
         script.SetObjectInternal("is_function", script.CreateFunction(new is_function()));
         script.SetObjectInternal("is_array", script.CreateFunction(new is_array()));
@@ -134,6 +135,7 @@ public class LibraryBasis {
         script.SetObjectInternal("typeof", script.CreateFunction(new userdatatype()));
         script.SetObjectInternal("tonumber", script.CreateFunction(new tonumber(script)));
         script.SetObjectInternal("tolong", script.CreateFunction(new tolong(script)));
+        script.SetObjectInternal("toint", script.CreateFunction(new toint(script)));
         script.SetObjectInternal("toenum", script.CreateFunction(new toenum(script)));
         script.SetObjectInternal("tostring", script.CreateFunction(new tostring(script)));
         script.SetObjectInternal("clone", script.CreateFunction(new clone()));
@@ -241,49 +243,41 @@ public class LibraryBasis {
             return args[0] instanceof ScriptNumberLong;
         }
     }
-    private static class is_string implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class is_int implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
+            return args[0] instanceof ScriptNumberInt;
+        }
+    }
+    private static class is_string implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return args[0] instanceof ScriptString;
         }
     }
-    private static class is_function implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class is_function implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return args[0] instanceof ScriptFunction;
         }
     }
-    private static class is_array implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class is_array implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return args[0] instanceof ScriptArray;
         }
     }
-    private static class is_table implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class is_table implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return args[0] instanceof ScriptTable;
         }
     }
-    private static class is_enum implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class is_enum implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return args[0] instanceof ScriptEnum;
         }
     }
-    private static class is_userdata implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class is_userdata implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return args[0] instanceof ScriptUserdata;
         }
     }
-    
     private static class branchtype implements ScorpioHandle {
         public final Object Call(ScriptObject[] args) {
             return args[0].getBranchType();
@@ -302,7 +296,7 @@ public class LibraryBasis {
         public final Object Call(ScriptObject[] args) {
             ScriptObject obj = args[0];
             if (obj instanceof ScriptNumber || obj instanceof ScriptString || obj instanceof ScriptEnum) {
-                return m_script.CreateNumber(Util.ToDouble(obj.getObjectValue()));
+                return m_script.CreateDouble(Util.ToDouble(obj.getObjectValue()));
             }
             throw new ExecutionException(m_script, "不能从类型 " + obj.getType() + " 转换成Number类型");
         }
@@ -315,9 +309,22 @@ public class LibraryBasis {
         public final Object Call(ScriptObject[] args) {
             ScriptObject obj = args[0];
             if (obj instanceof ScriptNumber || obj instanceof ScriptString || obj instanceof ScriptEnum) {
-                return m_script.CreateNumber(Util.ToInt64(obj.getObjectValue()));
+                return m_script.CreateLong(Util.ToInt64(obj.getObjectValue()));
             }
             throw new ExecutionException(m_script, "不能从类型 " + obj.getType() + " 转换成Long类型");
+        }
+    }
+    private static class toint implements ScorpioHandle {
+        private Script m_script;
+        public toint(Script script) {
+            m_script = script;
+        }
+        public final Object Call(ScriptObject[] args) {
+            ScriptObject obj = args[0];
+            if (obj instanceof ScriptNumber || obj instanceof ScriptString || obj instanceof ScriptEnum) {
+                return m_script.CreateInt(Util.ToInt32(obj.getObjectValue()));
+            }
+            throw new ExecutionException(m_script, "不能从类型 " + obj.getType() + " 转换成Int类型");
         }
     }
     private static class toenum implements ScorpioHandle {

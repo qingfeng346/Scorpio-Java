@@ -111,7 +111,7 @@ public class ScriptNumberDouble extends ScriptNumber {
             case LessOrEqual:
                 return m_Value <= val.m_Value;
             default:
-                throw new ExecutionException(getScript(), "Number类型 操作符[" + type + "]不支持");
+                throw new ExecutionException(getScript(), "Double类型 操作符[" + type + "]不支持");
         }
     }
     @Override

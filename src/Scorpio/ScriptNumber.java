@@ -18,7 +18,7 @@ public abstract class ScriptNumber extends ScriptObject {
     public abstract ScriptObject Compute(TokenType type, ScriptNumber obj); //位运算或者运算符 + - * / % | & ^ >> <<
     public abstract ScriptObject AssignCompute(TokenType type, ScriptNumber obj); //位运算或者运算符复制运算 += -= *= /= %= |= &= ^= >>= <<=
     
-    public final int ToInt32() {
+    public int ToInt32() {
         return Util.ToInt32(getObjectValue());
     }
     public double ToDouble() {

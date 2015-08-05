@@ -178,6 +178,9 @@ public class Script {
     public final ScriptNumber CreateLong(long value) {
         return new ScriptNumberLong(this, value);
     }
+    public final ScriptNumber CreateInt(int value) {
+    	return new ScriptNumberInt(this, value);
+    }
     public final ScriptEnum CreateEnum(Object value) {
         return new ScriptEnum(this, value);
     }
@@ -208,5 +211,6 @@ public class Script {
         LibraryString.Load(this);
         LibraryTable.Load(this);
         LibraryJson.Load(this);
+        LibraryMath.Load(this);
     }
 }
