@@ -49,6 +49,12 @@ public class ScriptNumberDouble extends ScriptNumber {
     	return getScript().CreateDouble(-m_Value);
     }
     @Override
+	public ScriptNumber Abs () {
+		if (m_Value >= 0)
+			return getScript().CreateDouble(m_Value);
+		return getScript().CreateDouble(-m_Value);
+	}
+    @Override
     public ScriptObject Assign() {
         return getScript().CreateDouble(m_Value);
     }

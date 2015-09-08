@@ -49,6 +49,12 @@ public class ScriptNumberLong extends ScriptNumber {
     	return getScript().CreateLong(-m_Value);
     }
     @Override
+	public ScriptNumber Abs () {
+		if (m_Value >= 0)
+			return getScript().CreateLong(m_Value);
+		return getScript().CreateLong(-m_Value);
+	}
+    @Override
     public ScriptObject Assign() {
         return getScript().CreateLong(m_Value);
     }
