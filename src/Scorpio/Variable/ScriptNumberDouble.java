@@ -55,6 +55,10 @@ public class ScriptNumberDouble extends ScriptNumber {
 		return getScript().CreateDouble(-m_Value);
 	}
     @Override
+	public ScriptNumber Floor () {
+		return getScript().CreateDouble (Math.floor (m_Value));
+	}
+    @Override
     public ScriptObject Assign() {
         return getScript().CreateDouble(m_Value);
     }

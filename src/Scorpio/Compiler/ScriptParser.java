@@ -183,7 +183,7 @@ public class ScriptParser {
     //解析普通代码块 {}
     private void ParseBlock() {
         UndoToken();
-        m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.CALL_BLOCK, new ScriptContext(m_script, ParseStatementBlock(Executable_Block.Block))));
+        m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.CALL_BLOCK, ParseStatementBlock(Executable_Block.Block)));
     }
     //解析if(判断语句)
     private void ParseIf() {
@@ -256,7 +256,7 @@ public class ScriptParser {
             ret.Step = GetObject();
         }
         ReadRightParenthesis();
-        ret.SetContextExecutable(ParseStatementBlock(Executable_Block.For));
+        ret.BlockExecutable = ParseStatementBlock(Executable_Block.For);
         m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.CALL_FORSIMPLE, ret));
     }
     //解析正规for循环
@@ -278,19 +278,19 @@ public class ScriptParser {
             UndoToken();
             ret.LoopExecutable = ParseStatementBlock(Executable_Block.ForLoop, false, TokenType.RightPar);
         }
-        ret.SetContextExecutable(ParseStatementBlock(Executable_Block.For));
+        ret.BlockExecutable = ParseStatementBlock(Executable_Block.For);
         m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.CALL_FOR, ret));
     }
     //解析foreach语句
     private void ParseForeach() {
-        CodeForeach ret = new CodeForeach();
+        CodeForeach ret = new CodeForeach(m_script);
         ReadLeftParenthesis();
         if (PeekToken().getType() == TokenType.Var) ReadToken();
         ret.Identifier = ReadIdentifier();
         ReadIn();
         ret.LoopObject = GetObject();
         ReadRightParenthesis();
-        ret.Context = new ScriptContext(m_script, ParseStatementBlock(Executable_Block.Foreach), null, Executable_Block.Foreach);
+        ret.BlockExecutable = ParseStatementBlock(Executable_Block.Foreach);
         m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.CALL_FOREACH, ret));
     }
     //解析while（循环语句）
@@ -344,17 +344,13 @@ public class ScriptParser {
     }
     //解析try catch
     private void ParseTry() {
-        CodeTry ret = new CodeTry(); {
-            ScriptExecutable exec = ParseStatementBlock(Executable_Block.Context);
-            ret.TryContext = new ScriptContext(m_script, exec);
-        } {
-            ReadCatch();
-            ReadLeftParenthesis();
-            ret.Identifier = ReadIdentifier();
-            ReadRightParenthesis();
-            ScriptExecutable exec = ParseStatementBlock(Executable_Block.Context);
-            ret.CatchContext = new ScriptContext(m_script, exec);
-        }
+        CodeTry ret = new CodeTry(m_script); 
+        ret.TryExecutable = ParseStatementBlock(Executable_Block.Context);
+        ReadCatch();
+        ReadLeftParenthesis();
+        ret.Identifier = ReadIdentifier();
+        ReadRightParenthesis();
+        ret.CatchExecutable = ParseStatementBlock(Executable_Block.Context);
         m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.CALL_TRY, ret));
     }
     //解析throw

@@ -55,6 +55,10 @@ public class ScriptNumberInt extends ScriptNumber {
 		return getScript().CreateInt(-m_Value);
 	}
     @Override
+	public ScriptNumber Floor () {
+		return getScript().CreateInt (m_Value);
+	}
+    @Override
     public ScriptObject Assign() {
         return getScript().CreateInt(m_Value);
     }

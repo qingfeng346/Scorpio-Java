@@ -15,6 +15,7 @@ public class LibraryMath {
 		Table.SetValue("min", script.CreateFunction(new min()));
 		Table.SetValue("max", script.CreateFunction(new max()));
 		Table.SetValue("abs", script.CreateFunction(new abs()));
+		Table.SetValue("floor", script.CreateFunction(new floor()));
         script.SetObjectInternal("math", Table);
     }
     private static class min implements ScorpioHandle {
@@ -46,6 +47,11 @@ public class LibraryMath {
 	private static class abs implements ScorpioHandle {
 		public final Object Call(ScriptObject[] args) {
 			return ((ScriptNumber)args[0]).Abs ();
+		}
+	}
+	private static class floor implements ScorpioHandle {
+		public final Object Call(ScriptObject[] args) {
+			return ((ScriptNumber)args[0]).Floor ();
 		}
 	}
 }

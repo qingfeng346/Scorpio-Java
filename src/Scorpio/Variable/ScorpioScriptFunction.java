@@ -9,7 +9,6 @@ public class ScorpioScriptFunction {
     private Script m_Script; //脚本系统
     private java.util.ArrayList<String> m_ListParameters; //参数
     private ScriptExecutable m_ScriptExecutable; //函数执行命令
-    private ScriptContext m_ParentContext; //父级上下文
     private int m_ParameterCount; //参数个数
     private ScriptArray m_ParamsArray; //不定参数组
     private boolean m_Params; //是否是不定参函数
@@ -26,9 +25,6 @@ public class ScorpioScriptFunction {
         this.m_ParameterCount = listParameters.size();
         this.m_Params = bParams;
         this.m_ParamsArray = bParams ? script.CreateArray() : null;
-    }
-    public final void SetParentContext(ScriptContext context) {
-        m_ParentContext = context;
     }
     public final ScriptObject Call(java.util.HashMap<String, ScriptObject> objs, ScriptObject[] parameters) throws Exception {
         int length = parameters.length;
@@ -48,7 +44,7 @@ public class ScorpioScriptFunction {
             }
         }
         ScriptContext context = new ScriptContext(m_Script, m_ScriptExecutable, null, Executable_Block.Function);
-        context.Initialize(m_ParentContext, objs);
+        context.Initialize(null, objs);
         return context.Execute();
     }
 }

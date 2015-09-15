@@ -1,5 +1,6 @@
 package Scorpio.Runtime;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import Scorpio.*;
@@ -237,8 +238,8 @@ public class ScriptContext {
     }
     private void ProcessCallFor() throws Exception {
         CodeFor code = (CodeFor)m_scriptInstruction.getOperand0();
-        ScriptContext context = code.Context;
-        ScriptContext blockContext = code.BlockContext;
+        ScriptContext context = code.GetContext();
+        ScriptContext blockContext = code.GetBlockContext();
         context.Initialize(this);
         context.Execute(code.BeginExecutable);
         ScriptBoolean Condition;
@@ -287,12 +288,13 @@ public class ScriptContext {
         else {
             step = 1;
         }
-        java.util.HashMap<String, ScriptObject> variables = code.variables;
+        ScriptContext context = code.GetBlockContext();
+        java.util.HashMap<String, ScriptObject> variables = new HashMap<String, ScriptObject>();
         for (int i = begin; i <= finished; i += step) {
         	variables.put(code.Identifier, m_script.CreateNumber(i));
-            code.BlockContext.Initialize(this, variables);
-            code.BlockContext.Execute();
-            if (code.BlockContext.getIsOver()) {
+        	context.Initialize(this, variables);
+            context.Execute();
+            if (context.getIsOver()) {
                 break;
             }
         }
@@ -303,33 +305,36 @@ public class ScriptContext {
         if (!loop.getIsFunction()) {
             throw new ExecutionException(m_script, "foreach函数必须返回一个ScriptFunction");
         }
+        ScriptContext context = code.GetBlockContext();
         ScriptObject obj;
         for (; ;) {
             obj = m_script.CreateObject(((ScriptFunction)loop).Call());
             if (obj == null || obj instanceof ScriptNull) {
                 return;
             }
-            code.Context.Initialize(this, code.Identifier, obj);
-            code.Context.Execute();
-            if (code.Context.getIsOver()) {
+            context.Initialize(this, code.Identifier, obj);
+            context.Execute();
+            if (context.getIsOver()) {
                 break;
             }
         }
     }
     private void ProcessCallIf() throws Exception {
         CodeIf code = (CodeIf)m_scriptInstruction.getOperand0();
-        if (ProcessCondition(code.If, Executable_Block.If)) {
+        if (ProcessCondition(code.If, code.If.GetContext(), Executable_Block.If)) {
             return;
         }
         int length = code.ElseIf.size();
         for (int i = 0; i < length; ++i) {
-            if (ProcessCondition(code.ElseIf.get(i), Executable_Block.If)) {
+            if (ProcessCondition(code.ElseIf.get(i), code.ElseIf.get(i).GetContext(), Executable_Block.If)) {
                 return;
             }
         }
-        ProcessCondition(code.Else, Executable_Block.If);
+        if (code.Else != null) {
+        	ProcessCondition(code.Else, code.Else.GetContext(), Executable_Block.If);
+        }
     }
-    private boolean ProcessCondition(TempCondition con, Executable_Block block) throws Exception {
+    private boolean ProcessCondition(TempCondition con, ScriptContext context, Executable_Block block) throws Exception {
         if (con == null) {
             return false;
         }
@@ -337,18 +342,19 @@ public class ScriptContext {
             Object b = ResolveOperand(con.Allow).getObjectValue();
             if (b == null || b.equals(false)) return false;
         }
-        con.Context.Initialize(this);
-        con.Context.Execute();
+        context.Initialize(this);
+        context.Execute();
         return true;
     }
     private void ProcessCallWhile() throws Exception {
         CodeWhile code = (CodeWhile)m_scriptInstruction.getOperand0();
         TempCondition condition = code.While;
         for (; ;) {
-            if (!ProcessCondition(condition, Executable_Block.While)) {
+        	ScriptContext context = condition.GetContext();
+            if (!ProcessCondition(condition, context, Executable_Block.While)) {
                 break;
             }
-            if (condition.Context.getIsOver()) {
+            if (context.getIsOver()) {
                 break;
             }
         }
@@ -361,30 +367,35 @@ public class ScriptContext {
             for (Object a : c.Allow) {
                 if (a.equals(obj.getObjectValue())) {
                     exec = true;
-                    c.Context.Initialize(this);
-                    c.Context.Execute();
+                    ScriptContext context = c.GetContext();
+                    context.Initialize(this);
+                    context.Execute();
                     break;
                 }
             }
         }
         if (exec == false && code.Default != null) {
-            code.Default.Context.Initialize(this);
-            code.Default.Context.Execute();
+        	ScriptContext context = code.Default.GetContext();
+        	context.Initialize(this);
+        	context.Execute();
         }
     }
     private void ProcessTry() throws Exception {
         CodeTry code = (CodeTry)m_scriptInstruction.getOperand0();
         try {
-            code.TryContext.Initialize(this);
-            code.TryContext.Execute();
+            ScriptContext context = code.GetTryContext();
+            context.Initialize(this);
+            context.Execute();
         }
         catch (InteriorException ex) {
-            code.CatchContext.Initialize(this, code.Identifier, ex.obj);
-            code.CatchContext.Execute();
+            ScriptContext context = code.GetCatchContext();
+            context.Initialize(this, code.Identifier, ex.obj);
+            context.Execute();
         }
         catch (RuntimeException ex) {
-            code.CatchContext.Initialize(this, code.Identifier, m_script.CreateObject(ex));
-            code.CatchContext.Execute();
+            ScriptContext context = code.GetCatchContext();
+            context.Initialize(this, code.Identifier, m_script.CreateObject(ex));
+            context.Execute();
         }
     }
     private void ProcessThrow() throws Exception {
@@ -398,7 +409,7 @@ public class ScriptContext {
         ResolveOperand(m_scriptInstruction.getOperand0());
     }
     private void ProcessCallBlock() throws Exception {
-        ScriptContext context = (ScriptContext)m_scriptInstruction.getValue();
+    	ScriptContext context = new ScriptContext(m_script, (ScriptExecutable)m_scriptInstruction.getValue());
         context.Initialize(this);
         context.Execute();
     }
