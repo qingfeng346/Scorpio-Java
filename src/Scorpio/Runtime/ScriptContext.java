@@ -45,7 +45,7 @@ public class ScriptContext {
         m_parent = parent;
         m_variableDictionary.clear();
         for (Map.Entry<String, ScriptObject> pair : variable.entrySet())
-        	m_variableDictionary.put(pair.getKey(), pair.getValue());
+        	m_variableDictionary.put(pair.getKey(), pair.getValue().Assign());
     }
     private void Initialize(ScriptContext parent, String name, ScriptObject obj) {
         m_parent = parent;
