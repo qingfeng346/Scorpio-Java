@@ -56,19 +56,6 @@ public class ScriptContext {
         m_parent = parent;
         m_variableDictionary.clear();
     }
-    private java.util.HashMap<String, ScriptObject> GetContextVariables()
-    {
-    	java.util.HashMap<String, ScriptObject> vars = new java.util.HashMap<String, ScriptObject>();
-        ScriptContext context = this;
-        while (context != null) {
-            for (Map.Entry<String, ScriptObject> pair : context.m_variableDictionary.entrySet()) {
-                if (!vars.containsKey(pair.getKey()))
-                    vars.put(pair.getKey(), pair.getValue());
-            }
-            context = context.m_parent;
-        }
-        return vars;
-    }
     private void ApplyVariableObject(String name) {
         if (!m_variableDictionary.containsKey(name)) {
             m_variableDictionary.put(name, m_script.Null);
@@ -495,7 +482,7 @@ public class ScriptContext {
         return ResolveOperand(region.Context);
     }
     private ScriptFunction ParseFunction(CodeFunction func) {
-    	return ((ScriptFunction)func.Func.clone()).SetParentVariable(GetContextVariables());
+    	return ((ScriptFunction)func.Func.clone()).SetParentContext(this);
     }
     private ScriptObject ParseCall(CodeCallFunction scriptFunction, boolean needRet) throws Exception {
         ScriptObject obj = ResolveOperand(scriptFunction.Member);

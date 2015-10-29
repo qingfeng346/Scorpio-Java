@@ -1,8 +1,7 @@
 package Scorpio;
 
-import java.util.Map;
-
 import Scorpio.Exception.ExecutionException;
+import Scorpio.Runtime.ScriptContext;
 import Scorpio.Variable.*;
 
 //脚本函数类型
@@ -28,13 +27,10 @@ public class ScriptFunction extends ScriptObject {
     private void setIsStatic(boolean value) {
         privateIsStatic = value;
     }
-
     private ScorpioScriptFunction m_ScriptFunction; //脚本函数
     private ScorpioHandle m_Handle; //程序函数执行类
     private ScorpioMethod m_Method; //程序函数
-    public final ScorpioMethod getMethod() {
-        return m_Method;
-    }
+    private ScriptContext m_ParentContext;                                  //父级堆栈
     private java.util.HashMap<String, ScriptObject> m_stackObject = new java.util.HashMap<String, ScriptObject>(); //函数变量
     @Override
     public ObjectType getType() {
@@ -86,15 +82,9 @@ public class ScriptFunction extends ScriptObject {
         String skey = (String)key;
         return m_stackObject.containsKey(skey) ? m_stackObject.get(skey) : getScript().Null;
     }
-    
-    public final ScriptFunction SetParentVariable(java.util.HashMap<String, ScriptObject> variables)
-    {
-        if (getFunctionType() == FunstionType.Script) {
-            for (Map.Entry<String, ScriptObject> pair : variables.entrySet()) {
-                if (!m_stackObject.containsKey(pair.getKey()))
-                	m_stackObject.put(pair.getKey(), pair.getValue().Assign());
-            }
-        }
+    public final ScriptFunction SetParentContext(ScriptContext context) {
+        if (getFunctionType() == FunstionType.Script)
+            m_ParentContext = context;
         return this;
     }
     public final Object call(Object... args) throws Exception {
@@ -108,7 +98,7 @@ public class ScriptFunction extends ScriptObject {
     @Override
     public Object Call(ScriptObject[] parameters) throws Exception {
         if (getFunctionType() == FunstionType.Script) {
-            return m_ScriptFunction.Call(m_stackObject, parameters);
+            return m_ScriptFunction.Call(m_ParentContext, m_stackObject, parameters);
         } else {
         	try {
 	            if (getFunctionType() == FunstionType.Handle) {
