@@ -59,6 +59,14 @@ public class ScriptNumberLong extends ScriptNumber {
 		return getScript().CreateLong (m_Value);
 	}
     @Override
+    public ScriptNumber Clamp (ScriptNumber min, ScriptNumber max) {
+		if (m_Value < min.ToLong())
+			return getScript().CreateLong (min.ToLong());
+		if (m_Value > max.ToLong ())
+			return getScript().CreateLong (max.ToLong ());
+		return getScript().CreateLong (m_Value);
+	}
+    @Override
     public ScriptObject Assign() {
         return getScript().CreateLong(m_Value);
     }

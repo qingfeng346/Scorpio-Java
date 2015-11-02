@@ -59,6 +59,14 @@ public class ScriptNumberDouble extends ScriptNumber {
 		return getScript().CreateDouble (Math.floor (m_Value));
 	}
     @Override
+    public ScriptNumber Clamp (ScriptNumber min, ScriptNumber max) {
+		if (m_Value < min.ToDouble ())
+			return getScript().CreateDouble (min.ToDouble());
+		if (m_Value > max.ToDouble ())
+			return getScript().CreateDouble (max.ToDouble ());
+		return getScript().CreateDouble (m_Value);
+	}
+    @Override
     public ScriptObject Assign() {
         return getScript().CreateDouble(m_Value);
     }

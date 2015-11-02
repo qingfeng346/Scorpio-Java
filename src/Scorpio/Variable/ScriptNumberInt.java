@@ -59,6 +59,14 @@ public class ScriptNumberInt extends ScriptNumber {
 		return getScript().CreateInt (m_Value);
 	}
     @Override
+    public ScriptNumber Clamp (ScriptNumber min, ScriptNumber max) {
+		if (m_Value < min.ToInt32())
+			return getScript().CreateInt (min.ToInt32());
+		if (m_Value > max.ToInt32 ())
+			return getScript().CreateInt (max.ToInt32 ());
+		return getScript().CreateInt (m_Value);
+	}
+    @Override
     public ScriptObject Assign() {
         return getScript().CreateInt(m_Value);
     }
