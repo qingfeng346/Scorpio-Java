@@ -5,16 +5,23 @@ import Scorpio.Exception.*;
 //脚本数据类型
 public abstract class ScriptObject {
     private static final ScriptObject[] NOPARAMETER = new ScriptObject[0]; // 没有参数
+    private String privateName = "";
+    public final String getName() {
+        return privateName;
+    }
+    public final void setName(String value) {
+        privateName = value;
+    }
     public ScriptObject Assign() { // 赋值
         return this;
     }
     //设置变量
     public void SetValue(Object key, ScriptObject value) throws Exception {
-        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持设置变量");
+        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持设置变量 name = " + getName() + " key = " + key);
     }
     //获取变量
     public ScriptObject GetValue(Object key) throws Exception {
-        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持获取变量");
+        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持获取变量 name = " + getName() + " key = " + key);
     }
     //调用无参函数
     public final Object Call() throws Exception {
@@ -22,7 +29,7 @@ public abstract class ScriptObject {
     }
     //调用函数
     public Object Call(ScriptObject[] parameters) throws Exception {
-        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持函数调用");
+        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持函数调用 name = " + getName());
     }
     public ScriptObject clone() { // 复制一个变量
         return this;

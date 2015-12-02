@@ -108,6 +108,7 @@ public class ScriptContext {
     private void SetVariable(CodeMember member, ScriptObject variable) throws Exception {
         if (member.Parent == null) {
         	String name = (String)member.MemberValue;
+        	variable.setName(name);
             if (!SetVariableObject(name, variable)) {
                 m_script.SetObjectInternal(name, variable);
             }
@@ -226,7 +227,6 @@ public class ScriptContext {
     private void ProcessCallFor() throws Exception {
         CodeFor code = (CodeFor)m_scriptInstruction.getOperand0();
         ScriptContext context = code.GetContext();
-        ScriptContext blockContext = code.GetBlockContext();
         context.Initialize(this);
         context.Execute(code.BeginExecutable);
         ScriptBoolean Condition;
@@ -241,7 +241,8 @@ public class ScriptContext {
                     break;
                 }
             }
-            blockContext.Initialize(context);
+            ScriptContext blockContext = code.GetBlockContext();
+            blockContext.Initialize(context, context.m_variableDictionary);
             blockContext.Execute();
             if (blockContext.getIsOver()) {
                 break;
@@ -275,9 +276,9 @@ public class ScriptContext {
         else {
             step = 1;
         }
-        ScriptContext context = code.GetBlockContext();
         java.util.HashMap<String, ScriptObject> variables = new HashMap<String, ScriptObject>();
         for (int i = begin; i <= finished; i += step) {
+        	ScriptContext context = code.GetBlockContext();
         	variables.put(code.Identifier, m_script.CreateNumber(i));
         	context.Initialize(this, variables);
             context.Execute();
@@ -292,9 +293,9 @@ public class ScriptContext {
         if (!loop.getIsFunction()) {
             throw new ExecutionException(m_script, "foreach函数必须返回一个ScriptFunction");
         }
-        ScriptContext context = code.GetBlockContext();
         ScriptObject obj;
         for (; ;) {
+        	ScriptContext context = code.GetBlockContext();
             obj = m_script.CreateObject(((ScriptFunction)loop).Call());
             if (obj == null || obj instanceof ScriptNull) {
                 return;

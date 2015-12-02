@@ -6,13 +6,6 @@ import Scorpio.Variable.*;
 
 //脚本函数类型
 public class ScriptFunction extends ScriptObject {
-    private String privateName;
-    public final String getName() {
-        return privateName;
-    }
-    private void setName(String value) {
-        privateName = value;
-    }
     private FunstionType privateFunctionType = FunstionType.forValue(0);
     public final FunstionType getFunctionType() {
         return privateFunctionType;
@@ -72,13 +65,13 @@ public class ScriptFunction extends ScriptObject {
     @Override
     public void SetValue(Object key, ScriptObject value)
     {
-        if (!(key instanceof String)) throw new ExecutionException(getScript(), "Function SetValue只支持String类型");
+        if (!(key instanceof String)) throw new ExecutionException(getScript(), "Function SetValue只支持String类型 key = " + key);
         m_stackObject.put((String)key, value);
     }
     @Override
     public ScriptObject GetValue(Object key)
     {
-        if (!(key instanceof String)) throw new ExecutionException(getScript(), "Function GetValue只支持String类型");
+        if (!(key instanceof String)) throw new ExecutionException(getScript(), "Function GetValue只支持String类型 key = " + key);
         String skey = (String)key;
         return m_stackObject.containsKey(skey) ? m_stackObject.get(skey) : getScript().Null;
     }
