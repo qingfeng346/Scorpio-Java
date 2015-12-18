@@ -61,9 +61,8 @@ public class Script {
     public final ScriptObject LoadString(String strBreviary, String strBuffer, ScriptContext context, boolean clearStack) throws Exception {
         if (Util.IsNullOrEmpty(strBuffer)) return Null;
     	if (clearStack) m_StackInfoStack.clear();
-        ScriptLexer scriptLexer = new ScriptLexer(strBuffer);
-        strBreviary = Util.IsNullOrEmpty(strBreviary) ? scriptLexer.GetBreviary() : strBreviary;
-        return Load(strBreviary, scriptLexer.GetTokens(), context);
+        ScriptLexer scriptLexer = new ScriptLexer(strBuffer, strBreviary);
+        return Load(scriptLexer.GetBreviary(), scriptLexer.GetTokens(), context);
     }
     public final ScriptObject LoadTokens(String strBreviary, List<Token> tokens) throws Exception
     {

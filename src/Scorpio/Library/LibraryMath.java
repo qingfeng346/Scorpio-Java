@@ -17,6 +17,8 @@ public class LibraryMath {
 		Table.SetValue("abs", script.CreateFunction(new abs()));
 		Table.SetValue("floor", script.CreateFunction(new floor()));
 		Table.SetValue("clamp", script.CreateFunction(new clamp()));
+		Table.SetValue("sqrt", script.CreateFunction(new sqrt()));
+		Table.SetValue("pow", script.CreateFunction(new pow()));
         script.SetObjectInternal("math", Table);
     }
     private static class min implements ScorpioHandle {
@@ -58,6 +60,16 @@ public class LibraryMath {
 	private static class clamp implements ScorpioHandle {
 		public final Object Call(ScriptObject[] args) {
 			return ((ScriptNumber)args[0]).Clamp ((ScriptNumber)args[1], (ScriptNumber)args [2]);
+		}
+	}
+	private static class sqrt implements ScorpioHandle {
+		public final Object Call(ScriptObject[] args) {
+			return ((ScriptNumber)args[0]).Sqrt ();
+		}
+	}
+	private static class pow implements ScorpioHandle {
+		public final Object Call(ScriptObject[] args) {
+			return ((ScriptNumber)args[0]).Pow ((ScriptNumber)args[1]);
 		}
 	}
 }

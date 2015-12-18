@@ -12,14 +12,18 @@ public class ScriptLexer {
     private java.util.ArrayList<String> m_listSourceLines; //所有行
     private java.util.ArrayList<Token> m_listTokens; //解析后所得Token
     private char ch; //当前的解析的字符
-    public ScriptLexer(String buffer) {
+    public ScriptLexer(String buffer, String strBreviary) {
         m_listSourceLines = new java.util.ArrayList<String>();
         m_listTokens = new java.util.ArrayList<Token>();
         String[] strLines = buffer.split("\n");
-        m_strBreviary = strLines.length > 0 ? strLines[0] : "";
-        if (m_strBreviary.length() > BREVIARY_CHAR) {
-            m_strBreviary = m_strBreviary.substring(0, BREVIARY_CHAR);
-        }
+		if (Util.IsNullOrEmpty (strBreviary)) {
+	        m_strBreviary = strLines.length > 0 ? strLines[0] : "";
+	        if (m_strBreviary.length() > BREVIARY_CHAR) {
+	            m_strBreviary = m_strBreviary.substring(0, BREVIARY_CHAR);
+	        }
+		} else {
+			m_strBreviary = strBreviary;
+		}
         for (String strLine : strLines) {
             m_listSourceLines.add(strLine + '\n');
         }
@@ -774,7 +778,7 @@ public class ScriptLexer {
         m_iSourceChar = 0;
     }
     private void ThrowInvalidCharacterException(char ch) {
-        throw new ScriptException("Unexpected character [" + ch + "]  Line:" + (m_iSourceLine + 1) + " Column:" + m_iSourceChar + " [" + m_listSourceLines.get(m_iSourceLine) + "]");
+        throw new ScriptException(m_strBreviary + ":" + (m_iSourceLine + 1) + "Unexpected character [" + ch + "]  Line:" + (m_iSourceLine + 1) + " Column:" + m_iSourceChar + " [" + m_listSourceLines.get(m_iSourceLine) + "]");
     }
     private void AddToken(TokenType type) {
         AddToken(type, ch);
