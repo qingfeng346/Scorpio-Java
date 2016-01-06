@@ -35,4 +35,8 @@ public class ScriptNull extends ScriptObject {
     public int hashCode() {
         return 0;
     }
+    @Override
+    public boolean LogicOperation() {
+        return false;
+    }
 }

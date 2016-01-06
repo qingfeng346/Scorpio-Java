@@ -17,11 +17,15 @@ public class ScriptBoolean extends ScriptObject {
         super(script);
         this.privateValue = value;
     }
-    public final ScriptBoolean Inverse() {
-        return getValue() ? getScript().False : getScript().True;
+    @Override
+    public boolean LogicOperation() {
+        return getValue();
     }
     @Override
     public String ToJson() {
         return getValue() ? "true" : "false";
+    }
+    public final ScriptBoolean Inverse() {
+        return getValue() ? getScript().False : getScript().True;
     }
 }

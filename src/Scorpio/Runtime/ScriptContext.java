@@ -516,106 +516,126 @@ public class ScriptContext {
         return ret;
     }
     private ScriptObject ParseOperate(CodeOperator operate) throws Exception {
-        TokenType type = operate.Operator;
+    	TokenType type = operate.Operator;
         ScriptObject left = ResolveOperand(operate.Left);
         if (type == TokenType.Plus) {
             ScriptObject right = ResolveOperand(operate.Right);
-            if (left instanceof ScriptString || right instanceof ScriptString) {
-                return m_script.CreateString(left.toString() + right.toString());
-            }
-            else if (left instanceof ScriptNumber && right instanceof ScriptNumber) {
-                return ((ScriptNumber)left).Compute(TokenType.Plus, (ScriptNumber)right);
-            }
-            else {
-                throw new ExecutionException(m_script, "operate [+] left right is not same type");
-            }
+            if (left instanceof ScriptString || right instanceof ScriptString) { return m_script.CreateString(left.toString() + right.toString()); }
+            return left.Compute(type, right);
+        } else if (type == TokenType.And) {
+            if (left.LogicOperation() == false) return m_script.False;
+            return m_script.GetBoolean(ResolveOperand(operate.Right).LogicOperation());
+        } else if (type == TokenType.Or) {
+            if (left.LogicOperation() == true) return m_script.True;
+            return m_script.GetBoolean(ResolveOperand(operate.Right).LogicOperation());
+        } else if (type == TokenType.Equal) {
+            return m_script.GetBoolean(left.equals(ResolveOperand(operate.Right)));
+        } else if (type == TokenType.NotEqual) {
+            return m_script.GetBoolean(!left.equals(ResolveOperand(operate.Right)));
+        } else if (type == TokenType.Greater || type == TokenType.GreaterOrEqual || type == TokenType.Less || type == TokenType.LessOrEqual) {
+            return m_script.GetBoolean(left.Compare(type, ResolveOperand(operate.Right)));
+        } else {
+            return left.Compute(type, ResolveOperand(operate.Right));
         }
-        else if (type == TokenType.Minus || type == TokenType.Multiply || type == TokenType.Divide || type == TokenType.Modulo || type == TokenType.InclusiveOr || type == TokenType.Combine || type == TokenType.XOR || type == TokenType.Shr || type == TokenType.Shi) {
-            ScriptNumber leftNumber = (ScriptNumber)((left instanceof ScriptNumber) ? left : null);
-            if (leftNumber == null) {
-                throw new ExecutionException(m_script, "运算符[左边]必须是number类型");
-            }
-            ScriptObject tempVar = ResolveOperand(operate.Right);
-            ScriptNumber rightNumber = (ScriptNumber)((tempVar instanceof ScriptNumber) ? tempVar : null);
-            if (rightNumber == null) {
-                throw new ExecutionException(m_script, "运算符[右边]必须是number类型");
-            }
-            return leftNumber.Compute(type, rightNumber);
-        }
-        else {
-            if (left instanceof ScriptBoolean) {
-                boolean b1 = ((ScriptBoolean)left).getValue();
-                if (type == TokenType.And) {
-                    if (b1 == false) {
-                        return m_script.False;
-                    }
-                    ScriptObject tempVar2 = ResolveOperand(operate.Right);
-                    ScriptBoolean right = (ScriptBoolean)((tempVar2 instanceof ScriptBoolean) ? tempVar2 : null);
-                    if (right == null) {
-                        throw new ExecutionException(m_script, "operate [&&] right is not a bool");
-                    }
-                    return right.getValue() ? m_script.True : m_script.False;
-                }
-                else if (type == TokenType.Or) {
-                    if (b1 == true) {
-                        return m_script.True;
-                    }
-                    ScriptObject tempVar3 = ResolveOperand(operate.Right);
-                    ScriptBoolean right = (ScriptBoolean)((tempVar3 instanceof ScriptBoolean) ? tempVar3 : null);
-                    if (right == null) {
-                        throw new ExecutionException(m_script, "operate [||] right is not a bool");
-                    }
-                    return right.getValue() ? m_script.True : m_script.False;
-                }
-                else {
-                    if (type != TokenType.Equal && type != TokenType.NotEqual)
-                        throw new ExecutionException(m_script, "nonsupport operate [" + type + "]  with bool");
-                    ScriptObject tempVar4 = ResolveOperand(operate.Right);
-                    ScriptBoolean right = (ScriptBoolean)((tempVar4 instanceof ScriptBoolean) ? tempVar4 : null);
-                    if (right == null) return type == TokenType.Equal ? m_script.False : m_script.True;
-                    boolean b2 = right.getValue();
-                    if (type == TokenType.Equal) {
-                        return b1 == b2 ? m_script.True : m_script.False;
-                    } else {
-                        return b1 != b2 ? m_script.True : m_script.False;
-                    }
-                }
-            }
-            else {
-                ScriptObject right = ResolveOperand(operate.Right);
-                if (left instanceof ScriptNull || right instanceof ScriptNull) {
-                    boolean ret = false;
-                    if (type == TokenType.Equal) {
-                        ret = (left == right);
-                    }
-                    else if (type == TokenType.NotEqual) {
-                        ret = (left != right);
-                    }
-                    else {
-                        throw new ExecutionException(m_script, "nonsupport operate [" + type + "] with null");
-                    }
-                    return ret ? m_script.True : m_script.False;
-                }
-                if (type == TokenType.Equal) {
-                    return left.getObjectValue().equals(right.getObjectValue()) ? m_script.True : m_script.False;
-                }
-                else if (type == TokenType.NotEqual) {
-                    return !left.getObjectValue().equals(right.getObjectValue()) ? m_script.True : m_script.False;
-                }
-                if (left.getType() != right.getType()) {
-                    throw new ExecutionException(m_script, "[operate] left right is not same type");
-                }
-                if (left instanceof ScriptString) {
-                    return ((ScriptString)left).Compare(type, (ScriptString)right) ? m_script.True : m_script.False;
-                }
-                else if (left instanceof ScriptNumber) {
-                    return ((ScriptNumber)left).Compare(type, (ScriptNumber)right) ? m_script.True : m_script.False;
-                }
-                else {
-                    throw new ExecutionException(m_script, "nonsupport operate [" + type + "] with " + left.getType());
-                }
-            }
-        }
+        
+//        if (type == TokenType.Plus) {
+//            ScriptObject right = ResolveOperand(operate.Right);
+//            if (left instanceof ScriptString || right instanceof ScriptString) {
+//                return m_script.CreateString(left.toString() + right.toString());
+//            }
+//            else if (left instanceof ScriptNumber && right instanceof ScriptNumber) {
+//                return ((ScriptNumber)left).Compute(TokenType.Plus, (ScriptNumber)right);
+//            }
+//            else {
+//                throw new ExecutionException(m_script, "operate [+] left right is not same type");
+//            }
+//        }
+//        else if (type == TokenType.Minus || type == TokenType.Multiply || type == TokenType.Divide || type == TokenType.Modulo || type == TokenType.InclusiveOr || type == TokenType.Combine || type == TokenType.XOR || type == TokenType.Shr || type == TokenType.Shi) {
+//            ScriptNumber leftNumber = (ScriptNumber)((left instanceof ScriptNumber) ? left : null);
+//            if (leftNumber == null) {
+//                throw new ExecutionException(m_script, "运算符[左边]必须是number类型");
+//            }
+//            ScriptObject tempVar = ResolveOperand(operate.Right);
+//            ScriptNumber rightNumber = (ScriptNumber)((tempVar instanceof ScriptNumber) ? tempVar : null);
+//            if (rightNumber == null) {
+//                throw new ExecutionException(m_script, "运算符[右边]必须是number类型");
+//            }
+//            return leftNumber.Compute(type, rightNumber);
+//        }
+//        else {
+//            if (left instanceof ScriptBoolean) {
+//                boolean b1 = ((ScriptBoolean)left).getValue();
+//                if (type == TokenType.And) {
+//                    if (b1 == false) {
+//                        return m_script.False;
+//                    }
+//                    ScriptObject tempVar2 = ResolveOperand(operate.Right);
+//                    ScriptBoolean right = (ScriptBoolean)((tempVar2 instanceof ScriptBoolean) ? tempVar2 : null);
+//                    if (right == null) {
+//                        throw new ExecutionException(m_script, "operate [&&] right is not a bool");
+//                    }
+//                    return right.getValue() ? m_script.True : m_script.False;
+//                }
+//                else if (type == TokenType.Or) {
+//                    if (b1 == true) {
+//                        return m_script.True;
+//                    }
+//                    ScriptObject tempVar3 = ResolveOperand(operate.Right);
+//                    ScriptBoolean right = (ScriptBoolean)((tempVar3 instanceof ScriptBoolean) ? tempVar3 : null);
+//                    if (right == null) {
+//                        throw new ExecutionException(m_script, "operate [||] right is not a bool");
+//                    }
+//                    return right.getValue() ? m_script.True : m_script.False;
+//                }
+//                else {
+//                    if (type != TokenType.Equal && type != TokenType.NotEqual)
+//                        throw new ExecutionException(m_script, "nonsupport operate [" + type + "]  with bool");
+//                    ScriptObject tempVar4 = ResolveOperand(operate.Right);
+//                    ScriptBoolean right = (ScriptBoolean)((tempVar4 instanceof ScriptBoolean) ? tempVar4 : null);
+//                    if (right == null) return type == TokenType.Equal ? m_script.False : m_script.True;
+//                    boolean b2 = right.getValue();
+//                    if (type == TokenType.Equal) {
+//                        return b1 == b2 ? m_script.True : m_script.False;
+//                    } else {
+//                        return b1 != b2 ? m_script.True : m_script.False;
+//                    }
+//                }
+//            }
+//            else {
+//                ScriptObject right = ResolveOperand(operate.Right);
+//                if (left instanceof ScriptNull || right instanceof ScriptNull) {
+//                    boolean ret = false;
+//                    if (type == TokenType.Equal) {
+//                        ret = (left == right);
+//                    }
+//                    else if (type == TokenType.NotEqual) {
+//                        ret = (left != right);
+//                    }
+//                    else {
+//                        throw new ExecutionException(m_script, "nonsupport operate [" + type + "] with null");
+//                    }
+//                    return ret ? m_script.True : m_script.False;
+//                }
+//                if (type == TokenType.Equal) {
+//                    return left.getObjectValue().equals(right.getObjectValue()) ? m_script.True : m_script.False;
+//                }
+//                else if (type == TokenType.NotEqual) {
+//                    return !left.getObjectValue().equals(right.getObjectValue()) ? m_script.True : m_script.False;
+//                }
+//                if (left.getType() != right.getType()) {
+//                    throw new ExecutionException(m_script, "[operate] left right is not same type");
+//                }
+//                if (left instanceof ScriptString) {
+//                    return ((ScriptString)left).Compare(type, (ScriptString)right) ? m_script.True : m_script.False;
+//                }
+//                else if (left instanceof ScriptNumber) {
+//                    return ((ScriptNumber)left).Compare(type, (ScriptNumber)right) ? m_script.True : m_script.False;
+//                }
+//                else {
+//                    throw new ExecutionException(m_script, "nonsupport operate [" + type + "] with " + left.getType());
+//                }
+//            }
+//        }
     }
     private ScriptObject ParseTernary(CodeTernary ternary) throws Exception {
         ScriptObject tempVar = ResolveOperand(ternary.Allow);
@@ -632,26 +652,27 @@ public class ScriptContext {
             return ret;
         }
         else {
-            ScriptObject obj = GetVariable(assign.member);
-            ScriptString str = (ScriptString)((obj instanceof ScriptString) ? obj : null);
-            if (str != null) {
-                if (assign.AssignType == TokenType.AssignPlus) {
-                    return str.AssignPlus(ResolveOperand(assign.value));
-                }
-                else {
-                    throw new ExecutionException(m_script, "string类型只支持[+=]赋值操作");
-                }
-            }
-            ScriptNumber num = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
-            if (num != null) {
-                ScriptObject tempVar = ResolveOperand(assign.value);
-                ScriptNumber right = (ScriptNumber)((tempVar instanceof ScriptNumber) ? tempVar : null);
-                if (right == null) {
-                    throw new ExecutionException(m_script, "[+= -=...]值只能为 number类型");
-                }
-                return num.AssignCompute(assign.AssignType, right);
-            }
-            throw new ExecutionException(m_script, "[+= -=...]左边值只能为number或者string");
+        	return GetVariable(assign.member).AssignCompute(assign.AssignType, ResolveOperand(assign.value));
+//            ScriptObject obj = GetVariable(assign.member);
+//            ScriptString str = (ScriptString)((obj instanceof ScriptString) ? obj : null);
+//            if (str != null) {
+//                if (assign.AssignType == TokenType.AssignPlus) {
+//                    return str.AssignPlus(ResolveOperand(assign.value));
+//                }
+//                else {
+//                    throw new ExecutionException(m_script, "string类型只支持[+=]赋值操作");
+//                }
+//            }
+//            ScriptNumber num = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
+//            if (num != null) {
+//                ScriptObject tempVar = ResolveOperand(assign.value);
+//                ScriptNumber right = (ScriptNumber)((tempVar instanceof ScriptNumber) ? tempVar : null);
+//                if (right == null) {
+//                    throw new ExecutionException(m_script, "[+= -=...]值只能为 number类型");
+//                }
+//                return num.AssignCompute(assign.AssignType, right);
+//            }
+//            throw new ExecutionException(m_script, "[+= -=...]左边值只能为number或者string");
         }
     }
     private ScriptObject ParseEval(CodeEval eval) throws Exception {

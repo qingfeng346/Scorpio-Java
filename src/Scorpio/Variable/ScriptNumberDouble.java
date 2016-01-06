@@ -75,47 +75,8 @@ public class ScriptNumberDouble extends ScriptNumber {
         return m_Value;
     }
     @Override
-    public ScriptObject Compute(TokenType type, ScriptNumber obj) {
-        switch (type) {
-            case Plus:
-                return getScript().CreateDouble(m_Value + obj.ToDouble());
-            case Minus:
-                return getScript().CreateDouble(m_Value - obj.ToDouble());
-            case Multiply:
-                return getScript().CreateDouble(m_Value * obj.ToDouble());
-            case Divide:
-                return getScript().CreateDouble(m_Value / obj.ToDouble());
-            case Modulo:
-                return getScript().CreateDouble(m_Value % obj.ToDouble());
-            default:
-                throw new ExecutionException(getScript(), "Double不支持的运算符 " + type);
-        }
-    }
-    @Override
-    public ScriptObject AssignCompute(TokenType type, ScriptNumber obj) {
-        switch (type) {
-            case AssignPlus:
-                m_Value += obj.ToDouble();
-                return this;
-            case AssignMinus:
-                m_Value -= obj.ToDouble();
-                return this;
-            case AssignMultiply:
-                m_Value *= obj.ToDouble();
-                return this;
-            case AssignDivide:
-                m_Value /= obj.ToDouble();
-                return this;
-            case AssignModulo:
-                m_Value %= obj.ToDouble();
-                return this;
-            default:
-                throw new ExecutionException(getScript(), "Double不支持的运算符 " + type);
-        }
-    }
-    @Override
-    public boolean Compare(TokenType type, ScriptNumber num) {
-        ScriptNumberDouble val = (ScriptNumberDouble)((num instanceof ScriptNumberDouble) ? num : null);
+    public boolean Compare(TokenType type, ScriptObject obj) {
+        ScriptNumberDouble val = (ScriptNumberDouble)((obj instanceof ScriptNumberDouble) ? obj : null);
         if (val == null) {
             throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
         }
@@ -130,6 +91,53 @@ public class ScriptNumberDouble extends ScriptNumber {
                 return m_Value <= val.m_Value;
             default:
                 throw new ExecutionException(getScript(), "Double类型 操作符[" + type + "]不支持");
+        }
+    }
+    @Override
+    public ScriptObject Compute(TokenType type, ScriptObject obj) {
+    	ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
+        if (val == null) {
+            throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
+        }
+        switch (type) {
+            case Plus:
+                return getScript().CreateDouble(m_Value + val.ToDouble());
+            case Minus:
+                return getScript().CreateDouble(m_Value - val.ToDouble());
+            case Multiply:
+                return getScript().CreateDouble(m_Value * val.ToDouble());
+            case Divide:
+                return getScript().CreateDouble(m_Value / val.ToDouble());
+            case Modulo:
+                return getScript().CreateDouble(m_Value % val.ToDouble());
+            default:
+                throw new ExecutionException(getScript(), "Double不支持的运算符 " + type);
+        }
+    }
+    @Override
+    public ScriptObject AssignCompute(TokenType type, ScriptObject obj) {
+    	ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
+        if (val == null) {
+            throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
+        }
+        switch (type) {
+            case AssignPlus:
+                m_Value += val.ToDouble();
+                return this;
+            case AssignMinus:
+                m_Value -= val.ToDouble();
+                return this;
+            case AssignMultiply:
+                m_Value *= val.ToDouble();
+                return this;
+            case AssignDivide:
+                m_Value /= val.ToDouble();
+                return this;
+            case AssignModulo:
+                m_Value %= val.ToDouble();
+                return this;
+            default:
+                throw new ExecutionException(getScript(), "Double不支持的运算符 " + type);
         }
     }
     @Override

@@ -75,72 +75,8 @@ public class ScriptNumberInt extends ScriptNumber {
         return m_Value;
     }
     @Override
-    public ScriptObject Compute(TokenType type, ScriptNumber obj) {
-        switch (type) {
-            case Plus:
-                return getScript().CreateInt(m_Value + obj.ToInt32());
-            case Minus:
-                return getScript().CreateInt(m_Value - obj.ToInt32());
-            case Multiply:
-                return getScript().CreateInt(m_Value * obj.ToInt32());
-            case Divide:
-                return getScript().CreateInt(m_Value / obj.ToInt32());
-            case Modulo:
-                return getScript().CreateInt(m_Value % obj.ToInt32());
-            case InclusiveOr:
-                return getScript().CreateInt(m_Value | obj.ToInt32());
-            case Combine:
-                return getScript().CreateInt(m_Value & obj.ToInt32());
-            case XOR:
-                return getScript().CreateInt(m_Value ^ obj.ToInt32());
-            case Shr:
-                return getScript().CreateInt(m_Value >> obj.ToInt32());
-            case Shi:
-                return getScript().CreateInt(m_Value << obj.ToInt32());
-            default:
-                throw new ExecutionException(getScript(), "Int不支持的运算符 " + type);
-        }
-    }
-    @Override
-    public ScriptObject AssignCompute(TokenType type, ScriptNumber obj) {
-        switch (type) {
-            case AssignPlus:
-                m_Value += obj.ToInt32();
-                return this;
-            case AssignMinus:
-                m_Value -= obj.ToInt32();
-                return this;
-            case AssignMultiply:
-                m_Value *= obj.ToInt32();
-                return this;
-            case AssignDivide:
-                m_Value /= obj.ToInt32();
-                return this;
-            case AssignModulo:
-                m_Value %= obj.ToInt32();
-                return this;
-            case AssignInclusiveOr:
-                m_Value |= obj.ToInt32();
-                return this;
-            case AssignCombine:
-                m_Value &= obj.ToInt32();
-                return this;
-            case AssignXOR:
-                m_Value ^= obj.ToInt32();
-                return this;
-            case AssignShr:
-                m_Value >>= obj.ToInt32();
-                return this;
-            case AssignShi:
-                m_Value <<= obj.ToInt32();
-                return this;
-            default:
-                throw new ExecutionException(getScript(), "Int不支持的运算符 " + type);
-        }
-    }
-    @Override
-    public boolean Compare(TokenType type, ScriptNumber num) {
-        ScriptNumberInt val = (ScriptNumberInt)((num instanceof ScriptNumberInt) ? num : null);
+    public boolean Compare(TokenType type, ScriptObject obj) {
+        ScriptNumberInt val = (ScriptNumberInt)((obj instanceof ScriptNumberInt) ? obj : null);
         if (val == null) {
             throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
         }
@@ -155,6 +91,78 @@ public class ScriptNumberInt extends ScriptNumber {
                 return m_Value <= val.m_Value;
             default:
                 throw new ExecutionException(getScript(), "Int类型 操作符[" + type + "]不支持");
+        }
+    }
+    @Override
+    public ScriptObject Compute(TokenType type, ScriptObject obj) {
+    	ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
+        if (val == null) {
+            throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
+        }
+        switch (type) {
+            case Plus:
+                return getScript().CreateInt(m_Value + val.ToInt32());
+            case Minus:
+                return getScript().CreateInt(m_Value - val.ToInt32());
+            case Multiply:
+                return getScript().CreateInt(m_Value * val.ToInt32());
+            case Divide:
+                return getScript().CreateInt(m_Value / val.ToInt32());
+            case Modulo:
+                return getScript().CreateInt(m_Value % val.ToInt32());
+            case InclusiveOr:
+                return getScript().CreateInt(m_Value | val.ToInt32());
+            case Combine:
+                return getScript().CreateInt(m_Value & val.ToInt32());
+            case XOR:
+                return getScript().CreateInt(m_Value ^ val.ToInt32());
+            case Shr:
+                return getScript().CreateInt(m_Value >> val.ToInt32());
+            case Shi:
+                return getScript().CreateInt(m_Value << val.ToInt32());
+            default:
+                throw new ExecutionException(getScript(), "Int不支持的运算符 " + type);
+        }
+    }
+    @Override
+    public ScriptObject AssignCompute(TokenType type, ScriptObject obj) {
+    	ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
+        if (val == null) {
+            throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
+        }
+        switch (type) {
+            case AssignPlus:
+                m_Value += val.ToInt32();
+                return this;
+            case AssignMinus:
+                m_Value -= val.ToInt32();
+                return this;
+            case AssignMultiply:
+                m_Value *= val.ToInt32();
+                return this;
+            case AssignDivide:
+                m_Value /= val.ToInt32();
+                return this;
+            case AssignModulo:
+                m_Value %= val.ToInt32();
+                return this;
+            case AssignInclusiveOr:
+                m_Value |= val.ToInt32();
+                return this;
+            case AssignCombine:
+                m_Value &= val.ToInt32();
+                return this;
+            case AssignXOR:
+                m_Value ^= val.ToInt32();
+                return this;
+            case AssignShr:
+                m_Value >>= val.ToInt32();
+                return this;
+            case AssignShi:
+                m_Value <<= val.ToInt32();
+                return this;
+            default:
+                throw new ExecutionException(getScript(), "Int不支持的运算符 " + type);
         }
     }
     @Override

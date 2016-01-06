@@ -1,7 +1,7 @@
 package Scorpio;
 
 import Scorpio.Exception.*;
-
+import Scorpio.Compiler.*;
 //脚本数据类型
 public abstract class ScriptObject {
     private static final ScriptObject[] NOPARAMETER = new ScriptObject[0]; // 没有参数
@@ -17,11 +17,11 @@ public abstract class ScriptObject {
     }
     //设置变量
     public void SetValue(Object key, ScriptObject value) throws Exception {
-        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持设置变量 name = " + getName() + " key = " + key);
+        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持设置变量 name:" + getName() + " key:" + key);
     }
     //获取变量
     public ScriptObject GetValue(Object key) throws Exception {
-        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持获取变量 name = " + getName() + " key = " + key);
+        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持获取变量 name:" + getName() + " key:" + key);
     }
     //调用无参函数
     public final Object Call() throws Exception {
@@ -29,8 +29,23 @@ public abstract class ScriptObject {
     }
     //调用函数
     public Object Call(ScriptObject[] parameters) throws Exception {
-        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持函数调用 name = " + getName());
+        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持函数调用 name:" + getName());
     }
+    //两个数值比较 > >= < <=
+    public boolean Compare(TokenType type, ScriptObject obj) { 
+    	throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持值比较 Name:" + getName() + " type:" + type); 
+    }
+    //运算符或者位运算 + - * / % | & ^ >> <<
+    public ScriptObject Compute(TokenType type, ScriptObject obj) { 
+    	throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持运算符 Name:" + getName() + " type:" + type); 
+    }
+    //运算符或者位运算赋值运算 += -= *= /= %= |= &= ^= >>= <<=
+    public ScriptObject AssignCompute(TokenType type, ScriptObject obj) { 
+    	throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持赋值运算符 Name:" + getName() + " type:" + type); 
+    }
+    //逻辑运算符 逻辑运算时 Object 算 true 或者 false
+    public boolean LogicOperation() { return true; }
+    // 复制一个变量
     public ScriptObject clone() { // 复制一个变量
         return this;
     }

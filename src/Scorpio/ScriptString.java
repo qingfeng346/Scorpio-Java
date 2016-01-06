@@ -27,10 +27,6 @@ public class ScriptString extends ScriptObject {
     public ScriptObject Assign() {
         return getScript().CreateString(getValue());
     }
-    public final ScriptObject AssignPlus(ScriptObject obj) {
-        setValue(getValue() + obj.toString());
-        return this;
-    }
     @Override
     public final ScriptObject GetValue(Object index)
     {
@@ -38,19 +34,30 @@ public class ScriptString extends ScriptObject {
     		throw new ExecutionException(getScript(), "String GetValue只支持Number类型");
         return getScript().CreateString(privateValue.charAt(Util.ToInt32(index)) + "");
     }
-    public final boolean Compare(TokenType type, ScriptString str) {
+    @Override
+    public final boolean Compare(TokenType type, ScriptObject obj) {
+    	ScriptString val = (ScriptString)((obj instanceof ScriptString) ? obj : null);
+        if (val == null) throw new ExecutionException(getScript(), "字符串比较 右边必须为字符串类型");
         switch (type) {
             case Greater:
-                return getValue().compareTo(str.getValue()) < 0;
+                return getValue().compareTo(val.getValue()) < 0;
             case GreaterOrEqual:
-                return getValue().compareTo(str.getValue()) <= 0;
+                return getValue().compareTo(val.getValue()) <= 0;
             case Less:
-                return getValue().compareTo(str.getValue()) > 0;
+                return getValue().compareTo(val.getValue()) > 0;
             case LessOrEqual:
-                return getValue().compareTo(str.getValue()) >= 0;
+                return getValue().compareTo(val.getValue()) >= 0;
             default:
                 throw new ExecutionException(getScript(), "String类型 操作符[" + type + "]不支持");
         }
+    }
+    @Override
+    public final ScriptObject AssignCompute(TokenType type, ScriptObject obj) {
+    	if (type == TokenType.AssignPlus) {
+    		setValue(getValue() + obj.toString());
+            return this;
+        }
+        throw new ExecutionException(getScript(), "String类型 操作符[" + type + "]不支持");
     }
     @Override
     public ScriptObject clone() {
