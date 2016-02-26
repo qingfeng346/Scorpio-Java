@@ -309,9 +309,9 @@ public class ScriptParser {
         for (; ;) {
             Token token = ReadToken();
             if (token.getType() == TokenType.Case) {
-                java.util.ArrayList<Object> vals = new java.util.ArrayList<Object>();
-                ParseCase(vals);
-                ret.AddCase(new TempCase(m_script, vals, ParseStatementBlock(Executable_Block.Switch, false, TokenType.Break), Executable_Block.Switch));
+                java.util.ArrayList<CodeObject> allow = new java.util.ArrayList<CodeObject>();
+                ParseCase(allow);
+                ret.AddCase(new TempCase(m_script, allow, ParseStatementBlock(Executable_Block.Switch, false, TokenType.Break), Executable_Block.Switch));
             }
             else if (token.getType() == TokenType.Default) {
                 ReadColon();
@@ -326,17 +326,11 @@ public class ScriptParser {
         m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.CALL_SWITCH, ret));
     }
     //解析case
-    private void ParseCase(java.util.ArrayList<Object> vals) {
-        Token token = ReadToken();
-        if (token.getType() == TokenType.String || token.getType() == TokenType.SimpleString || token.getType() == TokenType.Number) {
-            vals.add(token.getLexeme());
-        }
-        else {
-            throw new ParserException("case 语句 只支持 string和number类型", token);
-        }
+    private void ParseCase(java.util.ArrayList<CodeObject> allow) {
+    	allow.add(GetObject());
         ReadColon();
         if (ReadToken().getType() == TokenType.Case) {
-            ParseCase(vals);
+            ParseCase(allow);
         }
         else {
             UndoToken();

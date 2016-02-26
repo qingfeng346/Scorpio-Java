@@ -1,6 +1,5 @@
 package Scorpio.Runtime;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import Scorpio.*;
@@ -45,7 +44,7 @@ public class ScriptContext {
         m_parent = parent;
         m_variableDictionary.clear();
         for (Map.Entry<String, ScriptObject> pair : variable.entrySet())
-        	m_variableDictionary.put(pair.getKey(), pair.getValue().Assign());
+        	m_variableDictionary.put(pair.getKey(), pair.getValue());
     }
     private void Initialize(ScriptContext parent, String name, ScriptObject obj) {
         m_parent = parent;
@@ -242,7 +241,7 @@ public class ScriptContext {
                 }
             }
             ScriptContext blockContext = code.GetBlockContext();
-            blockContext.Initialize(context, context.m_variableDictionary);
+            blockContext.Initialize(context);
             blockContext.Execute();
             if (blockContext.getIsOver()) {
                 break;
@@ -276,11 +275,9 @@ public class ScriptContext {
         else {
             step = 1;
         }
-        java.util.HashMap<String, ScriptObject> variables = new HashMap<String, ScriptObject>();
         for (int i = begin; i <= finished; i += step) {
         	ScriptContext context = code.GetBlockContext();
-        	variables.put(code.Identifier, m_script.CreateNumber(i));
-        	context.Initialize(this, variables);
+        	context.Initialize(this, code.Identifier, m_script.CreateNumber(i));
             context.Execute();
             if (context.getIsOver()) {
                 break;
@@ -352,8 +349,8 @@ public class ScriptContext {
         ScriptObject obj = ResolveOperand(code.Condition);
         boolean exec = false;
         for (TempCase c : code.Cases) {
-            for (Object a : c.Allow) {
-                if (a.equals(obj.getObjectValue())) {
+            for (CodeObject all : c.Allow) {
+                if (ResolveOperand(all).equals(obj)) {
                     exec = true;
                     ScriptContext context = c.GetContext();
                     context.Initialize(this);
@@ -361,6 +358,7 @@ public class ScriptContext {
                     break;
                 }
             }
+            if (exec) { break; }
         }
         if (exec == false && code.Default != null) {
         	ScriptContext context = code.Default.GetContext();
