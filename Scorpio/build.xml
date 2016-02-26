@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project name="Scorpio" default="dist" basedir=".">
-	<property name="export" value="Scorpio"/>
-	<property name="jre" location="${java.home}/lib"/>
-	<property name="src" location="src"/>
-	<property name="build" location="build"/>
-	<property name="build.classes" location="${build}/classes"/>
-	<property name="target" location="../Library/library"/>
+	<property name="export" value="Scorpio"/>						<!-- 输出的jar的名字 -->
+	<property name="src" location="src"/>							<!-- 源码目录 -->
+	<property name="build" location="build"/>						<!-- 输出目录 -->
+	<property name="build.classes" location="${build}/classes"/>	<!-- class文件输出目录 -->
+	<property name="target" location="../Library/library"/>			<!-- 生成jar后,如果此目录存在则复制jar文件到此目录 -->
 	
-	<path id="classpath">
-	</path>
 	<target name="clean" description="Removes build directory.">
 		<delete dir="${build}"/>
 	</target>
@@ -21,7 +18,6 @@
 		<javac destdir="${build.classes}" encoding="utf8" optimize="on" debug="on" nowarn="off" source="1.7" target="1.7" includeantruntime="false">
 		    <compilerarg value="-Xlint:unchecked"/>
 			<src path="${src}"/>
-			<classpath refid="classpath"/>
 		</javac>
 	</target>
 	<target name="jar" depends="compile" description="Create the jar file">
