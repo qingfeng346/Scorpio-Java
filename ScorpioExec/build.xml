@@ -5,6 +5,7 @@
 	<property name="export" value="ScorpioExec"/>								<!-- 项目名称名称 -->
 	<property name="src" location="src"/>										<!-- 源码目录 -->
 	<property name="lib" location="../Scorpio/build"/>							<!-- 需要的第三方jar库 -->
+	<property name="project" location="./"/>									<!-- 项目路径 -->
 	<property name="build" location="build"/>									<!-- 生成目录 -->
 	<property name="build.classes" location="${build}/classes"/>				<!-- 生成class目录 -->
 	<property name="build.dist" location="${build}/dist"/>						<!-- 生成执行目录 -->
@@ -43,6 +44,9 @@
 		</copy>
 		<copy todir="${build.dist.target}/libs">
 			<fileset dir="${lib}"> <include name="*.jar"/> </fileset>
+		</copy>
+		<copy todir="${build.dist.target}">
+			<fileset dir="${project}"> <include name="start.bat"/> </fileset>
 		</copy>
 	</target>
 </project>
