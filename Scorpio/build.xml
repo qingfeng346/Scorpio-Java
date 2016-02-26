@@ -1,21 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project name="Scorpio" default="dist" basedir=".">
-	<property name="target" value="Scorpio"/>
 	<property name="export" value="Scorpio"/>
 	<property name="jre" location="${java.home}/lib"/>
 	<property name="src" location="src"/>
-	<property name="config" location="config"/>
-	<property name="lib" location="../Library/libs"/>
 	<property name="build" location="build"/>
 	<property name="build.classes" location="${build}/classes"/>
-	<property name="build.dist" location="${build}/dist"/>
-	<property name="build.dist.target" location="${build.dist}/${target}"/>
+	<property name="target" location="../Library/library"/>
 	
 	<path id="classpath">
-		<fileset dir="${lib}">
-			<include name="*.jar"/>
-		</fileset>
 	</path>
 	<target name="clean" description="Removes build directory.">
 		<delete dir="${build}"/>
@@ -44,8 +37,12 @@
         </jar>
 	</target>
 	<target name="dist" depends="jar">
-		<delete dir="../Library/library/${export}.jar"/>
-		<copy todir="../Library/library/">
+		<available property="target.exist" file="${target}" type= "dir"/>
+		<antcall target="output"/>
+	</target>
+	<target name="output" if="target.exist">
+		<delete dir="${target}/${export}.jar"/>
+		<copy todir="${target}">
 			<fileset dir="${build}">
 				<include name="${export}.jar"/>
 			</fileset>
