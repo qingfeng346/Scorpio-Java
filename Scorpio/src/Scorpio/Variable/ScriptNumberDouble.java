@@ -1,11 +1,14 @@
 package Scorpio.Variable;
 
+import java.text.DecimalFormat;
+
 import Scorpio.*;
 import Scorpio.CodeDom.*;
 import Scorpio.Compiler.*;
 import Scorpio.Exception.*;
 
 public class ScriptNumberDouble extends ScriptNumber {
+	private static DecimalFormat DoubleFormat = new DecimalFormat("#.############");
     @Override
     public ObjectType getType() {
         return ObjectType.Number;
@@ -139,6 +142,10 @@ public class ScriptNumberDouble extends ScriptNumber {
             default:
                 throw new ExecutionException(getScript(), "Double不支持的运算符 " + type);
         }
+    }
+    @Override
+    public String toString() {
+    	return DoubleFormat.format(m_Value);
     }
     @Override
     public ScriptObject clone() {

@@ -117,7 +117,7 @@ public class ScriptContext {
         }
     }
     private void Reset() {
-        m_returnObject = null;
+        m_returnObject = m_script.Null;
         m_Over = false;
         m_Break = false;
     }
