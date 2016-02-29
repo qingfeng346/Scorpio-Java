@@ -1,8 +1,9 @@
 package Scorpio.Userdata;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 
 import Scorpio.*;
 import Scorpio.Exception.*;
@@ -18,17 +19,14 @@ public class UserdataMethod {
         public boolean Params; //是否是变长参数
         public java.lang.Class<?> ParamType; //变长参数类型
         public Object[] Args; //参数数组（预创建 可以共用）
-        public FunctionMethod(java.lang.reflect.Constructor<?> Constructor, java.lang.Class<?>[] ParameterType, java.lang.Class<?> ParamType, boolean Params) {
-            m_Type = 0;
-            m_Constructor = Constructor;
-            this.ParameterType = ParameterType;
-            this.ParamType = ParamType;
-            this.Params = Params;
-            this.Args = new Object[ParameterType.length];
-        }
-        public FunctionMethod(java.lang.reflect.Method Method, java.lang.Class<?>[] ParameterType, java.lang.Class<?> ParamType, boolean Params) {
-            m_Type = 1;
-            m_Method = Method;
+        public FunctionMethod(MethodInfo method, java.lang.Class<?>[] ParameterType, java.lang.Class<?> ParamType, boolean Params) {
+        	if (method.m_Constructor != null) {
+        		m_Type = 0;
+                m_Constructor = method.m_Constructor;
+        	} else {
+        		m_Type = 1;
+        		m_Method = method.m_Method;
+        	}
             this.ParameterType = ParameterType;
             this.ParamType = ParamType;
             this.Params = Params;
@@ -36,6 +34,31 @@ public class UserdataMethod {
         }
         public final Object invoke(Object obj, java.lang.Class<?> type) throws Exception {
             return m_Type == 1 ? m_Method.invoke(obj, Args) : m_Constructor.newInstance(Args);
+        }
+    }
+    private static class MethodInfo {
+        private java.lang.reflect.Method m_Method; //普通函数对象
+        private java.lang.reflect.Constructor<?> m_Constructor; //构造函数对象
+        public MethodInfo(java.lang.reflect.Constructor<?> Constructor) {
+            m_Constructor = Constructor;
+        }
+        public MethodInfo(java.lang.reflect.Method Method) {
+            m_Method = Method;
+        }
+        public Class<?>[] getParameterTypes() {
+        	if (m_Constructor != null)
+        		return m_Constructor.getParameterTypes();
+        	return m_Method.getParameterTypes();
+        }
+        public boolean isVarArgs() {
+        	if (m_Constructor != null)
+        		return m_Constructor.isVarArgs();
+        	return m_Method.isVarArgs();
+        }
+        public boolean isStatic() {
+        	if (m_Constructor != null)
+        		return false;
+        	return Modifier.isStatic(m_Method.getModifiers());
         }
     }
     private Script m_Script;				//所在脚本引擎
@@ -56,23 +79,37 @@ public class UserdataMethod {
     }
     public UserdataMethod(Script script, java.lang.Class<?> type, String methodName, java.lang.reflect.Method[] methods) {
     	m_Script = script;
-        m_Type = type;
-        m_IsStatic = Modifier.isStatic(methods[0].getModifiers());
-        setMethodName(methodName);
+    	List<MethodInfo> methodBases = new ArrayList<MethodInfo>(); 
+    	for (java.lang.reflect.Method method : methods) {
+    		if (method.getName().equals(methodName))
+    			methodBases.add(new MethodInfo(method));
+    	}
+        m_IsStatic = methodBases.get(0).isStatic();
+        Initialize(type, methodName, methodBases);
+    }
+    public UserdataMethod(Script script, java.lang.Class<?> type, String methodName, java.lang.reflect.Constructor<?>[] methods) {
+    	m_Script = script;
+    	m_IsStatic = false;
+    	List<MethodInfo> methodBases = new ArrayList<MethodInfo>(); 
+    	for (java.lang.reflect.Constructor<?> method : methods) {
+    		methodBases.add(new MethodInfo(method));
+    	}
+    	Initialize(type, methodName, methodBases);
+    }
+    private void Initialize(java.lang.Class<?> type, String methodName, List<MethodInfo> methods) {
+    	m_Type = type;
+    	setMethodName(methodName);
     	java.util.ArrayList<FunctionMethod> functionMethod = new java.util.ArrayList<FunctionMethod>();
-        boolean Params = false;
+    	boolean Params = false;
         java.lang.Class<?> ParamType = null;
-        Method method = null;
         java.util.ArrayList<java.lang.Class<?>> parameters = new java.util.ArrayList<java.lang.Class<?>>();
-        int length = methods.length;
+        MethodInfo method = null;
+        int length = methods.size();
         for (int i = 0; i < length; ++i) {
-        	method = methods[i];
-        	if (!method.getName().equals(methodName))
-        		continue;
+        	method = methods.get(i);
             Params = false;
             ParamType = null;
             parameters.clear();
-            
             Class<?>[] pars = method.getParameterTypes();
             for (Class<?> par : pars) {
 				parameters.add(par);
@@ -81,37 +118,6 @@ public class UserdataMethod {
             	Params = true;
             	ParamType = pars[pars.length - 1].getComponentType();
             }
-            functionMethod.add(new FunctionMethod(method, parameters.toArray(new java.lang.Class[]{}), ParamType, Params));
-        }
-        m_Methods = functionMethod.toArray(new FunctionMethod[]{});
-        m_Count = m_Methods.length;
-    }
-    public UserdataMethod(Script script, java.lang.Class<?> type, String methodName, java.lang.reflect.Constructor<?>[] methods) {
-    	m_Script = script;
-    	m_Type = type;
-    	setMethodName(methodName);
-    	m_IsStatic = false;
-        java.util.ArrayList<FunctionMethod> functionMethod = new java.util.ArrayList<FunctionMethod>();
-        boolean Params = false;
-        java.lang.Class<?> ParamType = null;
-        java.lang.reflect.Constructor<?> method = null;
-        java.util.ArrayList<java.lang.Class<?>> parameters = new java.util.ArrayList<java.lang.Class<?>>();
-        int length = methods.length;
-        for (int i = 0; i < length; ++i) {
-            Params = false;
-            ParamType = null;
-            parameters.clear();
-            method = methods[i];
-            Class<?>[] pars = method.getParameterTypes();
-            for (Class<?> par : pars)
-			{
-				parameters.add(par);
-				if (method.isVarArgs())
-				{
-					Params = true;
-					ParamType = par;
-				}
-			}
             functionMethod.add(new FunctionMethod(method, parameters.toArray(new java.lang.Class[]{}), ParamType, Params));
         }
         m_Methods = functionMethod.toArray(new FunctionMethod[]{});
