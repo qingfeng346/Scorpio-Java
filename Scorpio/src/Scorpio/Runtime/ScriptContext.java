@@ -287,13 +287,15 @@ public class ScriptContext {
     private void ProcessCallForeach() throws Exception {
         CodeForeach code = (CodeForeach)m_scriptInstruction.getOperand0();
         ScriptObject loop = ResolveOperand(code.LoopObject);
-        if (!loop.getIsFunction()) {
+        if (!(loop instanceof ScriptFunction)) {
             throw new ExecutionException(m_script, "foreach函数必须返回一个ScriptFunction");
         }
         ScriptObject obj;
+        ScriptContext context;
+        ScriptFunction func = (ScriptFunction)loop;
         for (; ;) {
-        	ScriptContext context = code.GetBlockContext();
-            obj = m_script.CreateObject(((ScriptFunction)loop).Call());
+        	context = code.GetBlockContext();
+            obj = m_script.CreateObject(func.Call());
             if (obj == null || obj instanceof ScriptNull) {
                 return;
             }
