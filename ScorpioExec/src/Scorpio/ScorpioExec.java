@@ -1,5 +1,7 @@
 package Scorpio;
+import java.util.Scanner;
 public class ScorpioExec {
+	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		Script script = new Script();
 		System.out.println("开始执行，当前版本:" + Script.Version);
@@ -13,6 +15,23 @@ public class ScorpioExec {
             	System.out.println(script.GetStackInfo());
             	System.out.println(ex.toString());
             }
+		} else {
+			Scanner sc = new Scanner(System.in); 
+			while (true) {
+				try {
+					String str = sc.nextLine();
+					if (str.equals("exit"))  { 
+	                    break;
+	                } else if (str.equals("version")) {
+	                	System.out.println(Script.Version);
+	                } else {
+	                    script.LoadString(str);
+	                }
+				} catch (Exception ex) {
+					System.out.println(script.GetStackInfo());
+	            	System.out.println(ex.toString());
+				}
+			}
 		}
 	}
 }
