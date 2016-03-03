@@ -117,7 +117,7 @@ public class ScriptContext {
         }
     }
     private void Reset() {
-        m_returnObject = m_script.Null;
+        m_returnObject = null;
         m_Over = false;
         m_Break = false;
     }
@@ -290,16 +290,14 @@ public class ScriptContext {
         if (!(loop instanceof ScriptFunction)) {
             throw new ExecutionException(m_script, "foreach函数必须返回一个ScriptFunction");
         }
-        ScriptObject obj;
+        Object obj;
         ScriptContext context;
         ScriptFunction func = (ScriptFunction)loop;
         for (; ;) {
         	context = code.GetBlockContext();
-            obj = m_script.CreateObject(func.Call());
-            if (obj == null || obj instanceof ScriptNull) {
-                return;
-            }
-            context.Initialize(this, code.Identifier, obj);
+            obj = func.Call();
+            if (obj == null) { return; }
+            context.Initialize(this, code.Identifier, m_script.CreateObject(obj));
             context.Execute();
             if (context.getIsOver()) {
                 break;
@@ -391,7 +389,10 @@ public class ScriptContext {
         throw new InteriorException(ResolveOperand(code.obj));
     }
     private void ProcessRet() throws Exception {
-        InvokeReturnValue(ResolveOperand(m_scriptInstruction.getOperand0()));
+        if (m_scriptInstruction.getOperand0() == null)
+            InvokeReturnValue(null);
+        else
+            InvokeReturnValue(ResolveOperand(m_scriptInstruction.getOperand0()));
     }
     private void ProcessResolve() throws Exception {
         ResolveOperand(m_scriptInstruction.getOperand0());
