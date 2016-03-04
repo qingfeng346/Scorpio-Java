@@ -4,7 +4,7 @@
 	<property name="main" value="Scorpio.ScorpioExec"/>							<!-- 执行main类名称 -->
 	<property name="export" value="ScorpioExec"/>								<!-- 项目名称名称 -->
 	<property name="src" location="src"/>										<!-- 源码目录 -->
-	<property name="lib" location="../Scorpio/build"/>							<!-- 需要的第三方jar库 -->
+	<property name="libs" location="../Scorpio/build"/>							<!-- 需要的第三方jar库 -->
 	<property name="project" location="./"/>									<!-- 项目路径 -->
 	<property name="build" location="build"/>									<!-- 生成目录 -->
 	<property name="build.classes" location="${build}/classes"/>				<!-- 生成class目录 -->
@@ -13,7 +13,7 @@
 	
 	<!-- 需要的所有jar库 -->
 	<path id="classpath">
-		<fileset dir="${lib}"> <include name="*.jar"/> </fileset>
+		<fileset dir="${libs}"> <include name="*.jar"/> </fileset>
 	</path>
 	<!-- 删除build文件夹 -->
 	<target name="clean"> <delete dir="${build}"/> </target>
@@ -43,7 +43,7 @@
 			<fileset dir="${build}"> <include name="${export}.jar"/> </fileset>
 		</copy>
 		<copy todir="${build.dist.target}/libs">
-			<fileset dir="${lib}"> <include name="*.jar"/> </fileset>
+			<fileset dir="${libs}"> <include name="*.jar"/> </fileset>
 		</copy>
 		<copy todir="${build.dist.target}">
 			<fileset dir="${project}"> <include name="start.bat"/> </fileset>
