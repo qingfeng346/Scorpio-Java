@@ -23,6 +23,14 @@ public abstract class ScriptObject {
     public ScriptObject GetValue(Object key) throws Exception {
         throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持获取变量 name:" + getName() + " key:" + key);
     }
+    public final Object call(Object... args) throws Exception {
+        int length = args.length;
+        ScriptObject[] parameters = new ScriptObject[length];
+        for (int i = 0; i < length; ++i) {
+            parameters[i] = getScript().CreateObject(args[i]);
+        }
+        return Call(parameters);
+    }
     //调用无参函数
     public final Object Call() throws Exception {
         return Call(NOPARAMETER);

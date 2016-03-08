@@ -80,14 +80,6 @@ public class ScriptFunction extends ScriptObject {
             m_ParentContext = context;
         return this;
     }
-    public final Object call(Object... args) throws Exception {
-        int length = args.length;
-        ScriptObject[] parameters = new ScriptObject[length];
-        for (int i = 0; i < length; ++i) {
-            parameters[i] = getScript().CreateObject(args[i]);
-        }
-        return Call(parameters);
-    }
     @Override
     public Object Call(ScriptObject[] parameters) throws Exception {
         if (getFunctionType() == FunstionType.Script) {
