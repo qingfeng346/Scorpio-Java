@@ -123,7 +123,7 @@ public class UserdataMethod {
         m_Methods = functionMethod.toArray(new FunctionMethod[]{});
         m_Count = m_Methods.length;
     }
-    public final Object Call(Object obj, ScriptObject[] parameters) throws Exception {
+    public final Object Call(Object obj, ScriptObject[] parameters) {
         if (m_Count == 0) {
             throw new ExecutionException(m_Script, "找不到函数 [" + getMethodName() + "]");
         }

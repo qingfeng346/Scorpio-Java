@@ -4,6 +4,7 @@ import Scorpio.Script;
 import Scorpio.ScriptObject;
 import Scorpio.ScriptUserdata;
 import Scorpio.Util;
+import Scorpio.Compiler.TokenType;
 import Scorpio.Exception.*;
 import Scorpio.Variable.*;
 
@@ -112,6 +113,17 @@ public class UserdataType {
     public final Object CreateInstance(ScriptObject[] parameters) throws Exception {
         InitializeConstructor();
         return m_Constructor.Call(null, parameters);
+    }
+    /** <summary> 获得运算符重载的函数  */
+    public UserdataMethod GetComputeMethod(TokenType type)
+    {
+        switch (type) {
+            case Plus: return GetMethod("op_Addition");
+            case Minus: return GetMethod("op_Subtraction");
+            case Multiply: return GetMethod("op_Multiply");
+            case Divide: return GetMethod("op_Division");
+            default: return null;
+        }
     }
     /**  获得一个类变量 
      * @throws Exception 

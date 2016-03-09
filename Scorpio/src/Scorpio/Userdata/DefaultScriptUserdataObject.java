@@ -1,6 +1,7 @@
 package Scorpio.Userdata;
 
 import Scorpio.*;
+import Scorpio.Compiler.TokenType;
 import Scorpio.Exception.*;
 
 /**  普通Object类型 
@@ -24,5 +25,12 @@ public class DefaultScriptUserdataObject extends ScriptUserdata {
     	if (!(key instanceof String))
             throw new ExecutionException(getScript(), "Object GetValue只支持String类型");
         m_Type.SetValue(getValue(), (String)key, value);
+    }
+    @Override
+    public ScriptObject Compute(TokenType type, ScriptObject obj)
+    {
+        UserdataMethod method = m_Type.GetComputeMethod(type);
+        if (method == null) throw new ExecutionException(getScript(), "找不到运算符重载 " + type);
+        return getScript().CreateObject (method.Call(null, new ScriptObject[] { this, obj }));
     }
 }
