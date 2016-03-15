@@ -1,7 +1,6 @@
 package Scorpio.Runtime;
 
 import java.util.Map;
-
 import Scorpio.*;
 import Scorpio.Compiler.*;
 import Scorpio.CodeDom.*;
@@ -90,7 +89,9 @@ public class ScriptContext {
             ret = (obj == null ? m_script.GetValue(name) : obj);
         }
         else {
-            ret = ResolveOperand(member.Parent).GetValue(GetMember(member));
+        	ret = ResolveOperand(member.Parent);
+        	m_script.SetStackInfo(member.StackInfo);
+            ret = ret.GetValue(GetMember(member));
         }
         if (ret == null) {
             throw new ExecutionException(m_script, "GetVariable member is error");
