@@ -53,14 +53,18 @@ public class ScriptTable extends ScriptObject {
         ScriptObject obj = null;
         ScriptFunction func = null;
         for (java.util.Map.Entry<Object, ScriptObject> pair : m_listObject.entrySet()) {
-            obj = pair.getValue().clone();
-            if (obj instanceof ScriptFunction) {
-                func = (ScriptFunction)obj;
-                if (!func.getIsStatic()) {
-                    func.SetTable(ret);
+        	if (pair.getValue() == this) {
+        		ret.m_listObject.put(pair.getKey(), ret);
+        	} else {
+        		obj = pair.getValue().clone();
+                if (obj instanceof ScriptFunction) {
+                    func = (ScriptFunction)obj;
+                    if (!func.getIsStatic()) {
+                        func.SetTable(ret);
+                    }
                 }
-            }
-            ret.m_listObject.put(pair.getKey(), obj);
+                ret.m_listObject.put(pair.getKey(), obj);
+        	}
         }
         return ret;
     }

@@ -128,7 +128,11 @@ public class ScriptArray extends ScriptObject {
     public ScriptObject clone() {
         ScriptArray ret = getScript().CreateArray();
         for (int i = 0; i < m_listObject.size(); ++i) {
-            ret.m_listObject.add(m_listObject.get(i).clone());
+        	if (m_listObject.get(i) == this) {
+        		ret.m_listObject.add(ret);
+        	} else {
+        		ret.m_listObject.add(m_listObject.get(i).clone());
+        	}
         }
         return ret;
     }
