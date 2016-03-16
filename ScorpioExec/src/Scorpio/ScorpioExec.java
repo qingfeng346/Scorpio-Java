@@ -1,4 +1,5 @@
 package Scorpio;
+import java.io.File;
 import java.util.Scanner;
 public class ScorpioExec {
 	@SuppressWarnings("resource")
@@ -9,6 +10,7 @@ public class ScorpioExec {
 		if (args.length >= 1) {
             try {
             	long watch = System.currentTimeMillis();
+            	script.PushSearchPath(new File(args[0]).getParent());
             	System.out.println("返回值为:" + script.LoadFile(args[0]));
             	System.out.println("运行时间:" + (System.currentTimeMillis() - watch) + " ms");
             } catch (Exception ex) {

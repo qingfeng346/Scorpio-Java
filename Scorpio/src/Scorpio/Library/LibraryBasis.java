@@ -373,7 +373,7 @@ public class LibraryBasis {
             ScriptString str = (ScriptString)((args[0] instanceof ScriptString) ? args[0] : null);
             Util.Assert(str != null, m_script, "require 参数必须是 string");
             try {
-            	return m_script.LoadFile(m_script.GetValue("searchpath") + "/" + str.getValue());
+            	return m_script.LoadSearchPathFile(str.getValue());
             } catch (Exception ex) {
             	throw new ExecutionException(m_script, "require is error : " + ex.getMessage()); 
             }

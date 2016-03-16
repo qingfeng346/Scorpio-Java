@@ -1,5 +1,6 @@
 package Scorpio;
 
+import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
 
@@ -14,12 +15,14 @@ import Scorpio.Variable.*;
 public class Script {
     public static final String DynamicDelegateName = "__DynamicDelegate__";
     public static final String Version = "master";
+    public static final Charset UTF8 = Charset.forName("UTF8");
     private static final String GLOBAL_TABLE = "_G"; //全局table
     private static final String GLOBAL_VERSION = "_VERSION"; //版本号
     private static final String GLOBAL_SCRIPT = "_SCRIPT";         //Script对象
     private IScriptUserdataFactory m_UserdataFactory = null; //Userdata工厂
     private ScriptTable m_GlobalTable; //全局Table
     private java.util.ArrayList<StackInfo> m_StackInfoStack = new java.util.ArrayList<StackInfo>(); //堆栈数据
+    private java.util.ArrayList<String> m_SearchPath = new java.util.ArrayList<String>();           //request所有文件的路径集合
     private StackInfo m_StackInfo = new StackInfo(); //最近堆栈数据
     
     public ScriptNull Null;                            //null对象
@@ -40,17 +43,28 @@ public class Script {
         m_GlobalTable.SetValue(GLOBAL_SCRIPT, CreateObject(this));
     }
     public final ScriptObject LoadFile(String strFileName) throws Exception {
-        return LoadFile(strFileName, "UTF8");
-    }
-    public final ScriptObject LoadFile(String fileName, String encoding) throws Exception {
-        return LoadFile(fileName,Charset.forName(encoding));
+        return LoadFile(strFileName, UTF8);
     }
     public final ScriptObject LoadFile(String fileName, Charset encoding) throws Exception {
-    	byte[] buffer = Util.GetFileBuffer(fileName);
-    	if (buffer.length > 0 && buffer[0] == 0)
-    		return LoadTokens(fileName, ScorpioMaker.Deserialize(buffer));
-    	else
-    		return LoadString(fileName, new String(buffer, encoding));
+    	return LoadBuffer(fileName, Util.GetFileBuffer(fileName), encoding);
+    }
+    public ScriptObject LoadBuffer(byte[] buffer) {
+        return LoadBuffer("Undefined", buffer, UTF8);
+    }
+    public ScriptObject LoadBuffer(String strBreviary, byte[] buffer) {
+        return LoadBuffer(strBreviary, buffer, UTF8);
+    }
+    public ScriptObject LoadBuffer(String strBreviary, byte[] buffer, Charset encoding) {
+        if (buffer == null || buffer.length == 0) { return null; }
+        try {
+            if (buffer[0] == 0) {
+                return LoadTokens(strBreviary, ScorpioMaker.Deserialize(buffer));
+            } else {
+                return LoadString(strBreviary, new String(buffer, encoding));
+            }
+        } catch (Exception e) {
+            throw new ScriptException("load buffer [" + strBreviary + "] is error : " + e.toString());
+        }
     }
     public final ScriptObject LoadString(String strBuffer) throws Exception {
         return LoadString("", strBuffer);
@@ -70,6 +84,7 @@ public class Script {
         m_StackInfoStack.clear();
         return Load(strBreviary, tokens, null);
     }
+    
     private final ScriptObject Load(String strBreviary, List<Token> tokens, ScriptContext context) throws Exception
     {
         if (tokens.size() == 0) return Null;
@@ -77,6 +92,19 @@ public class Script {
         ScriptExecutable scriptExecutable = scriptParser.Parse();
         return new ScriptContext(this, scriptExecutable, context, Executable_Block.Context).Execute();
     }
+    public void PushSearchPath(String path) {
+        if (!m_SearchPath.contains(path))
+            m_SearchPath.add(path);
+    }
+    public ScriptObject LoadSearchPathFile(String fileName) throws Exception {
+        for (int i = 0; i < m_SearchPath.size(); ++i) {
+            String file = m_SearchPath.get(i) + "/" + fileName;
+            if (new File(file).exists())
+                return LoadFile(file);
+        }
+        throw new ExecutionException(this, "require 找不到文件 : " + fileName);
+    }
+    
     public final ScriptObject LoadType(String str) {
     	try {
             Class<?> type = java.lang.Class.forName(str);
@@ -89,8 +117,7 @@ public class Script {
     public final void SetStackInfo(StackInfo info) {
         m_StackInfo = info;
     }
-    public final StackInfo GetCurrentStackInfo()
-    {
+    public final StackInfo GetCurrentStackInfo() {
         return m_StackInfo;
     }
     public final void PushStackInfo() {
