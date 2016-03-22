@@ -1,4 +1,4 @@
-package Scorpio.Variable;
+﻿package Scorpio.Variable;
 
 import java.text.DecimalFormat;
 
@@ -49,26 +49,29 @@ public class ScriptNumberDouble extends ScriptNumber {
     }
     @Override
     public ScriptNumber Negative() {
-    	return getScript().CreateDouble(-m_Value);
+        return getScript().CreateDouble(-m_Value);
     }
     @Override
-	public ScriptNumber Abs () {
-		if (m_Value >= 0)
-			return getScript().CreateDouble(m_Value);
-		return getScript().CreateDouble(-m_Value);
-	}
+    public ScriptNumber Abs() {
+        if (m_Value >= 0) {
+            return getScript().CreateDouble(m_Value);
+        }
+        return getScript().CreateDouble(-m_Value);
+    }
     @Override
-	public ScriptNumber Floor () {
-		return getScript().CreateDouble (Math.floor (m_Value));
-	}
+    public ScriptNumber Floor() {
+        return getScript().CreateDouble(Math.floor (m_Value));
+    }
     @Override
-    public ScriptNumber Clamp (ScriptNumber min, ScriptNumber max) {
-		if (m_Value < min.ToDouble ())
-			return getScript().CreateDouble (min.ToDouble());
-		if (m_Value > max.ToDouble ())
-			return getScript().CreateDouble (max.ToDouble ());
-		return getScript().CreateDouble (m_Value);
-	}
+    public ScriptNumber Clamp(ScriptNumber min, ScriptNumber max) {
+        if (m_Value < min.ToDouble()) {
+            return getScript().CreateDouble(min.ToDouble());
+        }
+        if (m_Value > max.ToDouble()) {
+            return getScript().CreateDouble(max.ToDouble());
+        }
+        return getScript().CreateDouble(m_Value);
+    }
     @Override
     public ScriptObject Assign() {
         return getScript().CreateDouble(m_Value);
@@ -81,7 +84,7 @@ public class ScriptNumberDouble extends ScriptNumber {
     public boolean Compare(TokenType type, ScriptObject obj) {
         ScriptNumberDouble val = (ScriptNumberDouble)((obj instanceof ScriptNumberDouble) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
+            throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较");
         }
         switch (type) {
             case Greater:
@@ -98,9 +101,9 @@ public class ScriptNumberDouble extends ScriptNumber {
     }
     @Override
     public ScriptObject Compute(TokenType type, ScriptObject obj) {
-    	ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
+        ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
+            throw new ExecutionException(getScript(), "逻辑计算 右边值必须为数字类型");
         }
         switch (type) {
             case Plus:
@@ -119,9 +122,9 @@ public class ScriptNumberDouble extends ScriptNumber {
     }
     @Override
     public ScriptObject AssignCompute(TokenType type, ScriptObject obj) {
-    	ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
+        ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
+            throw new ExecutionException(getScript(), "赋值逻辑计算 右边值必须为数字类型");
         }
         switch (type) {
             case AssignPlus:

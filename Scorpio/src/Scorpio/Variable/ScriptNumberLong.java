@@ -1,4 +1,4 @@
-package Scorpio.Variable;
+﻿package Scorpio.Variable;
 
 import Scorpio.*;
 import Scorpio.CodeDom.*;
@@ -46,26 +46,29 @@ public class ScriptNumberLong extends ScriptNumber {
     }
     @Override
     public ScriptNumber Negative() {
-    	return getScript().CreateLong(-m_Value);
+        return getScript().CreateLong(-m_Value);
     }
     @Override
-	public ScriptNumber Abs () {
-		if (m_Value >= 0)
-			return getScript().CreateLong(m_Value);
-		return getScript().CreateLong(-m_Value);
-	}
+    public ScriptNumber Abs() {
+        if (m_Value >= 0) {
+            return getScript().CreateLong(m_Value);
+        }
+        return getScript().CreateLong(-m_Value);
+    }
     @Override
-	public ScriptNumber Floor () {
-		return getScript().CreateLong (m_Value);
-	}
+    public ScriptNumber Floor() {
+        return getScript().CreateLong(m_Value);
+    }
     @Override
-    public ScriptNumber Clamp (ScriptNumber min, ScriptNumber max) {
-		if (m_Value < min.ToLong())
-			return getScript().CreateLong (min.ToLong());
-		if (m_Value > max.ToLong ())
-			return getScript().CreateLong (max.ToLong ());
-		return getScript().CreateLong (m_Value);
-	}
+    public ScriptNumber Clamp(ScriptNumber min, ScriptNumber max) {
+        if (m_Value < min.ToLong()) {
+            return getScript().CreateLong(min.ToLong());
+        }
+        if (m_Value > max.ToLong()) {
+            return getScript().CreateLong(max.ToLong());
+        }
+        return getScript().CreateLong(m_Value);
+    }
     @Override
     public ScriptObject Assign() {
         return getScript().CreateLong(m_Value);
@@ -75,8 +78,8 @@ public class ScriptNumberLong extends ScriptNumber {
         return m_Value;
     }
     @Override
-    public boolean Compare(TokenType type, ScriptObject obj) {
-        ScriptNumberLong val = (ScriptNumberLong)((obj instanceof ScriptNumberLong) ? obj : null);
+    public boolean Compare(TokenType type, ScriptObject num) {
+        ScriptNumberLong val = (ScriptNumberLong)((num instanceof ScriptNumberLong) ? num : null);
         if (val == null) {
             throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
         }
@@ -95,9 +98,9 @@ public class ScriptNumberLong extends ScriptNumber {
     }
     @Override
     public ScriptObject Compute(TokenType type, ScriptObject obj) {
-    	ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
+        ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
+            throw new ExecutionException(getScript(), "赋值逻辑计算 右边值必须为数字类型");
         }
         switch (type) {
             case Plus:
@@ -126,9 +129,9 @@ public class ScriptNumberLong extends ScriptNumber {
     }
     @Override
     public ScriptObject AssignCompute(TokenType type, ScriptObject obj) {
-    	ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
+        ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
+            throw new ExecutionException(getScript(), "赋值逻辑计算 右边值必须为数字类型");
         }
         switch (type) {
             case AssignPlus:

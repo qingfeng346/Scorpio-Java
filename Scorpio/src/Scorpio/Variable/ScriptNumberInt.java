@@ -1,4 +1,4 @@
-package Scorpio.Variable;
+﻿package Scorpio.Variable;
 
 import Scorpio.*;
 import Scorpio.CodeDom.*;
@@ -36,9 +36,9 @@ public class ScriptNumberInt extends ScriptNumber {
                 --m_Value;
                 break;
             case POST_INCREMENT:
-                return getScript().CreateInt(m_Value++);
+                return getScript().CreateLong(m_Value++);
             case POST_DECREMENT:
-                return getScript().CreateInt(m_Value--);
+                return getScript().CreateLong(m_Value--);
             default:
                 return this;
         }
@@ -46,26 +46,29 @@ public class ScriptNumberInt extends ScriptNumber {
     }
     @Override
     public ScriptNumber Negative() {
-    	return getScript().CreateInt(-m_Value);
+        return getScript().CreateInt(-m_Value);
     }
     @Override
-	public ScriptNumber Abs () {
-		if (m_Value >= 0)
-			return getScript().CreateInt(m_Value);
-		return getScript().CreateInt(-m_Value);
-	}
+    public ScriptNumber Abs() {
+        if (m_Value >= 0) {
+            return getScript().CreateInt(m_Value);
+        }
+        return getScript().CreateInt(-m_Value);
+    }
     @Override
-	public ScriptNumber Floor () {
-		return getScript().CreateInt (m_Value);
-	}
+    public ScriptNumber Floor() {
+        return getScript().CreateInt(m_Value);
+    }
     @Override
-    public ScriptNumber Clamp (ScriptNumber min, ScriptNumber max) {
-		if (m_Value < min.ToInt32())
-			return getScript().CreateInt (min.ToInt32());
-		if (m_Value > max.ToInt32 ())
-			return getScript().CreateInt (max.ToInt32 ());
-		return getScript().CreateInt (m_Value);
-	}
+    public ScriptNumber Clamp(ScriptNumber min, ScriptNumber max) {
+        if (m_Value < min.ToInt32()) {
+            return getScript().CreateInt(min.ToInt32());
+        }
+        if (m_Value > max.ToInt32()) {
+            return getScript().CreateInt(max.ToInt32());
+        }
+        return getScript().CreateInt(m_Value);
+    }
     @Override
     public ScriptObject Assign() {
         return getScript().CreateInt(m_Value);
@@ -75,8 +78,8 @@ public class ScriptNumberInt extends ScriptNumber {
         return m_Value;
     }
     @Override
-    public boolean Compare(TokenType type, ScriptObject obj) {
-        ScriptNumberInt val = (ScriptNumberInt)((obj instanceof ScriptNumberInt) ? obj : null);
+    public boolean Compare(TokenType type, ScriptObject num) {
+        ScriptNumberInt val = (ScriptNumberInt)((num instanceof ScriptNumberInt) ? num : null);
         if (val == null) {
             throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
         }
@@ -95,9 +98,9 @@ public class ScriptNumberInt extends ScriptNumber {
     }
     @Override
     public ScriptObject Compute(TokenType type, ScriptObject obj) {
-    	ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
+        ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
+            throw new ExecutionException(getScript(), "逻辑计算 右边值必须为数字类型");
         }
         switch (type) {
             case Plus:
@@ -126,9 +129,9 @@ public class ScriptNumberInt extends ScriptNumber {
     }
     @Override
     public ScriptObject AssignCompute(TokenType type, ScriptObject obj) {
-    	ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
+        ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
+            throw new ExecutionException(getScript(), "赋值逻辑计算 右边值必须为数字类型");
         }
         switch (type) {
             case AssignPlus:
@@ -165,6 +168,7 @@ public class ScriptNumberInt extends ScriptNumber {
                 throw new ExecutionException(getScript(), "Int不支持的运算符 " + type);
         }
     }
+
     @Override
     public ScriptObject clone() {
         return getScript().CreateInt(m_Value);
