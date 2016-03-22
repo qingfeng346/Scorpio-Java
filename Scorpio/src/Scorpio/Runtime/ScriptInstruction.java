@@ -1,5 +1,7 @@
-package Scorpio.Runtime;
+﻿package Scorpio.Runtime;
+
 import Scorpio.CodeDom.*;
+
 //一条指令
 public class ScriptInstruction {
     public ScriptInstruction(Opcode opcode) {

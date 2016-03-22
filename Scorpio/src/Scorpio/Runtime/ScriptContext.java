@@ -1,6 +1,5 @@
-package Scorpio.Runtime;
+﻿package Scorpio.Runtime;
 
-import java.util.Map;
 import Scorpio.*;
 import Scorpio.Compiler.*;
 import Scorpio.CodeDom.*;
@@ -23,6 +22,9 @@ public class ScriptContext {
     public ScriptContext(Script script, ScriptExecutable scriptExecutable) {
         this(script, scriptExecutable, null, Executable_Block.None);
     }
+    public ScriptContext(Script script, ScriptExecutable scriptExecutable, Executable_Block block) {
+        this(script, scriptExecutable, null, block);
+    }
     public ScriptContext(Script script, ScriptExecutable scriptExecutable, ScriptContext parent, Executable_Block block) {
         m_script = script;
         m_parent = parent;
@@ -31,19 +33,18 @@ public class ScriptContext {
         m_block = block;
         m_InstructionCount = m_scriptExecutable != null ? m_scriptExecutable.getCount() : 0;
     }
-	//break 或者 return  跳出循环
     private boolean getIsOver() {
         return m_Break || m_Over;
     }
-	//continue break return 当前模块是否执行完成
     private boolean getIsExecuted() {
-    	return m_Break || m_Over || m_Continue;
-    } 
+        return m_Break || m_Over || m_Continue;
+    }
     public final void Initialize(ScriptContext parent, java.util.HashMap<String, ScriptObject> variable) {
         m_parent = parent;
         m_variableDictionary.clear();
-        for (Map.Entry<String, ScriptObject> pair : variable.entrySet())
-        	m_variableDictionary.put(pair.getKey(), pair.getValue());
+        for (java.util.Map.Entry<String, ScriptObject> pair : variable.entrySet()) {
+            m_variableDictionary.put(pair.getKey(), pair.getValue());
+        }
     }
     private void Initialize(ScriptContext parent, String name, ScriptObject obj) {
         m_parent = parent;
@@ -54,9 +55,16 @@ public class ScriptContext {
         m_parent = parent;
         m_variableDictionary.clear();
     }
+    //初始化所有数据 每次调用 Execute 调用
+    private void Reset() {
+        m_returnObject = null;
+        m_Over = false;
+        m_Break = false;
+        m_Continue = false;
+    }
     private void ApplyVariableObject(String name) {
         if (!m_variableDictionary.containsKey(name)) {
-            m_variableDictionary.put(name, m_script.Null);
+            m_variableDictionary.put(name, m_script.getNull());
         }
     }
     private ScriptObject GetVariableObject(String name) {
@@ -78,19 +86,19 @@ public class ScriptContext {
         }
         return false;
     }
-    private Object GetMember(CodeMember member) throws Exception {
-    	return member.Type == MEMBER_TYPE.VALUE ? member.MemberValue : ResolveOperand(member.MemberObject).getObjectValue();
+    private Object GetMember(CodeMember member) {
+        return member.Type == MEMBER_TYPE.VALUE ? member.MemberValue : ResolveOperand(member.MemberObject).getObjectValue();
     }
-    private ScriptObject GetVariable(CodeMember member) throws Exception {
+    private ScriptObject GetVariable(CodeMember member) {
         ScriptObject ret = null;
         if (member.Parent == null) {
-        	String name = (String)member.MemberValue;
+            String name = (String)member.MemberValue;
             ScriptObject obj = GetVariableObject(name);
             ret = (obj == null ? m_script.GetValue(name) : obj);
         }
         else {
-        	ret = ResolveOperand(member.Parent);
-        	m_script.SetStackInfo(member.StackInfo);
+            ret = ResolveOperand(member.Parent);
+            m_script.SetStackInfo(member.StackInfo);
             ret = ret.GetValue(GetMember(member));
         }
         if (ret == null) {
@@ -105,24 +113,19 @@ public class ScriptContext {
         }
         return ret;
     }
-    private void SetVariable(CodeMember member, ScriptObject variable) throws Exception {
+    private void SetVariable(CodeMember member, ScriptObject variable) {
         if (member.Parent == null) {
-        	String name = (String)member.MemberValue;
-        	variable.setName(name);
+            String name = (String)member.MemberValue;
+            variable.setName(name);
             if (!SetVariableObject(name, variable)) {
                 m_script.SetObjectInternal(name, variable);
             }
         }
         else {
-        	ResolveOperand(member.Parent).SetValue(GetMember(member), variable);
+            ResolveOperand(member.Parent).SetValue(GetMember(member), variable);
         }
     }
-    private void Reset() {
-        m_returnObject = null;
-        m_Over = false;
-        m_Break = false;
-    }
-    public final ScriptObject Execute() throws Exception {
+    public final ScriptObject Execute() {
         Reset();
         int iInstruction = 0;
         while (iInstruction < m_InstructionCount) {
@@ -134,7 +137,7 @@ public class ScriptContext {
         }
         return m_returnObject;
     }
-    private ScriptObject Execute(ScriptExecutable executable) throws Exception {
+    private ScriptObject Execute(ScriptExecutable executable) {
         if (executable == null) {
             return null;
         }
@@ -150,7 +153,7 @@ public class ScriptContext {
         }
         return m_returnObject;
     }
-    private void ExecuteInstruction() throws Exception {
+    private void ExecuteInstruction() {
         switch (m_scriptInstruction.getOpcode()) {
             case VAR:
                 ProcessVar();
@@ -214,7 +217,7 @@ public class ScriptContext {
     private void ProcessVar() {
         ApplyVariableObject((String)m_scriptInstruction.getValue());
     }
-    private void ProcessMov() throws Exception {
+    private void ProcessMov() {
         CodeObject tempVar = m_scriptInstruction.getOperand0();
         SetVariable((CodeMember)((tempVar instanceof CodeMember) ? tempVar : null), ResolveOperand(m_scriptInstruction.getOperand1()));
     }
@@ -224,7 +227,7 @@ public class ScriptContext {
     private void ProcessBreak() {
         InvokeBreak(m_scriptInstruction.getOperand0());
     }
-    private void ProcessCallFor() throws Exception {
+    private void ProcessCallFor() {
         CodeFor code = (CodeFor)m_scriptInstruction.getOperand0();
         ScriptContext context = code.GetContext();
         context.Initialize(this);
@@ -244,7 +247,7 @@ public class ScriptContext {
             context.Execute(code.LoopExecutable);
         }
     }
-    private void ProcessCallForSimple() throws Exception {
+    private void ProcessCallForSimple() {
         CodeForSimple code = (CodeForSimple)m_scriptInstruction.getOperand0();
         ScriptObject tempVar = ResolveOperand(code.Begin);
         ScriptNumber beginNumber = (ScriptNumber)((tempVar instanceof ScriptNumber) ? tempVar : null);
@@ -259,6 +262,7 @@ public class ScriptContext {
         int begin = beginNumber.ToInt32();
         int finished = finishedNumber.ToInt32();
         int step;
+        ScriptContext context;
         if (code.Step != null) {
             ScriptObject tempVar3 = ResolveOperand(code.Step);
             ScriptNumber stepNumber = (ScriptNumber)((tempVar3 instanceof ScriptNumber) ? tempVar3 : null);
@@ -271,15 +275,15 @@ public class ScriptContext {
             step = 1;
         }
         for (int i = begin; i <= finished; i += step) {
-        	ScriptContext context = code.GetBlockContext();
-        	context.Initialize(this, code.Identifier, m_script.CreateNumber(i));
+            context = code.GetBlockContext();
+            context.Initialize(this, code.Identifier, m_script.CreateNumber(i));
             context.Execute();
             if (context.getIsOver()) {
                 break;
             }
         }
     }
-    private void ProcessCallForeach() throws Exception {
+    private void ProcessCallForeach() {
         CodeForeach code = (CodeForeach)m_scriptInstruction.getOperand0();
         ScriptObject loop = ResolveOperand(code.LoopObject);
         if (!(loop instanceof ScriptFunction)) {
@@ -289,9 +293,11 @@ public class ScriptContext {
         ScriptContext context;
         ScriptFunction func = (ScriptFunction)loop;
         for (; ;) {
-        	context = code.GetBlockContext();
+            context = code.GetBlockContext();
             obj = func.Call();
-            if (obj == null) { return; }
+            if (obj == null) {
+                return;
+            }
             context.Initialize(this, code.Identifier, m_script.CreateObject(obj));
             context.Execute();
             if (context.getIsOver()) {
@@ -299,38 +305,40 @@ public class ScriptContext {
             }
         }
     }
-    private void ProcessCallIf() throws Exception {
+    private void ProcessCallIf() {
         CodeIf code = (CodeIf)m_scriptInstruction.getOperand0();
         if (ProcessCondition(code.If, code.If.GetContext(), Executable_Block.If)) {
             return;
         }
-        int length = code.ElseIf.size();
+        int length = code.ElseIfCount;
         for (int i = 0; i < length; ++i) {
-            if (ProcessCondition(code.ElseIf.get(i), code.ElseIf.get(i).GetContext(), Executable_Block.If)) {
+            if (ProcessCondition(code.ElseIf[i], code.ElseIf[i].GetContext(), Executable_Block.If)) {
                 return;
             }
         }
         if (code.Else != null) {
-        	ProcessCondition(code.Else, code.Else.GetContext(), Executable_Block.If);
+            ProcessCondition(code.Else, code.Else.GetContext(), Executable_Block.If);
         }
     }
-    private boolean ProcessCondition(TempCondition con, ScriptContext context, Executable_Block block) throws Exception {
+    private boolean ProcessCondition(TempCondition con, ScriptContext context, Executable_Block block) {
         if (con == null) {
             return false;
         }
         if (con.Allow != null) {
             Object b = ResolveOperand(con.Allow).getObjectValue();
-            if (b == null || b.equals(false)) return false;
+            if (b == null || b.equals(false)) {
+                return false;
+            }
         }
         context.Initialize(this);
         context.Execute();
         return true;
     }
-    private void ProcessCallWhile() throws Exception {
+    private void ProcessCallWhile() {
         CodeWhile code = (CodeWhile)m_scriptInstruction.getOperand0();
         TempCondition condition = code.While;
         for (; ;) {
-        	ScriptContext context = condition.GetContext();
+            ScriptContext context = condition.GetContext();
             if (!ProcessCondition(condition, context, Executable_Block.While)) {
                 break;
             }
@@ -339,7 +347,7 @@ public class ScriptContext {
             }
         }
     }
-    private void ProcessCallSwitch() throws Exception {
+    private void ProcessCallSwitch() {
         CodeSwitch code = (CodeSwitch)m_scriptInstruction.getOperand0();
         ScriptObject obj = ResolveOperand(code.Condition);
         boolean exec = false;
@@ -353,15 +361,17 @@ public class ScriptContext {
                     break;
                 }
             }
-            if (exec) { break; }
+            if (exec) {
+                break;
+            }
         }
         if (exec == false && code.Default != null) {
-        	ScriptContext context = code.Default.GetContext();
-        	context.Initialize(this);
-        	context.Execute();
+            ScriptContext context = code.Default.GetContext();
+            context.Initialize(this);
+            context.Execute();
         }
     }
-    private void ProcessTry() throws Exception {
+    private void ProcessTry() {
         CodeTry code = (CodeTry)m_scriptInstruction.getOperand0();
         try {
             ScriptContext context = code.GetTryContext();
@@ -379,25 +389,27 @@ public class ScriptContext {
             context.Execute();
         }
     }
-    private void ProcessThrow() throws Exception {
+    private void ProcessThrow() {
         CodeThrow code = (CodeThrow)m_scriptInstruction.getOperand0();
         throw new InteriorException(ResolveOperand(code.obj));
     }
-    private void ProcessRet() throws Exception {
-        if (m_scriptInstruction.getOperand0() == null)
+    private void ProcessRet() {
+        if (m_scriptInstruction.getOperand0() == null) {
             InvokeReturnValue(null);
-        else
+        }
+        else {
             InvokeReturnValue(ResolveOperand(m_scriptInstruction.getOperand0()));
+        }
     }
-    private void ProcessResolve() throws Exception {
+    private void ProcessResolve() {
         ResolveOperand(m_scriptInstruction.getOperand0());
     }
-    private void ProcessCallBlock() throws Exception {
-    	ScriptContext context = new ScriptContext(m_script, (ScriptExecutable)m_scriptInstruction.getValue());
+    private void ProcessCallBlock() {
+        ScriptContext context = new ScriptContext(m_script, (ScriptExecutable)m_scriptInstruction.getValue());
         context.Initialize(this);
         context.Execute();
     }
-    private void ProcessCallFunction() throws Exception {
+    private void ProcessCallFunction() {
         ParseCall((CodeCallFunction)m_scriptInstruction.getOperand0(), false);
     }
     private void InvokeReturnValue(ScriptObject value) {
@@ -427,33 +439,43 @@ public class ScriptContext {
             m_parent.InvokeBreak(bre);
         }
     }
-    private ScriptObject ResolveOperand_impl(CodeObject value) throws Exception {
-		if (value instanceof CodeScriptObject) {
-			return ParseScriptObject((CodeScriptObject)value);
-		} else if (value instanceof CodeRegion) {
-			return ParseRegion((CodeRegion)value);
-		} else if (value instanceof CodeFunction) {
-			return ParseFunction((CodeFunction)value);
-		} else if (value instanceof CodeCallFunction) {
-			return ParseCall((CodeCallFunction)value, true);
-		} else if (value instanceof CodeMember) {
-			return GetVariable((CodeMember)value);
-		} else if (value instanceof CodeArray) {
-			return ParseArray((CodeArray)value);
-		} else if (value instanceof CodeTable) {
-			return ParseTable((CodeTable)value);
-		} else if (value instanceof CodeOperator) {
-			return ParseOperate((CodeOperator)value);
-		} else if (value instanceof CodeTernary) {
-			return ParseTernary((CodeTernary)value);
-		} else if (value instanceof CodeAssign) {
-			return ParseAssign((CodeAssign)value);
-		} else if (value instanceof CodeEval) {
-			return ParseEval((CodeEval)value);
-		}
-		return m_script.Null;
+    private ScriptObject ResolveOperand_impl(CodeObject value) {
+        if (value instanceof CodeScriptObject) {
+            return ParseScriptObject((CodeScriptObject)value);
+        }
+        else if (value instanceof CodeRegion) {
+            return ParseRegion((CodeRegion)value);
+        }
+        else if (value instanceof CodeFunction) {
+            return ParseFunction((CodeFunction)value);
+        }
+        else if (value instanceof CodeCallFunction) {
+            return ParseCall((CodeCallFunction)value, true);
+        }
+        else if (value instanceof CodeMember) {
+            return GetVariable((CodeMember)value);
+        }
+        else if (value instanceof CodeArray) {
+            return ParseArray((CodeArray)value);
+        }
+        else if (value instanceof CodeTable) {
+            return ParseTable((CodeTable)value);
+        }
+        else if (value instanceof CodeOperator) {
+            return ParseOperate((CodeOperator)value);
+        }
+        else if (value instanceof CodeTernary) {
+            return ParseTernary((CodeTernary)value);
+        }
+        else if (value instanceof CodeAssign) {
+            return ParseAssign((CodeAssign)value);
+        }
+        else if (value instanceof CodeEval) {
+            return ParseEval((CodeEval)value);
+        }
+        return m_script.getNull();
     }
-    private ScriptObject ResolveOperand(CodeObject value) throws Exception {
+    private ScriptObject ResolveOperand(CodeObject value) {
         m_script.SetStackInfo(value.StackInfo);
         ScriptObject ret = ResolveOperand_impl(value);
         if (value.Not) {
@@ -475,24 +497,24 @@ public class ScriptContext {
     private ScriptObject ParseScriptObject(CodeScriptObject obj) {
         return obj.getObject().clone();
     }
-    private ScriptObject ParseRegion(CodeRegion region) throws Exception {
+    private ScriptObject ParseRegion(CodeRegion region) {
         return ResolveOperand(region.Context);
     }
     private ScriptFunction ParseFunction(CodeFunction func) {
-    	return ((ScriptFunction)func.Func.clone()).SetParentContext(this);
+        return ((ScriptFunction)func.Func.clone()).SetParentContext(this);
     }
-    private ScriptObject ParseCall(CodeCallFunction scriptFunction, boolean needRet) throws Exception {
+    private ScriptObject ParseCall(CodeCallFunction scriptFunction, boolean needRet) {
         ScriptObject obj = ResolveOperand(scriptFunction.Member);
-        int num = scriptFunction.Parameters.size();
+        int num = scriptFunction.ParametersCount;
         ScriptObject[] parameters = new ScriptObject[num];
         for (int i = 0; i < num; ++i) {
-            parameters[i] = ResolveOperand(scriptFunction.Parameters.get(i));
+            parameters[i] = ResolveOperand(scriptFunction.Parameters[i]);
         }
         m_script.PushStackInfo();
         Object ret = obj.Call(parameters);
         return needRet ? m_script.CreateObject(ret) : null;
     }
-    private ScriptArray ParseArray(CodeArray array) throws Exception {
+    private ScriptArray ParseArray(CodeArray array) {
         ScriptArray ret = m_script.CreateArray();
         int num = array.Elements.size();
         for (int i = 0; i < num; ++i) {
@@ -500,9 +522,9 @@ public class ScriptContext {
         }
         return ret;
     }
-    private ScriptTable ParseTable(CodeTable table) throws Exception {
+    private ScriptTable ParseTable(CodeTable table) {
         ScriptTable ret = m_script.CreateTable();
-        for (TableVariable variable : table.Variables) {
+        for (CodeTable.TableVariable variable : table.Variables) {
             ret.SetValue(variable.key, ResolveOperand(variable.value));
         }
         for (ScriptFunction func : table.Functions) {
@@ -511,42 +533,53 @@ public class ScriptContext {
         }
         return ret;
     }
-    private ScriptObject ParseOperate(CodeOperator operate) throws Exception {
-    	TokenType type = operate.Operator;
+    private ScriptObject ParseOperate(CodeOperator operate) {
+        TokenType type = operate.Operator;
         ScriptObject left = ResolveOperand(operate.Left);
-        if (type == TokenType.Plus) {
+        switch (type) {
+        case Plus:
             ScriptObject right = ResolveOperand(operate.Right);
-            if (left instanceof ScriptString || right instanceof ScriptString) { return m_script.CreateString(left.toString() + right.toString()); }
+            if (left instanceof ScriptString || right instanceof ScriptString) {
+                return m_script.CreateString(left.toString() + right.toString());
+            }
             return left.Compute(type, right);
-        } else if (type == TokenType.And) {
-            if (!left.LogicOperation()) return m_script.False;
+        case And:
+            if (!left.LogicOperation()) {
+                return m_script.getFalse();
+            }
             return m_script.GetBoolean(ResolveOperand(operate.Right).LogicOperation());
-        } else if (type == TokenType.Or) {
-            if (left.LogicOperation()) return m_script.True;
+        case Or:
+            if (left.LogicOperation()) {
+                return m_script.getTrue();
+            }
             return m_script.GetBoolean(ResolveOperand(operate.Right).LogicOperation());
-        } else if (type == TokenType.Equal) {
+        case Equal:
             return m_script.GetBoolean(left.equals(ResolveOperand(operate.Right)));
-        } else if (type == TokenType.NotEqual) {
+        case NotEqual:
             return m_script.GetBoolean(!left.equals(ResolveOperand(operate.Right)));
-        } else if (type == TokenType.Greater || type == TokenType.GreaterOrEqual || type == TokenType.Less || type == TokenType.LessOrEqual) {
+        case Greater:
+        case GreaterOrEqual:
+        case Less:
+        case LessOrEqual:
             return m_script.GetBoolean(left.Compare(type, ResolveOperand(operate.Right)));
-        } else {
+        default:
             return left.Compute(type, ResolveOperand(operate.Right));
         }
     }
-    private ScriptObject ParseTernary(CodeTernary ternary) throws Exception {
+    private ScriptObject ParseTernary(CodeTernary ternary) {
         return ResolveOperand(ternary.Allow).LogicOperation() ? ResolveOperand(ternary.True) : ResolveOperand(ternary.False);
     }
-    private ScriptObject ParseAssign(CodeAssign assign) throws Exception {
+    private ScriptObject ParseAssign(CodeAssign assign) {
         if (assign.AssignType == TokenType.Assign) {
             ScriptObject ret = ResolveOperand(assign.value);
             SetVariable(assign.member, ret);
             return ret;
-        } else {
-        	return GetVariable(assign.member).AssignCompute(assign.AssignType, ResolveOperand(assign.value));
+        }
+        else {
+            return GetVariable(assign.member).AssignCompute(assign.AssignType, ResolveOperand(assign.value));
         }
     }
-    private ScriptObject ParseEval(CodeEval eval) throws Exception {
+    private ScriptObject ParseEval(CodeEval eval) {
         ScriptObject tempVar = ResolveOperand(eval.EvalObject);
         ScriptString obj = (ScriptString)((tempVar instanceof ScriptString) ? tempVar : null);
         if (obj == null) {
