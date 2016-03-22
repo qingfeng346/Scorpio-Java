@@ -1,29 +1,33 @@
-package Scorpio;
+﻿package Scorpio;
 
 import Scorpio.Exception.*;
 import Scorpio.Compiler.*;
+
 //脚本数据类型
 public abstract class ScriptObject {
-    private static final ScriptObject[] NOPARAMETER = new ScriptObject[0]; // 没有参数
-    private String privateName = "";
+    // 无参                            
+    private static final ScriptObject[] NOPARAMETER = new ScriptObject[0];
+    // Object名字
+    private String privateName;
     public final String getName() {
         return privateName;
     }
     public final void setName(String value) {
         privateName = value;
     }
-    public ScriptObject Assign() { // 赋值
+    // 赋值
+    public ScriptObject Assign() {
         return this;
     }
     //设置变量
-    public void SetValue(Object key, ScriptObject value) throws Exception {
+    public void SetValue(Object key, ScriptObject value) {
         throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持设置变量");
     }
     //获取变量
-    public ScriptObject GetValue(Object key) throws Exception {
+    public ScriptObject GetValue(Object key) {
         throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持获取变量");
     }
-    public final Object call(Object... args) throws Exception {
+    public final Object call(Object... args) {
         int length = args.length;
         ScriptObject[] parameters = new ScriptObject[length];
         for (int i = 0; i < length; ++i) {
@@ -32,44 +36,60 @@ public abstract class ScriptObject {
         return Call(parameters);
     }
     //调用无参函数
-    public final Object Call() throws Exception {
+    public final Object Call() {
         return Call(NOPARAMETER);
     }
     //调用函数
-    public Object Call(ScriptObject[] parameters) throws Exception {
+    public Object Call(ScriptObject[] parameters) {
         throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持函数调用");
     }
     //两个数值比较 > >= < <=
-    public boolean Compare(TokenType type, ScriptObject obj) { 
-    	throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持值比较"); 
+    public boolean Compare(TokenType type, ScriptObject obj) {
+        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持值比较");
     }
     //运算符或者位运算 + - * / % | & ^ >> <<
-    public ScriptObject Compute(TokenType type, ScriptObject obj) { 
-    	throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持运算符"); 
+    public ScriptObject Compute(TokenType type, ScriptObject obj) {
+        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持运算符");
     }
     //运算符或者位运算赋值运算 += -= *= /= %= |= &= ^= >>= <<=
-    public ScriptObject AssignCompute(TokenType type, ScriptObject obj) { 
-    	throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持赋值运算符"); 
+    public ScriptObject AssignCompute(TokenType type, ScriptObject obj) {
+        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持赋值运算符");
     }
     //逻辑运算符 逻辑运算时 Object 算 true 或者 false
-    public boolean LogicOperation() { return true; }
+    public boolean LogicOperation() {
+        return true;
+    }
     // 复制一个变量
-    public ScriptObject clone() { // 复制一个变量
+    public ScriptObject clone() {
         return this;
     }
-    public String ToJson() { // ToJson
+    // ToJson
+    public String ToJson() {
         return getObjectValue().toString();
     }
+    // ToString
     @Override
-    public String toString() { // ToString
+    public String toString() {
         return getObjectValue().toString();
     }
+    // Equals
     @Override
-    public boolean equals(Object obj) {                                       // Equals
-        if (obj == null) return false;
-        if (!(obj instanceof ScriptObject)) return false;
-        if (getObjectValue() == this) return obj == this;
-        return ((ScriptObject)obj).getObjectValue().equals(getObjectValue());
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof ScriptObject)) {
+            return false;
+        }
+        if (getObjectValue() == this) {
+            return obj == this;
+        }
+        return getObjectValue().equals(((ScriptObject)obj).getObjectValue());
+    }
+    // GetHashCode
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
     public ScriptObject(Script script) { // 构图函数
         setScript(script);
