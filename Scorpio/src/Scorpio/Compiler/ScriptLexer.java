@@ -498,7 +498,7 @@ public class ScriptLexer {
                         if (Util.IsNullOrEmpty(m_strToken)) {
                             ThrowInvalidCharacterException(ch);
                         }
-                        long value = Long.parseLong(m_strToken, System.Globalization.NumberStyles.HexNumber);
+                        long value = Long.parseLong(m_strToken, 16);
                         AddToken(TokenType.Number, value);
                         UndoChar();
                     }
@@ -733,7 +733,8 @@ public class ScriptLexer {
             LexState.getMappings().put(value, this);
         }
 
-        public int getValue() {
+        @SuppressWarnings("unused")
+		public int getValue() {
             return intValue;
         }
 

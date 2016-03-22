@@ -1,4 +1,4 @@
-package Scorpio.Compiler;
+﻿package Scorpio.Compiler;
 
 import Scorpio.*;
 import Scorpio.Exception.*;
@@ -14,7 +14,7 @@ public class ScriptParser {
     private java.util.ArrayList<Token> m_listTokens; //token列表
     private java.util.Stack<ScriptExecutable> m_Executables = new java.util.Stack<ScriptExecutable>(); //指令栈
     private ScriptExecutable m_scriptExecutable; //当前指令栈
-    public ScriptParser(Script script, java.util.List<Token> listTokens, String strBreviary) {
+    public ScriptParser(Script script, java.util.ArrayList<Token> listTokens, String strBreviary) {
         m_script = script;
         m_strBreviary = strBreviary;
         m_iNextToken = 0;
@@ -28,8 +28,7 @@ public class ScriptParser {
         m_Executables.pop();
         m_scriptExecutable = (m_Executables.size() > 0) ? m_Executables.peek() : null;
     }
-    private int GetSourceLine()
-    {
+    private int GetSourceLine() {
         return PeekToken().getSourceLine();
     }
     //解析脚本
@@ -46,16 +45,20 @@ public class ScriptParser {
         BeginExecutable(block);
         if (readLeftBrace && PeekToken().getType() != TokenType.LeftBrace) {
             ParseStatement();
-        } else {
-	        if (readLeftBrace) ReadLeftBrace();
-	        TokenType tokenType;
-	        while (HasMoreTokens()) {
-	            tokenType = ReadToken().getType();
-	            if (tokenType == finished)
-	                break;
-	            UndoToken();
-	            ParseStatement();
-	        }
+        }
+        else {
+            if (readLeftBrace) {
+                ReadLeftBrace();
+            }
+            TokenType tokenType;
+            while (HasMoreTokens()) {
+                tokenType = ReadToken().getType();
+                if (tokenType == finished) {
+                    break;
+                }
+                UndoToken();
+                ParseStatement();
+            }
         }
         ScriptExecutable ret = m_scriptExecutable;
         ret.EndScriptInstruction();
@@ -119,12 +122,10 @@ public class ScriptParser {
     }
     //解析函数（全局函数或类函数）
     private void ParseFunction() {
-        if (m_scriptExecutable.getBlock() == Executable_Block.Context) {
-        	Token token = PeekToken();
-            UndoToken();
-            ScriptFunction func = ParseFunctionDeclaration(true);
-            m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.MOV, new CodeMember(func.getName()), new CodeFunction(func, m_strBreviary, token.getSourceLine())));
-        }
+        Token token = PeekToken();
+        UndoToken();
+        ScriptFunction func = ParseFunctionDeclaration(true);
+        m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.MOV, new CodeMember(func.getName()), new CodeFunction(func, m_strBreviary, token.getSourceLine())));
     }
     //解析函数（返回一个函数）
     private ScriptFunction ParseFunctionDeclaration(boolean needName) {
@@ -167,16 +168,28 @@ public class ScriptParser {
     //解析Var关键字
     private void ParseVar() {
         for (; ;) {
-            m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.VAR, ReadIdentifier()));
             Token peek = PeekToken();
-            if (peek.getType() == TokenType.Assign) {
-                UndoToken();
-                ParseStatement();
+            if (peek.getType() == TokenType.Function) {
+                ScriptFunction func = ParseFunctionDeclaration(true);
+                m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.VAR, func.getName()));
+                m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.MOV, new CodeMember(func.getName()), new CodeFunction(func, m_strBreviary, peek.getSourceLine())));
+            }
+            else {
+                m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.VAR, ReadIdentifier()));
+                peek = PeekToken();
+                if (peek.getType() == TokenType.Assign) {
+                    UndoToken();
+                    ParseStatement();
+                }
             }
             peek = ReadToken();
             if (peek.getType() != TokenType.Comma) {
                 UndoToken();
                 break;
+            }
+            peek = PeekToken();
+            if (peek.getType() == TokenType.Var) {
+                ReadToken();
             }
         }
     }
@@ -189,15 +202,16 @@ public class ScriptParser {
     private void ParseIf() {
         CodeIf ret = new CodeIf();
         ret.If = ParseCondition(true, Executable_Block.If);
+        java.util.ArrayList<TempCondition> ElseIf = new java.util.ArrayList<TempCondition>();
         for (; ;) {
             Token token = ReadToken();
             if (token.getType() == TokenType.ElseIf) {
-                ret.AddElseIf(ParseCondition(true, Executable_Block.If));
+                ElseIf.add(ParseCondition(true, Executable_Block.If));
             }
             else if (token.getType() == TokenType.Else) {
                 if (PeekToken().getType() == TokenType.If) {
                     ReadToken();
-                    ret.AddElseIf(ParseCondition(true, Executable_Block.If));
+                    ElseIf.add(ParseCondition(true, Executable_Block.If));
                 }
                 else {
                     UndoToken();
@@ -213,6 +227,7 @@ public class ScriptParser {
             ReadToken();
             ret.Else = ParseCondition(false, Executable_Block.If);
         }
+        ret.Init(ElseIf);
         m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.CALL_IF, ret));
     }
     //解析判断内容
@@ -229,15 +244,17 @@ public class ScriptParser {
     private void ParseFor() {
         ReadLeftParenthesis();
         int partIndex = m_iNextToken;
-        if (PeekToken().getType() == TokenType.Var) ReadToken ();
-        Token token = ReadToken();
-        if (token.getType() == TokenType.Identifier) {
+        if (PeekToken().getType() == TokenType.Var) {
+            ReadToken();
+        }
+        Token identifier = ReadToken();
+        if (identifier.getType() == TokenType.Identifier) {
             Token assign = ReadToken();
             if (assign.getType() == TokenType.Assign) {
                 CodeObject obj = GetObject();
                 Token comma = ReadToken();
                 if (comma.getType() == TokenType.Comma) {
-                    ParseFor_Simple((String)token.getLexeme(), obj);
+                    ParseFor_Simple((String)identifier.getLexeme(), obj);
                     return;
                 }
             }
@@ -285,7 +302,9 @@ public class ScriptParser {
     private void ParseForeach() {
         CodeForeach ret = new CodeForeach(m_script);
         ReadLeftParenthesis();
-        if (PeekToken().getType() == TokenType.Var) ReadToken();
+        if (PeekToken().getType() == TokenType.Var) {
+            ReadToken();
+        }
         ret.Identifier = ReadIdentifier();
         ReadIn();
         ret.LoopObject = GetObject();
@@ -327,7 +346,7 @@ public class ScriptParser {
     }
     //解析case
     private void ParseCase(java.util.ArrayList<CodeObject> allow) {
-    	allow.add(GetObject());
+        allow.add(GetObject());
         ReadColon();
         if (ReadToken().getType() == TokenType.Case) {
             ParseCase(allow);
@@ -338,7 +357,7 @@ public class ScriptParser {
     }
     //解析try catch
     private void ParseTry() {
-        CodeTry ret = new CodeTry(m_script); 
+        CodeTry ret = new CodeTry(m_script);
         ret.TryExecutable = ParseStatementBlock(Executable_Block.Context);
         ReadCatch();
         ReadLeftParenthesis();
@@ -429,15 +448,15 @@ public class ScriptParser {
                 }
             }
         }
-		if (PeekToken ().getType() == TokenType.QuestionMark) {
-			ReadToken();
-			CodeTernary ternary = new CodeTernary();
-			ternary.Allow = ret;
-			ternary.True = GetObject();
-			ReadColon();
-			ternary.False = GetObject();
-			return ternary;
-		}
+        if (PeekToken().getType() == TokenType.QuestionMark) {
+            ReadToken();
+            CodeTernary ternary = new CodeTernary();
+            ternary.Allow = ret;
+            ternary.True = GetObject();
+            ReadColon();
+            ternary.False = GetObject();
+            return ternary;
+        }
         return ret;
     }
     //解析操作符
@@ -493,7 +512,7 @@ public class ScriptParser {
                 ret = new CodeFunction(ParseFunctionDeclaration(false));
                 break;
             case LeftPar:
-            	ret = new CodeRegion(GetObject());
+                ret = new CodeRegion(GetObject());
                 ReadRightParenthesis();
                 break;
             case LeftBracket:
@@ -508,8 +527,8 @@ public class ScriptParser {
                 ret = GetEval();
                 break;
             case Null:
-            	ret = new CodeScriptObject(m_script, null);
-            	break;
+                ret = new CodeScriptObject(m_script, null);
+                break;
             case Boolean:
             case Number:
             case String:
@@ -587,7 +606,6 @@ public class ScriptParser {
     }
     //返回一个调用函数 Object
     private CodeCallFunction GetFunction(CodeObject member) {
-        CodeCallFunction ret = new CodeCallFunction();
         ReadLeftParenthesis();
         java.util.ArrayList<CodeObject> pars = new java.util.ArrayList<CodeObject>();
         Token token = PeekToken();
@@ -605,9 +623,7 @@ public class ScriptParser {
             }
         }
         ReadRightParenthesis();
-        ret.Member = member;
-        ret.Parameters = pars;
-        return ret;
+        return new CodeCallFunction(member, pars);
     }
     //返回数组
     private CodeArray GetArray() {
@@ -615,8 +631,9 @@ public class ScriptParser {
         Token token = PeekToken();
         CodeArray ret = new CodeArray();
         while (token.getType() != TokenType.RightBracket) {
-            if (PeekToken().getType() == TokenType.RightBracket)
+            if (PeekToken().getType() == TokenType.RightBracket) {
                 break;
+            }
             ret.Elements.add(GetObject());
             token = PeekToken();
             if (token.getType() == TokenType.Comma) {
@@ -641,7 +658,7 @@ public class ScriptParser {
             if (token.getType() == TokenType.Identifier || token.getType() == TokenType.String || token.getType() == TokenType.SimpleString || token.getType() == TokenType.Number) {
                 Token next = ReadToken();
                 if (next.getType() == TokenType.Assign || next.getType() == TokenType.Colon) {
-            		ret.Variables.add(new TableVariable(token.getLexeme(), GetObject()));
+                    ret.Variables.add(new TableVariable(token.getLexeme(), GetObject()));
                     Token peek = PeekToken();
                     if (peek.getType() == TokenType.Comma || peek.getType() == TokenType.SemiColon) {
                         ReadToken();
@@ -672,36 +689,36 @@ public class ScriptParser {
 
     /**  是否还有更多需要解析的语法 
     */
-    private boolean HasMoreTokens() {
+    protected final boolean HasMoreTokens() {
         return m_iNextToken < m_listTokens.size();
     }
     /**  获得第一个Token 
     */
-    private Token ReadToken() {
+    protected final Token ReadToken() {
         if (!HasMoreTokens()) {
-            throw new ScriptException("Unexpected end of token stream.");
+            throw new LexerException("Unexpected end of token stream.");
         }
         return m_listTokens.get(m_iNextToken++);
     }
     /**  返回第一个Token 
     */
-    private Token PeekToken() {
+    protected final Token PeekToken() {
         if (!HasMoreTokens()) {
-            throw new ScriptException("Unexpected end of token stream.");
+            throw new LexerException("Unexpected end of token stream.");
         }
         return m_listTokens.get(m_iNextToken);
     }
     /**  回滚Token 
     */
-    private void UndoToken() {
+    protected final void UndoToken() {
         if (m_iNextToken <= 0) {
-            throw new ScriptException("No more tokens to undo.");
+            throw new LexerException("No more tokens to undo.");
         }
         --m_iNextToken;
     }
     /**  读取, 
     */
-    private void ReadComma() {
+    protected final void ReadComma() {
         Token token = ReadToken();
         if (token.getType() != TokenType.Comma) {
             throw new ParserException("Comma ',' expected.", token);
@@ -709,7 +726,7 @@ public class ScriptParser {
     }
     /**  读取 未知字符 
     */
-    private String ReadIdentifier() {
+    protected final String ReadIdentifier() {
         Token token = ReadToken();
         if (token.getType() != TokenType.Identifier) {
             throw new ParserException("Identifier expected.", token);
@@ -718,7 +735,7 @@ public class ScriptParser {
     }
     /**  读取{ 
     */
-    private void ReadLeftBrace() {
+    protected final void ReadLeftBrace() {
         Token token = ReadToken();
         if (token.getType() != TokenType.LeftBrace) {
             throw new ParserException("Left brace '{' expected.", token);
@@ -726,7 +743,7 @@ public class ScriptParser {
     }
     /**  读取} 
     */
-    private void ReadRightBrace() {
+    protected final void ReadRightBrace() {
         Token token = ReadToken();
         if (token.getType() != TokenType.RightBrace) {
             throw new ParserException("Right brace '}' expected.", token);
@@ -734,7 +751,7 @@ public class ScriptParser {
     }
     /**  读取[ 
     */
-    private void ReadLeftBracket() {
+    protected final void ReadLeftBracket() {
         Token token = ReadToken();
         if (token.getType() != TokenType.LeftBracket) {
             throw new ParserException("Left bracket '[' expected for array indexing expression.", token);
@@ -742,7 +759,7 @@ public class ScriptParser {
     }
     /**  读取] 
     */
-    private void ReadRightBracket() {
+    protected final void ReadRightBracket() {
         Token token = ReadToken();
         if (token.getType() != TokenType.RightBracket) {
             throw new ParserException("Right bracket ']' expected for array indexing expression.", token);
@@ -750,7 +767,7 @@ public class ScriptParser {
     }
     /**  读取( 
     */
-    private void ReadLeftParenthesis() {
+    protected final void ReadLeftParenthesis() {
         Token token = ReadToken();
         if (token.getType() != TokenType.LeftPar) {
             throw new ParserException("Left parenthesis '(' expected.", token);
@@ -758,7 +775,7 @@ public class ScriptParser {
     }
     /**  读取) 
     */
-    private void ReadRightParenthesis() {
+    protected final void ReadRightParenthesis() {
         Token token = ReadToken();
         if (token.getType() != TokenType.RightPar) {
             throw new ParserException("Right parenthesis ')' expected.", token);
@@ -766,7 +783,7 @@ public class ScriptParser {
     }
     /**  读取; 
     */
-    private void ReadSemiColon() {
+    protected final void ReadSemiColon() {
         Token token = ReadToken();
         if (token.getType() != TokenType.SemiColon) {
             throw new ParserException("SemiColon ';' expected.", token);
@@ -774,7 +791,7 @@ public class ScriptParser {
     }
     /**  读取in 
     */
-    private void ReadIn() {
+    protected final void ReadIn() {
         Token token = ReadToken();
         if (token.getType() != TokenType.In) {
             throw new ParserException("In 'in' expected.", token);
@@ -782,7 +799,7 @@ public class ScriptParser {
     }
     /**  读取: 
     */
-    private void ReadColon() {
+    protected final void ReadColon() {
         Token token = ReadToken();
         if (token.getType() != TokenType.Colon) {
             throw new ParserException("Colon ':' expected.", token);
@@ -790,7 +807,7 @@ public class ScriptParser {
     }
     /**  读取catch 
     */
-    private void ReadCatch() {
+    protected final void ReadCatch() {
         Token token = ReadToken();
         if (token.getType() != TokenType.Catch) {
             throw new ParserException("Catch 'catch' expected.", token);
