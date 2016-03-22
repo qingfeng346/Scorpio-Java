@@ -1,5 +1,7 @@
-package Scorpio.Library;
+﻿package Scorpio.Library;
+
 import Scorpio.*;
+
 public class LibraryJson {
     public static void Load(Script script) {
         ScriptTable Table = script.CreateTable();
@@ -18,11 +20,7 @@ public class LibraryJson {
             m_Script = script;
         }
         public final Object Call(ScriptObject[] args) {
-            try {
-				return m_Script.LoadString(null, "return " + args[0].toString(), null, false);
-			} catch (Exception e) {
-				return null;
-			}
+            return m_Script.LoadString(null, "return " + args[0].toString(), null, false);
         }
     }
 }
