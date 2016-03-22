@@ -1,4 +1,4 @@
-package Scorpio.CodeDom;
+﻿package Scorpio.CodeDom;
 
 import Scorpio.*;
 
@@ -8,9 +8,9 @@ public class CodeScriptObject extends CodeObject {
         setObject(script.CreateObject(obj));
     }
     public CodeScriptObject(Script script, Object obj, String breviary, int line) {
-    	super(breviary, line);
-    	setObject(script.CreateObject(obj)); 
-	}
+        super(breviary, line);
+    setObject(script.CreateObject(obj));
+    }
     private ScriptObject privateObject;
     public final ScriptObject getObject() {
         return privateObject;

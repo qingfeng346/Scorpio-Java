@@ -1,17 +1,19 @@
-package Scorpio.CodeDom.Temp;
+﻿package Scorpio.CodeDom.Temp;
+
 import Scorpio.Compiler.*;
+
 public class TempOperator {
-	private static final int HighOperate = 6;
-	private static final int LowOperate = 5;
-	private static final int Compare = 4;
-	private static final int BitOperate = 3;
-	private static final int Logical = 2;
-    //运算符优先级表，
+    private static final int HighOperate = 6;
+    private static final int LowOperate = 5;
+    private static final int Compare = 4;
+    private static final int BitOperate = 3;
+    private static final int Logical = 2;
+    //运算符优先级表 优先级高的 先执行
     private static java.util.HashMap<TokenType, TempOperator> Operators = new java.util.HashMap<TokenType, TempOperator>();
     static {
         Operators.put(TokenType.And, new TempOperator(TokenType.And, Logical));
         Operators.put(TokenType.Or, new TempOperator(TokenType.Or, Logical));
-        
+
         Operators.put(TokenType.InclusiveOr, new TempOperator(TokenType.InclusiveOr, BitOperate));
         Operators.put(TokenType.Combine, new TempOperator(TokenType.Combine, BitOperate));
         Operators.put(TokenType.XOR, new TempOperator(TokenType.XOR, BitOperate));

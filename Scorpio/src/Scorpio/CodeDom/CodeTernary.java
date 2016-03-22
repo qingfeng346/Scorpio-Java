@@ -1,4 +1,4 @@
-package Scorpio.CodeDom;
+﻿package Scorpio.CodeDom;
 
 //三目运算符 true ? xxx : xxx
 public class CodeTernary extends CodeObject {

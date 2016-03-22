@@ -1,4 +1,4 @@
-package Scorpio.Compiler;
+﻿package Scorpio.Compiler;
 
 import Scorpio.*;
 import Scorpio.Exception.*;
@@ -6,6 +6,7 @@ import Scorpio.Exception.*;
 public class ScriptLexer {
     private LexState m_lexState = LexState.forValue(0); //当前解析状态
     private String m_strToken = null; //字符串token
+    private int m_iCacheLine; //解析@字符串的时候记录其实行数
     private int m_iSourceLine; //当前解析行数
     private int m_iSourceChar; //当前解析字符
     private String m_strBreviary; //字符串的摘要 取第一行字符串的前20个字符
@@ -15,15 +16,16 @@ public class ScriptLexer {
     public ScriptLexer(String buffer, String strBreviary) {
         m_listSourceLines = new java.util.ArrayList<String>();
         m_listTokens = new java.util.ArrayList<Token>();
-        String[] strLines = buffer.split("\n");
-		if (Util.IsNullOrEmpty (strBreviary)) {
-	        m_strBreviary = strLines.length > 0 ? strLines[0] : "";
-	        if (m_strBreviary.length() > BREVIARY_CHAR) {
-	            m_strBreviary = m_strBreviary.substring(0, BREVIARY_CHAR);
-	        }
-		} else {
-			m_strBreviary = strBreviary;
-		}
+        String[] strLines = buffer.split("[\\n]", -1);
+        if (Util.IsNullOrEmpty(strBreviary)) {
+            m_strBreviary = strLines.length > 0 ? strLines [0] : "";
+            if (m_strBreviary.length() > BREVIARY_CHAR) {
+                m_strBreviary = m_strBreviary.substring(0, BREVIARY_CHAR);
+            }
+        }
+        else {
+            m_strBreviary = strBreviary;
+        }
         for (String strLine : strLines) {
             m_listSourceLines.add(strLine + '\n');
         }
@@ -373,8 +375,8 @@ public class ScriptLexer {
                         setlexState(LexState.String);
                     }
                     else {
-                    	m_strToken += ch;
-                    	setlexState(LexState.String);
+                        m_strToken += ch;
+                        setlexState(LexState.String);
                     }
                     break;
                 case SingleString:
@@ -409,15 +411,17 @@ public class ScriptLexer {
                         setlexState(LexState.SingleString);
                     }
                     else {
-                    	m_strToken += ch;
-                    	setlexState(LexState.String);
+                        m_strToken += ch;
+                        setlexState(LexState.SingleString);
                     }
                     break;
                 case SimpleStringStart:
                     if (ch == '\"') {
+                        m_iCacheLine = m_iSourceLine;
                         setlexState(LexState.SimpleString);
                     }
                     else if (ch == '\'') {
+                        m_iCacheLine = m_iSourceLine;
                         setlexState(LexState.SingleSimpleString);
                     }
                     else {
@@ -438,7 +442,8 @@ public class ScriptLexer {
                         setlexState(LexState.SimpleString);
                     }
                     else {
-                        AddToken(TokenType.SimpleString, m_strToken);
+                        m_listTokens.add(new Token(TokenType.SimpleString, m_strToken, m_iCacheLine, m_iSourceChar));
+                        setlexState(LexState.None);
                         UndoChar();
                     }
                     break;
@@ -456,7 +461,8 @@ public class ScriptLexer {
                         setlexState(LexState.SingleSimpleString);
                     }
                     else {
-                        AddToken(TokenType.SimpleString, m_strToken);
+                        m_listTokens.add(new Token(TokenType.SimpleString, m_strToken, m_iCacheLine, m_iSourceChar));
+                        setlexState(LexState.None);
                         UndoChar();
                     }
                     break;
@@ -492,7 +498,7 @@ public class ScriptLexer {
                         if (Util.IsNullOrEmpty(m_strToken)) {
                             ThrowInvalidCharacterException(ch);
                         }
-                        long value = Long.parseLong(m_strToken, 16);
+                        long value = Long.parseLong(m_strToken, System.Globalization.NumberStyles.HexNumber);
                         AddToken(TokenType.Number, value);
                         UndoChar();
                     }
@@ -727,8 +733,7 @@ public class ScriptLexer {
             LexState.getMappings().put(value, this);
         }
 
-        @SuppressWarnings("unused")
-		public int getValue() {
+        public int getValue() {
             return intValue;
         }
 
@@ -778,7 +783,7 @@ public class ScriptLexer {
         m_iSourceChar = 0;
     }
     private void ThrowInvalidCharacterException(char ch) {
-        throw new ScriptException(m_strBreviary + ":" + (m_iSourceLine + 1) + "Unexpected character [" + ch + "]  Line:" + (m_iSourceLine + 1) + " Column:" + m_iSourceChar + " [" + m_listSourceLines.get(m_iSourceLine) + "]");
+        throw new LexerException(m_strBreviary + ":" + (m_iSourceLine + 1) + "  Unexpected character [" + ch + "]  Line:" + (m_iSourceLine + 1) + " Column:" + m_iSourceChar + " [" + m_listSourceLines.get(m_iSourceLine) + "]");
     }
     private void AddToken(TokenType type) {
         AddToken(type, ch);

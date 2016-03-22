@@ -1,6 +1,4 @@
-package Scorpio.CodeDom;
-
-import Scorpio.*;
+﻿package Scorpio.CodeDom;
 
 //返回一个table类型 t = { a = "1", b = "2", function hello() { } }
 public class CodeTable extends CodeObject {
