@@ -1,4 +1,4 @@
-package Scorpio.Variable;
+﻿package Scorpio.Variable;
 
 import Scorpio.*;
 import Scorpio.Userdata.*;
@@ -18,5 +18,5 @@ public abstract class ScorpioMethod {
     protected final void setMethodName(String value) {
         privateMethodName = value;
     }
-    public abstract Object Call(ScriptObject[] parameters) throws Exception; //调用函数
+    public abstract Object Call(ScriptObject[] parameters); //调用函数
 }

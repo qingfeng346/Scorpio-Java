@@ -321,7 +321,6 @@ public class LibraryBasis {
 	            ScriptUserdata obj = (ScriptUserdata)((args[0] instanceof ScriptUserdata) ? args[0] : null);
 	            ScriptNumber number = (ScriptNumber)((args[1] instanceof ScriptNumber) ? args[1] : null);
 	            Util.Assert(obj != null && number != null, m_script, "toenum 第一个参数是枚举类 第二个参数必须是number类型");
-	            @SuppressWarnings("unchecked")
 				java.lang.reflect.Method values = obj.getValueType().getMethod("values");
 	    		Object[] rets = (Object[]) values.invoke(null);
 	            return m_script.CreateEnum(rets[number.ToInt32()]);

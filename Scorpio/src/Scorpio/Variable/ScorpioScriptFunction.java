@@ -1,4 +1,4 @@
-package Scorpio.Variable;
+﻿package Scorpio.Variable;
 
 import Scorpio.*;
 import Scorpio.Runtime.*;
@@ -18,21 +18,21 @@ public class ScorpioScriptFunction {
         this.m_ParameterCount = listParameters.size();
         this.m_Params = bParams;
     }
-    public final ScriptObject Call(ScriptContext parentContext, java.util.HashMap<String, ScriptObject> objs, ScriptObject[] parameters) throws Exception {
+    public final ScriptObject Call(ScriptContext parentContext, java.util.HashMap<String, ScriptObject> objs, ScriptObject[] parameters) {
         int length = parameters.length;
         if (m_Params) {
-        	ScriptArray paramsArray = m_Script.CreateArray();
+            ScriptArray paramsArray = m_Script.CreateArray();
             for (int i = 0; i < m_ParameterCount - 1; ++i) {
-                objs.put(m_ListParameters.get(i), (parameters != null && length > i) ? parameters[i] : m_Script.Null);
+                objs.put(m_ListParameters.get(i), (parameters != null && length > i) ? parameters[i] : m_Script.getNull());
             }
             for (int i = m_ParameterCount - 1; i < length; ++i) {
-            	paramsArray.Add(parameters[i]);
+                paramsArray.Add(parameters[i]);
             }
             objs.put(m_ListParameters.get(m_ParameterCount - 1), paramsArray);
         }
         else {
             for (int i = 0; i < m_ParameterCount; ++i) {
-                objs.put(m_ListParameters.get(i), (parameters != null && length > i) ? parameters[i] : m_Script.Null);
+                objs.put(m_ListParameters.get(i), (parameters != null && length > i) ? parameters[i] : m_Script.getNull());
             }
         }
         ScriptContext context = new ScriptContext(m_Script, m_ScriptExecutable, null, Executable_Block.Function);

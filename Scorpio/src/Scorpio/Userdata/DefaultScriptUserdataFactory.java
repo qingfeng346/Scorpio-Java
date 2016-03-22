@@ -1,4 +1,4 @@
-package Scorpio.Userdata;
+﻿package Scorpio.Userdata;
 
 import Scorpio.*;
 
@@ -20,7 +20,13 @@ public class DefaultScriptUserdataFactory implements IScriptUserdataFactory {
         if (m_Types.containsKey(type)) {
             return m_Types.get(type);
         }
-        UserdataType scorpioType = new UserdataType(m_Script, type);
+        UserdataType scorpioType = null;
+        if (m_Script.ContainsFastReflectClass(type)) {
+            scorpioType = new FastReflectUserdataType(m_Script, type, m_Script.GetFastReflectClass(type));
+        }
+        else {
+            scorpioType = new ReflectUserdataType(m_Script, type);
+        }
         m_Types.put(type, scorpioType);
         return scorpioType;
     }

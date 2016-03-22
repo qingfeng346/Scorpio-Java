@@ -1,16 +1,14 @@
-package Scorpio;
+﻿package Scorpio;
 
-import java.io.File;
 import java.nio.charset.Charset;
-import java.util.List;
 
 import Scorpio.Runtime.*;
-import Scorpio.Serialize.ScorpioMaker;
 import Scorpio.Compiler.*;
 import Scorpio.Exception.*;
 import Scorpio.Library.*;
 import Scorpio.Userdata.*;
 import Scorpio.Variable.*;
+import Scorpio.Serialize.*;
 //脚本类
 public class Script {
     public static final String DynamicDelegateName = "__DynamicDelegate__";
@@ -18,93 +16,133 @@ public class Script {
     public static final Charset UTF8 = Charset.forName("UTF8");
     private static final String GLOBAL_TABLE = "_G"; //全局table
     private static final String GLOBAL_VERSION = "_VERSION"; //版本号
-    private static final String GLOBAL_SCRIPT = "_SCRIPT";         //Script对象
+    private static final String GLOBAL_SCRIPT = "_SCRIPT"; //Script对象
     private IScriptUserdataFactory m_UserdataFactory = null; //Userdata工厂
     private ScriptTable m_GlobalTable; //全局Table
     private java.util.ArrayList<StackInfo> m_StackInfoStack = new java.util.ArrayList<StackInfo>(); //堆栈数据
-    private java.util.ArrayList<String> m_SearchPath = new java.util.ArrayList<String>();           //request所有文件的路径集合
+    private java.util.ArrayList<String> m_SearchPath = new java.util.ArrayList<String>(); //request所有文件的路径集合
+    private java.util.HashMap<java.lang.Class<?>, IScorpioFastReflectClass> m_FastReflectClass = new java.util.HashMap<java.lang.Class<?>, IScorpioFastReflectClass>();
     private StackInfo m_StackInfo = new StackInfo(); //最近堆栈数据
-    
-    public ScriptNull Null;                            //null对象
-    public ScriptBoolean True;                         //true对象
-    public ScriptBoolean False;                        //false对象
-    public ScriptBoolean GetBoolean(boolean value) {
-        return value ? True : False; 
+    private ScriptNull privateNull;
+    public final ScriptNull getNull() {
+        return privateNull;
     }
-    public Script()
-    {
-        Null = new ScriptNull(this);
-        True = new ScriptBoolean(this, true);
-        False = new ScriptBoolean(this, false);
+    private void setNull(ScriptNull value) {
+        privateNull = value;
+    }
+    private ScriptBoolean privateTrue;
+    public final ScriptBoolean getTrue() {
+        return privateTrue;
+    }
+    private void setTrue(ScriptBoolean value) {
+        privateTrue = value;
+    }
+    private ScriptBoolean privateFalse;
+    public final ScriptBoolean getFalse() {
+        return privateFalse;
+    }
+    private void setFalse(ScriptBoolean value) {
+        privateFalse = value;
+    }
+    public final ScriptBoolean GetBoolean(boolean value) {
+        return value ? getTrue() : getFalse();
+    }
+    public Script() {
+        setNull(new ScriptNull(this));
+        setTrue(new ScriptBoolean(this, true));
+        setFalse(new ScriptBoolean(this, false));
         m_UserdataFactory = new DefaultScriptUserdataFactory(this);
         m_GlobalTable = CreateTable();
         m_GlobalTable.SetValue(GLOBAL_TABLE, m_GlobalTable);
         m_GlobalTable.SetValue(GLOBAL_VERSION, CreateString(Version));
         m_GlobalTable.SetValue(GLOBAL_SCRIPT, CreateObject(this));
     }
-    public final ScriptObject LoadFile(String strFileName) throws Exception {
+    public final ScriptObject LoadFile(String strFileName) {
         return LoadFile(strFileName, UTF8);
     }
-    public final ScriptObject LoadFile(String fileName, Charset encoding) throws Exception {
-    	return LoadBuffer(fileName, Util.GetFileBuffer(fileName), encoding);
+    public final ScriptObject LoadFile(String fileName, Charset encoding) {
+        return LoadBuffer(fileName, ScriptExtensions.GetFileBuffer(fileName), encoding);
     }
-    public ScriptObject LoadBuffer(byte[] buffer) {
+    public final ScriptObject LoadBuffer(byte[] buffer) {
         return LoadBuffer("Undefined", buffer, UTF8);
     }
-    public ScriptObject LoadBuffer(String strBreviary, byte[] buffer) {
+    public final ScriptObject LoadBuffer(String strBreviary, byte[] buffer) {
         return LoadBuffer(strBreviary, buffer, UTF8);
     }
-    public ScriptObject LoadBuffer(String strBreviary, byte[] buffer, Charset encoding) {
-        if (buffer == null || buffer.length == 0) { return null; }
+    public final ScriptObject LoadBuffer(String strBreviary, byte[] buffer, Charset encoding) {
+        if (buffer == null || buffer.length == 0) {
+            return null;
+        }
         try {
             if (buffer[0] == 0) {
                 return LoadTokens(strBreviary, ScorpioMaker.Deserialize(buffer));
-            } else {
+            }
+            else {
                 return LoadString(strBreviary, new String(buffer, encoding));
             }
-        } catch (Exception e) {
+        }
+        catch (RuntimeException e) {
             throw new ScriptException("load buffer [" + strBreviary + "] is error : " + e.toString());
         }
     }
-    public final ScriptObject LoadString(String strBuffer) throws Exception {
+    public final ScriptObject LoadString(String strBuffer) {
         return LoadString("", strBuffer);
     }
-    public final ScriptObject LoadString(String strBreviary, String strBuffer) throws Exception {
+    public final ScriptObject LoadString(String strBreviary, String strBuffer) {
         return LoadString(strBreviary, strBuffer, null, true);
     }
-    public final ScriptObject LoadString(String strBreviary, String strBuffer, ScriptContext context, boolean clearStack) throws Exception {
-        if (Util.IsNullOrEmpty(strBuffer)) return Null;
-    	if (clearStack) m_StackInfoStack.clear();
-        ScriptLexer scriptLexer = new ScriptLexer(strBuffer, strBreviary);
-        return Load(scriptLexer.GetBreviary(), scriptLexer.GetTokens(), context);
+    public final ScriptObject LoadString(String strBreviary, String strBuffer, ScriptContext context, boolean clearStack) {
+        try {
+            if (Util.IsNullOrEmpty(strBuffer)) {
+                return getNull();
+            }
+            if (clearStack) {
+                m_StackInfoStack.clear();
+            }
+            ScriptLexer scriptLexer = new ScriptLexer(strBuffer, strBreviary);
+            return Load(scriptLexer.GetBreviary(), scriptLexer.GetTokens(), context);
+        }
+        catch (RuntimeException e) {
+            throw new ScriptException("load buffer [" + strBreviary + "] is error : " + e.toString());
+        }
     }
-    public final ScriptObject LoadTokens(String strBreviary, List<Token> tokens) throws Exception
-    {
-        if (tokens.size() == 0) return Null;
-        m_StackInfoStack.clear();
-        return Load(strBreviary, tokens, null);
+    public final ScriptObject LoadTokens(java.util.ArrayList<Token> tokens) {
+        return LoadTokens("Undefined", tokens);
     }
-    
-    private final ScriptObject Load(String strBreviary, List<Token> tokens, ScriptContext context) throws Exception
-    {
-        if (tokens.size() == 0) return Null;
+    public final ScriptObject LoadTokens(String strBreviary, java.util.ArrayList<Token> tokens) {
+        try {
+            if (tokens.isEmpty()) {
+                return getNull();
+            }
+            m_StackInfoStack.clear();
+            return Load(strBreviary, tokens, null);
+        }
+        catch (RuntimeException e) {
+            throw new ScriptException("load tokens [" + strBreviary + "] is error : " + e.toString());
+        }
+    }
+    private ScriptObject Load(String strBreviary, java.util.ArrayList<Token> tokens, ScriptContext context) {
+        if (tokens.isEmpty()) {
+            return getNull();
+        }
         ScriptParser scriptParser = new ScriptParser(this, tokens, strBreviary);
         ScriptExecutable scriptExecutable = scriptParser.Parse();
         return new ScriptContext(this, scriptExecutable, context, Executable_Block.Context).Execute();
     }
-    public void PushSearchPath(String path) {
-        if (!m_SearchPath.contains(path))
+    public final void PushSearchPath(String path) {
+        if (!m_SearchPath.contains(path)) {
             m_SearchPath.add(path);
+        }
     }
-    public ScriptObject LoadSearchPathFile(String fileName) throws Exception {
+    public final ScriptObject LoadSearchPathFile(String fileName) {
         for (int i = 0; i < m_SearchPath.size(); ++i) {
             String file = m_SearchPath.get(i) + "/" + fileName;
-            if (new File(file).exists())
+            if (ScriptExtensions.FileExist(file)) {
                 return LoadFile(file);
+            }
         }
         throw new ExecutionException(this, "require 找不到文件 : " + fileName);
     }
-    
     public final ScriptObject LoadType(String str) {
     	try {
             Class<?> type = java.lang.Class.forName(str);
@@ -112,7 +150,16 @@ public class Script {
                 return CreateUserdata(type);
             }
     	} catch (Exception e) {}
-        return Null;
+        return getNull();
+    }
+    public final void PushFastReflectClass(java.lang.Class<?> type, IScorpioFastReflectClass value) {
+        m_FastReflectClass.put(type, value);
+    }
+    public final boolean ContainsFastReflectClass(java.lang.Class<?> type) {
+        return m_FastReflectClass.containsKey(type);
+    }
+    public final IScorpioFastReflectClass GetFastReflectClass(java.lang.Class<?> type) {
+        return m_FastReflectClass.get(type);
     }
     public final void SetStackInfo(StackInfo info) {
         m_StackInfo = info;
@@ -123,7 +170,7 @@ public class Script {
     public final void PushStackInfo() {
         m_StackInfoStack.add(m_StackInfo);
     }
-    public void ClearStackInfo() {
+    public final void ClearStackInfo() {
         m_StackInfoStack.clear();
     }
     public final String GetStackInfo() {
@@ -149,7 +196,7 @@ public class Script {
     public final void SetObjectInternal(String key, ScriptObject value) {
         m_GlobalTable.SetValue(key, value);
     }
-    public final Object Call(String strName, Object... args) throws Exception {
+    public final Object Call(String strName, Object... args) {
         ScriptObject obj = m_GlobalTable.GetValue(strName);
         if (obj instanceof ScriptNull) {
             throw new ScriptException("找不到变量[" + strName + "]");
@@ -162,9 +209,17 @@ public class Script {
         m_StackInfoStack.clear();
         return obj.Call(parameters);
     }
+    public final Object Call(String strName, ScriptObject[] args) {
+        ScriptObject obj = m_GlobalTable.GetValue(strName);
+        if (obj instanceof ScriptNull) {
+            throw new ScriptException("找不到变量[" + strName + "]");
+        }
+        m_StackInfoStack.clear();
+        return obj.Call(args);
+    }
     public final ScriptObject CreateObject(Object value) {
         if (value == null) {
-            return Null;
+            return getNull();
         }
         else if (value instanceof ScriptObject) {
             return (ScriptObject)value;
@@ -205,7 +260,7 @@ public class Script {
         return new ScriptNumberLong(this, value);
     }
     public final ScriptNumber CreateInt(int value) {
-    	return new ScriptNumberInt(this, value);
+        return new ScriptNumberInt(this, value);
     }
     public final ScriptEnum CreateEnum(Object value) {
         return new ScriptEnum(this, value);
@@ -228,8 +283,11 @@ public class Script {
     public final ScriptFunction CreateFunction(ScorpioMethod value) {
         return new ScriptFunction(this, value);
     }
-    public IScriptUserdataFactory GetUserdataFactory() {
+    public final IScriptUserdataFactory GetUserdataFactory() {
         return m_UserdataFactory;
+    }
+    public final void SetUserdataFactory(IScriptUserdataFactory value) {
+        m_UserdataFactory = value;
     }
     public final void LoadLibrary() {
         LibraryBasis.Load(this);

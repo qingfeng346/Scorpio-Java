@@ -1,4 +1,4 @@
-package Scorpio.Variable;
+﻿package Scorpio.Variable;
 
 import Scorpio.*;
 import Scorpio.Userdata.*;
@@ -12,7 +12,7 @@ public class ScorpioObjectMethod extends ScorpioMethod {
         setMethodName(name);
     }
     @Override
-    public Object Call(ScriptObject[] parameters) throws Exception {
+    public Object Call(ScriptObject[] parameters) {
         return getMethod().Call(m_Object, parameters);
     }
 }
