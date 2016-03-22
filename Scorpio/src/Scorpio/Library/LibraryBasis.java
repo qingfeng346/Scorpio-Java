@@ -1,6 +1,4 @@
-package Scorpio.Library;
-
-import java.lang.reflect.Method;
+﻿package Scorpio.Library;
 
 import Scorpio.*;
 import Scorpio.Exception.*;
@@ -18,9 +16,9 @@ public class LibraryBasis {
         }
         public final Object Call(ScriptObject[] args) {
             if (m_Enumerator.hasNext()) {
-            	ScriptTable table = m_Script.CreateTable();
-            	table.SetValue("key", m_Script.CreateObject(m_Index++));
-            	table.SetValue("value", m_Enumerator.next());
+                ScriptTable table = m_Script.CreateTable();
+                table.SetValue("key", m_Script.CreateObject(m_Index++));
+                table.SetValue("value", m_Enumerator.next());
                 return table;
             }
             return null;
@@ -61,7 +59,7 @@ public class LibraryBasis {
         }
         public final Object Call(ScriptObject[] args) {
             if (m_Enumerator.hasNext()) {
-            	ScriptTable table = m_Script.CreateTable();
+                ScriptTable table = m_Script.CreateTable();
                 java.util.Map.Entry<Object, ScriptObject> v = m_Enumerator.next();
                 table.SetValue("key", m_Script.CreateObject(v.getKey()));
                 table.SetValue("value", v.getValue());
@@ -95,10 +93,10 @@ public class LibraryBasis {
         }
     }
     private static class UserdataPairs implements ScorpioHandle {
-    	private Script m_Script;
+        private Script m_Script;
         private java.util.Iterator<?> m_Enumerator;
         public UserdataPairs(Script script, ScriptUserdata obj) {
-        	m_Script = script;
+            m_Script = script;
             Object value = obj.getValue();
             Iterable<?> ienumerable = (Iterable<?>)((value instanceof Iterable) ? value : null);
             if (ienumerable == null) {
@@ -142,12 +140,13 @@ public class LibraryBasis {
         script.SetObjectInternal("require", script.CreateFunction(new require(script)));
         script.SetObjectInternal("import", script.CreateFunction(new require(script)));
         script.SetObjectInternal("using", script.CreateFunction(new require(script)));
+
         script.SetObjectInternal("import_type", script.CreateFunction(new import_type(script)));
     }
     private static class print implements ScorpioHandle {
         public final Object Call(ScriptObject[] args) {
             for (int i = 0; i < args.length; ++i) {
-                System.out.println(args[i].toString());
+                ScriptExtensions.print(args[i].toString());
             }
             return null;
         }
@@ -205,41 +204,31 @@ public class LibraryBasis {
     }
     private static class type implements ScorpioHandle {
         public final Object Call(ScriptObject[] args) {
-            return args[0].getType();
+            return args[0].getType().getValue();
         }
     }
-    private static class is_null implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class is_null implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return args[0] instanceof ScriptNull;
         }
     }
-    private static class is_bool implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class is_bool implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return args[0] instanceof ScriptBoolean;
         }
     }
-    private static class is_number implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class is_number implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return args[0] instanceof ScriptNumber;
         }
     }
-    private static class is_double implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class is_double implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return args[0] instanceof ScriptNumberDouble;
         }
     }
-    private static class is_long implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class is_long implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return args[0] instanceof ScriptNumberLong;
         }
     }
@@ -295,10 +284,8 @@ public class LibraryBasis {
         }
         public final Object Call(ScriptObject[] args) {
             ScriptObject obj = args[0];
-            if (obj instanceof ScriptNumber || obj instanceof ScriptString || obj instanceof ScriptEnum) {
-                return m_script.CreateDouble(Util.ToDouble(obj.getObjectValue()));
-            }
-            throw new ExecutionException(m_script, "不能从类型 " + obj.getType() + " 转换成Number类型");
+            Util.Assert(obj instanceof ScriptNumber || obj instanceof ScriptString || obj instanceof ScriptEnum, m_script, "tonumber 不能从类型 " + obj.getType() + " 转换成Number类型");
+            return m_script.CreateDouble(Util.ToDouble(obj.getObjectValue()));
         }
     }
     private static class tolong implements ScorpioHandle {
@@ -308,10 +295,8 @@ public class LibraryBasis {
         }
         public final Object Call(ScriptObject[] args) {
             ScriptObject obj = args[0];
-            if (obj instanceof ScriptNumber || obj instanceof ScriptString || obj instanceof ScriptEnum) {
-                return m_script.CreateLong(Util.ToInt64(obj.getObjectValue()));
-            }
-            throw new ExecutionException(m_script, "不能从类型 " + obj.getType() + " 转换成Long类型");
+            Util.Assert(obj instanceof ScriptNumber || obj instanceof ScriptString || obj instanceof ScriptEnum, m_script, "tolong 不能从类型 " + obj.getType() + " 转换成Long类型");
+            return m_script.CreateLong(Util.ToInt64(obj.getObjectValue()));
         }
     }
     private static class toint implements ScorpioHandle {
@@ -321,26 +306,25 @@ public class LibraryBasis {
         }
         public final Object Call(ScriptObject[] args) {
             ScriptObject obj = args[0];
-            if (obj instanceof ScriptNumber || obj instanceof ScriptString || obj instanceof ScriptEnum) {
-                return m_script.CreateInt(Util.ToInt32(obj.getObjectValue()));
-            }
-            throw new ExecutionException(m_script, "不能从类型 " + obj.getType() + " 转换成Int类型");
+            Util.Assert(obj instanceof ScriptNumber || obj instanceof ScriptString || obj instanceof ScriptEnum, m_script, "toint 不能从类型 " + obj.getType() + " 转换成int类型");
+            return m_script.CreateInt(Util.ToInt32(obj.getObjectValue()));
         }
     }
     private static class toenum implements ScorpioHandle {
         private Script m_script;
-        public toenum(Script script)
-        {
+        public toenum(Script script) {
             m_script = script;
         }
         public final Object Call(ScriptObject[] args) {
         	try {
-                Util.Assert(args.length == 2, m_script, "toenum 第一个参数是枚举类 第二个参数必须是number类型");
-                ScriptUserdata obj = (ScriptUserdata)args[0];
-                ScriptNumber number = (ScriptNumber)args[1];
-                Method values = obj.getValueType().getMethod("values");
-        		Object[] rets = (Object[]) values.invoke(null);
-                return m_script.CreateEnum(rets[number.ToInt32()]);
+	            Util.Assert(args.length == 2, m_script, "toenum 第一个参数是枚举类 第二个参数必须是number类型");
+	            ScriptUserdata obj = (ScriptUserdata)((args[0] instanceof ScriptUserdata) ? args[0] : null);
+	            ScriptNumber number = (ScriptNumber)((args[1] instanceof ScriptNumber) ? args[1] : null);
+	            Util.Assert(obj != null && number != null, m_script, "toenum 第一个参数是枚举类 第二个参数必须是number类型");
+	            @SuppressWarnings("unchecked")
+				java.lang.reflect.Method values = obj.getValueType().getMethod("values");
+	    		Object[] rets = (Object[]) values.invoke(null);
+	            return m_script.CreateEnum(rets[number.ToInt32()]);
         	} catch (Exception e) {
         		throw new ExecutionException(m_script, "toenum 第一个参数是枚举类 第二个参数必须是number类型");
         	}
@@ -372,11 +356,7 @@ public class LibraryBasis {
         public final Object Call(ScriptObject[] args) {
             ScriptString str = (ScriptString)((args[0] instanceof ScriptString) ? args[0] : null);
             Util.Assert(str != null, m_script, "require 参数必须是 string");
-            try {
-            	return m_script.LoadSearchPathFile(str.getValue());
-            } catch (Exception ex) {
-            	throw new ExecutionException(m_script, "require is error : " + ex.getMessage()); 
-            }
+            return m_script.LoadSearchPathFile(str.getValue());
         }
     }
     private static class import_type implements ScorpioHandle {
@@ -386,9 +366,7 @@ public class LibraryBasis {
         }
         public final Object Call(ScriptObject[] args) {
             ScriptString str = (ScriptString)((args[0] instanceof ScriptString) ? args[0] : null);
-            if (str == null) {
-                throw new ExecutionException(m_script, "import_type 参数必须是 string");
-            }
+            Util.Assert(str != null, m_script, "import_type 参数必须是 string");
             return m_script.LoadType(str.getValue());
         }
     }
