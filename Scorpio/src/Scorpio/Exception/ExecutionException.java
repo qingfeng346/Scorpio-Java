@@ -4,7 +4,11 @@ import Scorpio.*;
 
 //执行代码异常
 public class ExecutionException extends ScriptException {
-    private String m_Source = "";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String m_Source = "";
     public ExecutionException(Script script, String strMessage) {
         super(strMessage);
         if (script != null) {
