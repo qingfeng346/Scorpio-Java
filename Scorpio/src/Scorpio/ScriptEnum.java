@@ -1,4 +1,4 @@
-package Scorpio;
+﻿package Scorpio;
 
 public class ScriptEnum extends ScriptObject {
     @Override

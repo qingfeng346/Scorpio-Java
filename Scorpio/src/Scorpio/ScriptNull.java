@@ -1,4 +1,4 @@
-package Scorpio;
+﻿package Scorpio;
 
 //脚本null类型
 public class ScriptNull extends ScriptObject {

@@ -1,6 +1,17 @@
-package Scorpio;
+﻿package Scorpio;
 //脚本bool类型
 public class ScriptBoolean extends ScriptObject {
+    public ScriptBoolean(Script script, boolean value) {
+        super(script);
+        this.setValue(value);
+    }
+    private boolean privateValue;
+    public final boolean getValue() {
+        return privateValue;
+    }
+    private void setValue(boolean value) {
+        privateValue = value;
+    }
     @Override
     public ObjectType getType() {
         return ObjectType.Boolean;
@@ -8,14 +19,6 @@ public class ScriptBoolean extends ScriptObject {
     @Override
     public Object getObjectValue() {
         return getValue();
-    }
-    private boolean privateValue;
-    public final boolean getValue() {
-        return privateValue;
-    }
-    public ScriptBoolean(Script script, boolean value) {
-        super(script);
-        this.privateValue = value;
     }
     @Override
     public boolean LogicOperation() {
@@ -26,6 +29,6 @@ public class ScriptBoolean extends ScriptObject {
         return getValue() ? "true" : "false";
     }
     public final ScriptBoolean Inverse() {
-        return getValue() ? getScript().False : getScript().True;
+        return getValue() ? getScript().getFalse() : getScript().getTrue();
     }
 }
