@@ -1,4 +1,4 @@
-package Scorpio.Exception;
+﻿package Scorpio.Exception;
 
 //堆栈信息
 public class StackInfo {

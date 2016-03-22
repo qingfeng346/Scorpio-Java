@@ -1,4 +1,4 @@
-package Scorpio.Library;
+﻿package Scorpio.Library;
 
 import Scorpio.*;
 
@@ -44,15 +44,13 @@ public class LibraryArray {
             return obj;
         }
     }
-    private static class remove implements ScorpioHandle
-    {
+    private static class remove implements ScorpioHandle {
         public final Object Call(ScriptObject[] args) {
             ((ScriptArray)args[0]).Remove(args[1]);
             return null;
         }
     }
-    private static class removeat implements ScorpioHandle
-    {
+    private static class removeat implements ScorpioHandle {
         public final Object Call(ScriptObject[] args) {
             ((ScriptArray)args[0]).RemoveAt(((ScriptNumber)args[1]).ToInt32());
             return null;
@@ -64,72 +62,54 @@ public class LibraryArray {
             return null;
         }
     }
-    private static class contains implements ScorpioHandle
-    {
+    private static class contains implements ScorpioHandle {
         public final Object Call(ScriptObject[] args) {
             return ((ScriptArray)args[0]).Contains(args[1]);
         }
     }
-	private static class sort implements ScorpioHandle
-	{
-		public final Object Call(ScriptObject[] args) {
-			((ScriptArray)args[0]).Sort((ScriptFunction)args[1]);
-			return null;
-		}
-	}
-    private static class indexof implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
-            return ((ScriptArray)args[0]).IndexOf(args[1]);
+    private static class sort implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
+            ((ScriptArray)args[0]).Sort((ScriptFunction)args[1]);
+            return null;
         }
     }
-    private static class lastindexof implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
-            return ((ScriptArray)args[0]).LastIndexOf(args[1]);
+    private static class indexof implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
+            return ((ScriptArray)args[0]).indexOf(args[1]);
         }
     }
-    private static class first implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class lastindexof implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
+            return ((ScriptArray)args[0]).lastIndexOf(args[1]);
+        }
+    }
+    private static class first implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return ((ScriptArray)args[0]).First();
         }
     }
-    private static class last implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class last implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return ((ScriptArray)args[0]).Last();
         }
     }
-    private static class popfirst implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class popfirst implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return ((ScriptArray)args[0]).PopFirst();
         }
     }
-    private static class safepopfirst implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class safepopfirst implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return ((ScriptArray)args[0]).SafePopFirst();
         }
     }
-    private static class poplast implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class poplast implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return ((ScriptArray)args[0]).PopLast();
         }
     }
-    private static class safepoplast implements ScorpioHandle
-    {
-        public final Object Call(ScriptObject[] args)
-        {
+    private static class safepoplast implements ScorpioHandle {
+        public final Object Call(ScriptObject[] args) {
             return ((ScriptArray)args[0]).SafePopLast();
         }
     }
