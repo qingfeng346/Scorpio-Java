@@ -1,4 +1,4 @@
-package Scorpio;
+﻿package Scorpio;
 
 //脚本table类型
 public class ScriptTable extends ScriptObject {
@@ -12,38 +12,47 @@ public class ScriptTable extends ScriptObject {
     }
     @Override
     public void SetValue(Object key, ScriptObject value) {
-    	Util.SetObject(m_listObject, key, value);
+        if (key == null) {
+            return;
+        }
+        Util.SetObject(m_listObject, key, value);
     }
     @Override
     public ScriptObject GetValue(Object key) {
-    	return m_listObject.containsKey(key) ? m_listObject.get(key) : getScript().Null;
+        if (key == null) {
+            return getScript().getNull();
+        }
+        return m_listObject.containsKey(key) ? m_listObject.get(key) : getScript().getNull();
     }
     public final boolean HasValue(Object key) {
+        if (key == null) {
+            return false;
+        }
         return m_listObject.containsKey(key);
     }
     public final int Count() {
         return m_listObject.size();
     }
-    public void Clear() {
+    public final void Clear() {
         m_listObject.clear();
     }
-    public void Remove(Object key) {
+    public final void Remove(Object key) {
         m_listObject.remove(key);
     }
-    public ScriptArray GetKeys() {
-		ScriptArray ret = getScript().CreateArray ();
-		for (java.util.Map.Entry<Object, ScriptObject> pair : m_listObject.entrySet()) {
-			ret.Add(getScript().CreateObject(pair.getKey()));
-		}
-		return ret;
-	}
-	public ScriptArray GetValues() {
-		ScriptArray ret = getScript().CreateArray ();
-		for (java.util.Map.Entry<Object, ScriptObject> pair : m_listObject.entrySet()) {
-			ret.Add(pair.getValue().Assign());
-		}
-		return ret;
-	}
+    public final ScriptArray GetKeys() {
+        ScriptArray ret = getScript().CreateArray();
+        for (java.util.Map.Entry<Object, ScriptObject> pair : m_listObject.entrySet()) {
+            ret.Add(getScript().CreateObject(pair.getKey()));
+        }
+        return ret;
+    }
+    public final ScriptArray GetValues() {
+        ScriptArray ret = getScript().CreateArray();
+        for (java.util.Map.Entry<Object, ScriptObject> pair : m_listObject.entrySet()) {
+            ret.Add(pair.getValue().Assign());
+        }
+        return ret;
+    }
     public final java.util.Iterator<java.util.Map.Entry<Object, ScriptObject>> GetIterator() {
         return m_listObject.entrySet().iterator();
     }
@@ -53,10 +62,11 @@ public class ScriptTable extends ScriptObject {
         ScriptObject obj = null;
         ScriptFunction func = null;
         for (java.util.Map.Entry<Object, ScriptObject> pair : m_listObject.entrySet()) {
-        	if (pair.getValue() == this) {
-        		ret.m_listObject.put(pair.getKey(), ret);
-        	} else {
-        		obj = pair.getValue().clone();
+            if (pair.getValue() == this) {
+                ret.m_listObject.put(pair.getKey(), ret);
+            }
+            else {
+                obj = pair.getValue().clone();
                 if (obj instanceof ScriptFunction) {
                     func = (ScriptFunction)obj;
                     if (!func.getIsStatic()) {
@@ -64,7 +74,7 @@ public class ScriptTable extends ScriptObject {
                     }
                 }
                 ret.m_listObject.put(pair.getKey(), obj);
-        	}
+            }
         }
         return ret;
     }
