@@ -75,12 +75,12 @@ public class LibraryArray {
     }
     private static class indexof implements ScorpioHandle {
         public final Object Call(ScriptObject[] args) {
-            return ((ScriptArray)args[0]).indexOf(args[1]);
+            return ((ScriptArray)args[0]).IndexOf(args[1]);
         }
     }
     private static class lastindexof implements ScorpioHandle {
         public final Object Call(ScriptObject[] args) {
-            return ((ScriptArray)args[0]).lastIndexOf(args[1]);
+            return ((ScriptArray)args[0]).LastIndexOf(args[1]);
         }
     }
     private static class first implements ScorpioHandle {
