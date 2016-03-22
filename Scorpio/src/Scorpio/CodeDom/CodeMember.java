@@ -1,4 +1,4 @@
-﻿package Scorpio.CodeDom;
+package Scorpio.CodeDom;
 
 //成员类型  a.b["c"].d[1]
 public class CodeMember extends CodeObject {

@@ -1,4 +1,4 @@
-﻿package Scorpio.Runtime;
+package Scorpio.Runtime;
 
 public enum Executable_Block {
     None,

@@ -1,4 +1,4 @@
-﻿package Scorpio.Extensions;
+package Scorpio.Extensions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

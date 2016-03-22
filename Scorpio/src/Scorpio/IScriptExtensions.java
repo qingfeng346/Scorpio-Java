@@ -1,4 +1,4 @@
-﻿package Scorpio;
+package Scorpio;
 
 public interface IScriptExtensions {
     void print(String str);

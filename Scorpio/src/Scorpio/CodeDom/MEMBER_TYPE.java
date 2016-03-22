@@ -1,4 +1,4 @@
-﻿package Scorpio.CodeDom;
+package Scorpio.CodeDom;
 
 //成员类型
 public enum MEMBER_TYPE {

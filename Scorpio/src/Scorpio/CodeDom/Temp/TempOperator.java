@@ -1,4 +1,4 @@
-﻿package Scorpio.CodeDom.Temp;
+package Scorpio.CodeDom.Temp;
 
 import Scorpio.Compiler.*;
 

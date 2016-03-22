@@ -1,4 +1,4 @@
-﻿package Scorpio;
+package Scorpio;
 
 import java.nio.charset.Charset;
 
