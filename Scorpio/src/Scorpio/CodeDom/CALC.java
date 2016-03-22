@@ -1,4 +1,4 @@
-package Scorpio.CodeDom;
+﻿package Scorpio.CodeDom;
 
 //++或者--标识
 public enum CALC {

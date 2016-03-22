@@ -1,6 +1,6 @@
 package Scorpio.CodeDom;
 
-//鏁扮粍绫诲瀷 [xxx,xxx,xxx]
+//数组类型 [xxx,xxx,xxx]
 public class CodeArray extends CodeObject {
     public java.util.ArrayList<CodeObject> Elements = new java.util.ArrayList<CodeObject>();
 }

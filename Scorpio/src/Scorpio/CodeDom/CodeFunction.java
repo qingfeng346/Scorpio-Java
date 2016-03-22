@@ -1,4 +1,4 @@
-package Scorpio.CodeDom;
+﻿package Scorpio.CodeDom;
 
 import Scorpio.*;
 
@@ -9,7 +9,7 @@ public class CodeFunction extends CodeObject {
         this.Func = func;
     }
     public CodeFunction(ScriptFunction func, String breviary, int line) {
-    	super(breviary, line);
+        super(breviary, line);
         this.Func = func;
     }
 }

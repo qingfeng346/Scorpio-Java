@@ -1,4 +1,4 @@
-package Scorpio.CodeDom;
+﻿package Scorpio.CodeDom;
 
 import Scorpio.CodeDom.Temp.*;
 
@@ -6,8 +6,10 @@ import Scorpio.CodeDom.Temp.*;
 public class CodeIf extends CodeObject {
     public TempCondition If;
     public TempCondition Else;
-    public java.util.ArrayList<TempCondition> ElseIf = new java.util.ArrayList<TempCondition>();
-    public final void AddElseIf(TempCondition con) {
-        ElseIf.add(con);
+    public TempCondition[] ElseIf;
+    public int ElseIfCount;
+    public final void Init(java.util.ArrayList<TempCondition> ElseIf) {
+        this.ElseIf = ElseIf.toArray(new TempCondition[]{});
+        this.ElseIfCount = ElseIf.size();
     }
 }

@@ -1,11 +1,11 @@
-package Scorpio.CodeDom;
+﻿package Scorpio.CodeDom;
 
 import Scorpio.*;
 import Scorpio.Runtime.*;
 
 // for (i=begin,finished,step)
 public class CodeForSimple extends CodeObject {
-	private Script m_Script; //脚本引擎
+    private Script m_Script; //脚本引擎
     public String Identifier;
     public CodeObject Begin;
     public CodeObject Finished;

@@ -1,7 +1,8 @@
-package Scorpio.CodeDom;
+﻿package Scorpio.CodeDom;
+
 //成员类型  a.b["c"].d[1]
 public class CodeMember extends CodeObject {
-	public CodeObject Parent;
+    public CodeObject Parent;
     public CodeObject MemberObject;
     public Object MemberValue;
     public MEMBER_TYPE Type = MEMBER_TYPE.forValue(0);

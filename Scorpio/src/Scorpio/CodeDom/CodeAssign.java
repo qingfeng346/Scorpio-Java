@@ -1,8 +1,8 @@
-package Scorpio.CodeDom;
+﻿package Scorpio.CodeDom;
 
 import Scorpio.Compiler.*;
 
-//复制变量 = += -= /= *= %=
+//赋值变量 = += -= /= *= %= |= &= ^= >>= <<=
 public class CodeAssign extends CodeObject {
     public CodeMember member;
     public CodeObject value;
