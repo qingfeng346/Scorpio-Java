@@ -1,6 +1,5 @@
 package Scorpio.CodeDom;
 
-import Scorpio.*;
 import Scorpio.Runtime.*;
 
 // for (i=begin,finished,step)

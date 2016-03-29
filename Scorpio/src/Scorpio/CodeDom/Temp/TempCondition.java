@@ -1,6 +1,5 @@
 package Scorpio.CodeDom.Temp;
 
-import Scorpio.*;
 import Scorpio.CodeDom.*;
 import Scorpio.Runtime.*;
 

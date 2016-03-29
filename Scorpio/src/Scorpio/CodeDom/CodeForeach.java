@@ -1,6 +1,5 @@
 package Scorpio.CodeDom;
 
-import Scorpio.*;
 import Scorpio.Runtime.*;
 
 //foreach 循环  foreach ( element in pairs(table)) { }

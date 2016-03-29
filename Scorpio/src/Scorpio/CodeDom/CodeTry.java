@@ -1,6 +1,5 @@
 package Scorpio.CodeDom;
 
-import Scorpio.*;
 import Scorpio.Runtime.*;
 
 //try catch 语句

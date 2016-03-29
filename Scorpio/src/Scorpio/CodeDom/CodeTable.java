@@ -1,6 +1,5 @@
 package Scorpio.CodeDom;
 
-import Scorpio.*;
 import Scorpio.Function.*;
 
 //返回一个table类型 t = { a = "1", b = "2", function hello() { } }
