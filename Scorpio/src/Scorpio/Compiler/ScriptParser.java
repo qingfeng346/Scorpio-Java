@@ -6,6 +6,7 @@ import Scorpio.Runtime.*;
 import Scorpio.CodeDom.*;
 import Scorpio.CodeDom.Temp.*;
 import Scorpio.Variable.*;
+import Scorpio.Function.*;
 
 public class ScriptParser {
     private Script m_script; //脚本类
@@ -21,7 +22,7 @@ public class ScriptParser {
         m_listTokens = new java.util.ArrayList<Token>(listTokens);
     }
     public final void BeginExecutable(Executable_Block block) {
-        m_scriptExecutable = new ScriptExecutable(m_script, block);
+        m_scriptExecutable = new ScriptExecutable();
         m_Executables.push(m_scriptExecutable);
     }
     public final void EndExecutable() {
@@ -124,11 +125,11 @@ public class ScriptParser {
     private void ParseFunction() {
         Token token = PeekToken();
         UndoToken();
-        ScriptFunction func = ParseFunctionDeclaration(true);
+        ScriptScriptFunction func = ParseFunctionDeclaration(true);
         m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.MOV, new CodeMember(func.getName()), new CodeFunction(func, m_strBreviary, token.getSourceLine())));
     }
     //解析函数（返回一个函数）
-    private ScriptFunction ParseFunctionDeclaration(boolean needName) {
+    private ScriptScriptFunction ParseFunctionDeclaration(boolean needName) {
         Token token = ReadToken();
         if (token.getType() != TokenType.Function) {
             throw new ParserException("Function declaration must start with the 'function' keyword.", token);
@@ -170,7 +171,7 @@ public class ScriptParser {
         for (; ;) {
             Token peek = PeekToken();
             if (peek.getType() == TokenType.Function) {
-                ScriptFunction func = ParseFunctionDeclaration(true);
+                ScriptScriptFunction func = ParseFunctionDeclaration(true);
                 m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.VAR, func.getName()));
                 m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.MOV, new CodeMember(func.getName()), new CodeFunction(func, m_strBreviary, peek.getSourceLine())));
             }
@@ -196,7 +197,7 @@ public class ScriptParser {
     //解析普通代码块 {}
     private void ParseBlock() {
         UndoToken();
-        m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.CALL_BLOCK, ParseStatementBlock(Executable_Block.Block)));
+        m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.CALL_BLOCK, new CodeCallBlock(ParseStatementBlock(Executable_Block.Block))));
     }
     //解析if(判断语句)
     private void ParseIf() {
@@ -238,7 +239,7 @@ public class ScriptParser {
             con = GetObject();
             ReadRightParenthesis();
         }
-        return new TempCondition(m_script, con, ParseStatementBlock(block), block);
+        return new TempCondition(con, ParseStatementBlock(block), block);
     }
     //解析for语句
     private void ParseFor() {
@@ -264,7 +265,7 @@ public class ScriptParser {
     }
     //解析单纯for循环
     private void ParseFor_Simple(String Identifier, CodeObject obj) {
-        CodeForSimple ret = new CodeForSimple(m_script);
+        CodeForSimple ret = new CodeForSimple();
         ret.Identifier = Identifier;
         ret.Begin = obj;
         ret.Finished = GetObject();
@@ -278,7 +279,7 @@ public class ScriptParser {
     }
     //解析正规for循环
     private void ParseFor_impl() {
-        CodeFor ret = new CodeFor(m_script);
+        CodeFor ret = new CodeFor();
         Token token = ReadToken();
         if (token.getType() != TokenType.SemiColon) {
             UndoToken();
@@ -300,7 +301,7 @@ public class ScriptParser {
     }
     //解析foreach语句
     private void ParseForeach() {
-        CodeForeach ret = new CodeForeach(m_script);
+        CodeForeach ret = new CodeForeach();
         ReadLeftParenthesis();
         if (PeekToken().getType() == TokenType.Var) {
             ReadToken();
@@ -325,16 +326,17 @@ public class ScriptParser {
         ret.Condition = GetObject();
         ReadRightParenthesis();
         ReadLeftBrace();
+        java.util.ArrayList<TempCase> Cases = new java.util.ArrayList<TempCase>();
         for (; ;) {
             Token token = ReadToken();
             if (token.getType() == TokenType.Case) {
                 java.util.ArrayList<CodeObject> allow = new java.util.ArrayList<CodeObject>();
                 ParseCase(allow);
-                ret.AddCase(new TempCase(m_script, allow, ParseStatementBlock(Executable_Block.Switch, false, TokenType.Break), Executable_Block.Switch));
+                Cases.add(new TempCase(m_script, allow, ParseStatementBlock(Executable_Block.Switch, false, TokenType.Break)));
             }
             else if (token.getType() == TokenType.Default) {
                 ReadColon();
-                ret.Default = new TempCase(m_script, null, ParseStatementBlock(Executable_Block.Switch, false, TokenType.Break), Executable_Block.Switch);
+                ret.Default = new TempCase(m_script, null, ParseStatementBlock(Executable_Block.Switch, false, TokenType.Break));
             }
             else if (token.getType() != TokenType.SemiColon) {
                 UndoToken();
@@ -342,6 +344,7 @@ public class ScriptParser {
             }
         }
         ReadRightBrace();
+        ret.SetCases(Cases);
         m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.CALL_SWITCH, ret));
     }
     //解析case
@@ -357,7 +360,7 @@ public class ScriptParser {
     }
     //解析try catch
     private void ParseTry() {
-        CodeTry ret = new CodeTry(m_script);
+        CodeTry ret = new CodeTry();
         ret.TryExecutable = ParseStatementBlock(Executable_Block.Context);
         ReadCatch();
         ReadLeftParenthesis();
@@ -634,7 +637,7 @@ public class ScriptParser {
             if (PeekToken().getType() == TokenType.RightBracket) {
                 break;
             }
-            ret.Elements.add(GetObject());
+            ret._Elements.add(GetObject());
             token = PeekToken();
             if (token.getType() == TokenType.Comma) {
                 ReadComma();
@@ -647,6 +650,7 @@ public class ScriptParser {
             }
         }
         ReadRightBracket();
+        ret.Init();
         return ret;
     }
     //返回Table数据
@@ -658,7 +662,7 @@ public class ScriptParser {
             if (token.getType() == TokenType.Identifier || token.getType() == TokenType.String || token.getType() == TokenType.SimpleString || token.getType() == TokenType.Number) {
                 Token next = ReadToken();
                 if (next.getType() == TokenType.Assign || next.getType() == TokenType.Colon) {
-                    ret.Variables.add(new CodeTable.TableVariable(token.getLexeme(), GetObject()));
+                    ret._Variables.add(new CodeTable.TableVariable(token.getLexeme(), GetObject()));
                     Token peek = PeekToken();
                     if (peek.getType() == TokenType.Comma || peek.getType() == TokenType.SemiColon) {
                         ReadToken();
@@ -670,13 +674,14 @@ public class ScriptParser {
             }
             else if (token.getType() == TokenType.Function) {
                 UndoToken();
-                ret.Functions.add(ParseFunctionDeclaration(true));
+                ret._Functions.add(ParseFunctionDeclaration(true));
             }
             else {
                 throw new ParserException("Table开始关键字必须为[变量名称]或者[function]关键字", token);
             }
         }
         ReadRightBrace();
+        ret.Init();
         return ret;
     }
     //返回执行一段字符串
