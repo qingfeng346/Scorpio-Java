@@ -1,5 +1,7 @@
 package Scorpio;
 
+import Scorpio.Function.*;
+
 //脚本table类型
 public class ScriptTable extends ScriptObject {
     @Override
@@ -60,15 +62,15 @@ public class ScriptTable extends ScriptObject {
     public ScriptObject clone() {
         ScriptTable ret = getScript().CreateTable();
         ScriptObject obj = null;
-        ScriptFunction func = null;
+        ScriptScriptFunction func = null;
         for (java.util.Map.Entry<Object, ScriptObject> pair : m_listObject.entrySet()) {
             if (pair.getValue() == this) {
                 ret.m_listObject.put(pair.getKey(), ret);
             }
             else {
                 obj = pair.getValue().clone();
-                if (obj instanceof ScriptFunction) {
-                    func = (ScriptFunction)obj;
+                if (obj instanceof ScriptScriptFunction) {
+                    func = (ScriptScriptFunction)obj;
                     if (!func.getIsStatic()) {
                         func.SetTable(ret);
                     }

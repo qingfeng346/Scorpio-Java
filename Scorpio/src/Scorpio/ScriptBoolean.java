@@ -1,4 +1,5 @@
 package Scorpio;
+
 //脚本bool类型
 public class ScriptBoolean extends ScriptObject {
     public ScriptBoolean(Script script, boolean value) {
