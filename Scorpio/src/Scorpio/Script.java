@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 import Scorpio.Runtime.*;
 import Scorpio.Compiler.*;
 import Scorpio.Exception.*;
+import Scorpio.Function.*;
 import Scorpio.Library.*;
 import Scorpio.Userdata.*;
 import Scorpio.Variable.*;
@@ -274,14 +275,14 @@ public class Script {
     public final ScriptTable CreateTable() {
         return new ScriptTable(this);
     }
-    public final ScriptFunction CreateFunction(String name, ScorpioScriptFunction value) {
-        return new ScriptFunction(this, name, value);
+    public final ScriptScriptFunction CreateFunction(String name, ScorpioScriptFunction value) {
+        return new ScriptScriptFunction(this, name, value);
     }
     public final ScriptFunction CreateFunction(ScorpioHandle value) {
-        return new ScriptFunction(this, value);
+        return new ScriptHandleFunction(this, value);
     }
     public final ScriptFunction CreateFunction(ScorpioMethod value) {
-        return new ScriptFunction(this, value);
+        return new ScriptMethodFunction(this, value);
     }
     public final IScriptUserdataFactory GetUserdataFactory() {
         return m_UserdataFactory;
