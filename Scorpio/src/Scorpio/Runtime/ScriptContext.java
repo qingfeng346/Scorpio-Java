@@ -93,6 +93,7 @@ public class ScriptContext {
             String name = (String)member.MemberValue;
             ScriptObject obj = GetVariableObject(name);
             ret = (obj == null ? m_script.GetValue(name) : obj);
+            ret.setName(name);
         }
         else {
             ret = ResolveOperand(member.Parent);
@@ -122,7 +123,6 @@ public class ScriptContext {
     private void SetVariable(CodeMember member, ScriptObject variable) {
         if (member.Parent == null) {
             String name = (String)member.MemberValue;
-            variable.setName(name);
             if (!SetVariableObject(name, variable)) {
                 m_script.SetObjectInternal(name, variable);
             }
