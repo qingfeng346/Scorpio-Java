@@ -2,6 +2,7 @@ package Scorpio.Userdata;
 
 import Scorpio.*;
 import Scorpio.Compiler.*;
+import Scorpio.Variable.*;
 
 //C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
 //#if SCORPIO_UWP && !UNITY_EDITOR
@@ -22,7 +23,7 @@ public abstract class UserdataType {
     public abstract Object CreateInstance(ScriptObject[] parameters);
     /**  获得运算符重载的函数 
     */
-    public abstract UserdataMethod GetComputeMethod(TokenType type);
+    public abstract ScorpioMethod GetComputeMethod(TokenType type);
     /**  获得一个类变量 
     */
     public abstract Object GetValue(Object obj, String name);

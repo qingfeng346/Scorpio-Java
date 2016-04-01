@@ -3,6 +3,7 @@ package Scorpio.Userdata;
 import Scorpio.*;
 import Scorpio.Exception.*;
 import Scorpio.Compiler.*;
+import Scorpio.Variable.*;
 
 /**  普通Object类型 
 */
@@ -30,10 +31,10 @@ public class DefaultScriptUserdataObject extends ScriptUserdata {
     }
     @Override
     public ScriptObject Compute(TokenType type, ScriptObject obj) {
-        UserdataMethod method = m_UserdataType.GetComputeMethod(type);
+    	ScorpioMethod method = m_UserdataType.GetComputeMethod(type);
         if (method == null) {
             throw new ExecutionException(getScript(), "找不到运算符重载 " + type);
         }
-        return getScript().CreateObject(method.Call(null, new ScriptObject[] { this, obj }));
+        return getScript().CreateObject(method.Call(new ScriptObject[] { this, obj }));
     }
 }
