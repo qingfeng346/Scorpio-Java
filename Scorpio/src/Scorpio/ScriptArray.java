@@ -1,145 +1,273 @@
 package Scorpio;
-
-import java.util.Collections;
-import java.util.Comparator;
-
 import Scorpio.Exception.*;
-
 //脚本数组类型
 public class ScriptArray extends ScriptObject {
+    public final class Comparer implements java.util.Comparator<ScriptObject> {
+        private Script script;
+        private ScriptFunction func;
+        public Comparer(Script script, ScriptFunction func) {
+            this.script = script;
+            this.func = func;
+        }
+        @Override
+        public int compare(ScriptObject x, ScriptObject y) {
+            Object tempVar = func.Call(new ScriptObject[] { x, y });
+            ScriptNumber ret = (ScriptNumber)((tempVar instanceof ScriptNumber) ? tempVar : null);
+            if (ret == null) {
+                throw new ExecutionException(script, "Sort 返回值 必须是Number类型");
+            }
+            return ret.ToInt32();
+        }
+    }
+    public final static class Enumerator {
+        private ScriptArray list;
+        private int index;
+        private ScriptObject current;
+        public Enumerator(ScriptArray list) {
+            this.list = list;
+            this.index = 0;
+            this.current = null;
+        }
+        public boolean MoveNext() {
+            if (index < list.m_size) {
+                current = ((list.m_listObject[index]) != null) ? list.m_listObject[index] : list.m_null;
+                index++;
+                return true;
+            }
+            return false;
+        }
+        public ScriptObject getCurrent() {
+            return current;
+        }
+        public void Reset() {
+            index = 0;
+            current = null;
+        }
+    }
+
+
     @Override
     public ObjectType getType() {
         return ObjectType.Array;
     }
-    public java.util.ArrayList<ScriptObject> m_listObject = new java.util.ArrayList<ScriptObject>();
+    private static final ScriptObject[] _emptyArray = new ScriptObject[0];
+    private ScriptObject[] m_listObject;
+    private int m_size;
+    private ScriptObject m_null;
     public ScriptArray(Script script) {
         super(script);
+        m_listObject = _emptyArray;
+        m_size = 0;
+        m_null = script.getNull();
     }
     @Override
     public ScriptObject GetValue(Object index) {
-        if (!(index instanceof Double || index instanceof Integer || index instanceof Long)) {
-            throw new ExecutionException(getScript(), "Array GetValue只支持Number类型 index值为:" + index);
+        if (index instanceof Double || index instanceof Integer || index instanceof Long) {
+            int i = Util.ToInt32(index);
+            if (i < 0) {
+                throw new ExecutionException(getScript(), "Array GetValue索引小于0 index值为:" + index);
+            }
+            if (i >= m_size) {
+                return m_null;
+            }
+            return ((m_listObject[i]) != null) ? m_listObject[i] : m_null;
         }
-        int i = Util.ToInt32(index);
-        if (i < 0 || i >= m_listObject.size()) {
-            throw new ExecutionException(getScript(), "Array GetValue索引小于0或者超过最大值 index值为:" + index + " count�?" + m_listObject.size());
+        else if (index instanceof String && index.equals("length")) {
+            return getScript().CreateNumber(m_size);
         }
-        return m_listObject.get(i);
+        throw new ExecutionException(getScript(), "Array SetValue只支持Number类型 index值为:" + index);
     }
     @Override
     public void SetValue(Object index, ScriptObject obj) {
-        if (!(index instanceof Double || index instanceof Integer || index instanceof Long)) {
+        if (index instanceof Double || index instanceof Integer || index instanceof Long) {
+            int i = Util.ToInt32(index);
+            if (i < 0) {
+                throw new ExecutionException(getScript(), "Array SetValue索引小于0 index值为:" + index);
+            }
+            if (i >= m_size) {
+                EnsureCapacity(i + 1);
+                m_size = i + 1;
+            }
+            m_listObject[i] = obj;
+        }
+        else {
             throw new ExecutionException(getScript(), "Array SetValue只支持Number类型 index值为:" + index);
         }
-        int i = Util.ToInt32(index);
-        if (i < 0 || i >= m_listObject.size()) {
-            throw new ExecutionException(getScript(), "Array SetValue索引小于0或者超过最大值 index值为:" + index + " count�?" + m_listObject.size());
+    }
+    private void SetCapacity(int value) {
+        if (value > 0) {
+            ScriptObject[] array = new ScriptObject[value];
+            if (m_size > 0) {
+                System.arraycopy(m_listObject, 0, array, 0, m_size);
+            }
+            m_listObject = array;
         }
-        m_listObject.set(i, obj);
+        else {
+            m_listObject = _emptyArray;
+        }
+    }
+    private void EnsureCapacity(int min) {
+        if (m_listObject.length < min) {
+            int num = (m_listObject.length == 0) ? 4 : (m_listObject.length * 2);
+            if (num > 2146435071) {
+                num = 2146435071;
+            }
+            if (num < min) {
+                num = min;
+            }
+            SetCapacity(num);
+        }
     }
     public final void Add(ScriptObject obj) {
-        m_listObject.add(obj);
+        if (m_size == m_listObject.length) {
+            EnsureCapacity(m_size + 1);
+        }
+        m_listObject[m_size] = obj;
+        m_size++;
     }
     public final void Insert(int index, ScriptObject obj) {
-        m_listObject.add(index, obj);
+        if (m_size == m_listObject.length) {
+            EnsureCapacity(m_size + 1);
+        }
+        if (index < m_size) {
+            System.arraycopy(m_listObject, index, m_listObject, index + 1, m_size - index);
+        }
+        m_listObject[index] = obj;
+        m_size++;
     }
-    public final void Remove(ScriptObject obj) {
-        m_listObject.remove(obj);
+    public final boolean Remove(ScriptObject obj) {
+        int num = IndexOf(obj);
+        if (num >= 0) {
+            RemoveAt(num);
+            return true;
+        }
+        return false;
     }
     public final void RemoveAt(int index) {
-        m_listObject.remove(index);
+        m_size--;
+        if (index < m_size) {
+            System.arraycopy(m_listObject, index + 1, m_listObject, index, m_size - index);
+        }
+        m_listObject[m_size] = null;
     }
     public final boolean Contains(ScriptObject obj) {
-        return m_listObject.contains(obj);
+        for (int i = 0;i < m_size; ++i) {
+            if (obj.equals(m_listObject[i])) {
+                return true;
+            }
+        }
+        return false;
     }
     public final int IndexOf(ScriptObject obj) {
-        return m_listObject.indexOf(obj);
+        for (int i = 0; i < m_size; ++i) {
+            if (obj.equals(m_listObject[i])) {
+                return i;
+            }
+        }
+        return -1;
     }
     public final int LastIndexOf(ScriptObject obj) {
-        return m_listObject.lastIndexOf(obj);
+        for (int i = m_size - 1; i >= 0; --i) {
+            if (obj.equals(m_listObject[i])) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    public final void Resize(int length) {
+        if (length < 0) {
+            throw new ExecutionException(getScript(), "Resize长度小于0 length:" + length);
+        }
+        if (length > m_size) {
+            EnsureCapacity(length);
+            m_size = length;
+        }
+        else {
+        	for (int i = length; i < m_size; i++)
+                m_listObject[i] = null;
+            m_size = length;
+        }
     }
     public final void Clear() {
-        m_listObject.clear();
+        for (int i = 0; i < m_size; i++)
+            m_listObject[i] = null;
+        m_size = 0;
     }
     public final int Count() {
-        return m_listObject.size();
+        return m_size;
     }
     public final void Sort(final ScriptFunction func) {
-    	Collections.sort(m_listObject, new Comparator<ScriptObject>() {
-			@Override
-			public int compare(ScriptObject o1, ScriptObject o2) {
-				try {
-					Object ret = func.Call(new ScriptObject[] { o1, o2 });
-					if (!(ret instanceof ScriptNumber)) throw new Exception("Sort 返回值 必须是Number类型");
-					return ((ScriptNumber)ret).ToInt32();
-				} catch (Exception e1) {
-					throw new ExecutionException(getScript(), "Sort出错:" + e1.getMessage());
-				}
-			}
-		});
+    	java.util.Arrays.sort(m_listObject, 0, m_size, new Comparer(getScript(), func));
     }
     public final ScriptObject First() {
-        if (m_listObject.size() > 0) {
-            return m_listObject.get(0);
+        if (m_size > 0) {
+            return m_listObject[0];
         }
-        return getScript().getNull();
+        return m_null;
     }
     public final ScriptObject Last() {
-        if (m_listObject.size() > 0) {
-            return m_listObject.get(m_listObject.size() - 1);
+        if (m_size > 0) {
+            return m_listObject[m_size - 1];
         }
-        return getScript().getNull();
+        return m_null;
     }
     public final ScriptObject PopFirst() {
-        if (m_listObject.isEmpty()) {
+        if (m_size == 0) {
             throw new ExecutionException(getScript(), "Array Pop 数组长度为0");
         }
-        ScriptObject obj = m_listObject.get(0);
-        m_listObject.remove(0);
+        ScriptObject obj = m_listObject[0];
+        RemoveAt(0);
         return obj;
     }
     public final ScriptObject SafePopFirst() {
-        if (m_listObject.isEmpty()) {
-            return getScript().getNull();
+        if (m_size == 0) {
+            return m_null;
         }
-        ScriptObject obj = m_listObject.get(0);
-        m_listObject.remove(0);
+        ScriptObject obj = m_listObject[0];
+        RemoveAt(0);
         return obj;
     }
     public final ScriptObject PopLast() {
-        if (m_listObject.isEmpty()) {
+        if (m_size == 0) {
             throw new ExecutionException(getScript(), "Array Pop 数组长度为0");
         }
-        int index = m_listObject.size() - 1;
-        ScriptObject obj = m_listObject.get(index);
-        m_listObject.remove(index);
+        int index = m_size - 1;
+        ScriptObject obj = m_listObject[index];
+        RemoveAt(index);
         return obj;
     }
     public final ScriptObject SafePopLast() {
-        if (m_listObject.isEmpty()) {
-            return getScript().getNull();
+        if (m_size == 0) {
+            return m_null;
         }
-        int index = m_listObject.size() - 1;
-        ScriptObject obj = m_listObject.get(index);
-        m_listObject.remove(index);
+        int index = m_size - 1;
+        ScriptObject obj = m_listObject[index];
+        RemoveAt(index);
         return obj;
     }
 
-    public final java.util.Iterator<ScriptObject> GetIterator() {
-        return m_listObject.iterator();
+    public final Enumerator GetIterator() {
+        return new Enumerator(this);
     }
     public final ScriptObject[] toArray() {
-        return m_listObject.toArray(new ScriptObject[]{});
+        ScriptObject[] array = new ScriptObject[m_size];
+        System.arraycopy(m_listObject, 0, array, 0, m_size);
+        return array;
     }
     @Override
     public ScriptObject clone() {
         ScriptArray ret = getScript().CreateArray();
-        for (int i = 0; i < m_listObject.size(); ++i) {
-            if (m_listObject.get(i) == this) {
-                ret.m_listObject.add(ret);
+        ret.m_listObject = new ScriptObject[m_size];
+        ret.m_size = m_size;
+        for (int i = 0; i < m_size; ++i) {
+            if (m_listObject[i] == this) {
+                ret.m_listObject[i] = ret;
+            }
+            else if (m_listObject[i] == null) {
+                ret.m_listObject[i] = m_null;
             }
             else {
-                ret.m_listObject.add(m_listObject.get(i).clone());
+                ret.m_listObject[i] = m_listObject[i].clone();
             }
         }
         return ret;
@@ -152,11 +280,16 @@ public class ScriptArray extends ScriptObject {
     public String ToJson() {
         StringBuilder builder = new StringBuilder();
         builder.append("[");
-        for (int i = 0; i < m_listObject.size();++i) {
+        for (int i = 0; i < m_size; ++i) {
             if (i != 0) {
                 builder.append(",");
             }
-            builder.append(m_listObject.get(i).ToJson());
+            if (m_listObject[i] == null) {
+                builder.append(m_null.ToJson());
+            }
+            else {
+                builder.append(m_listObject[i].ToJson());
+            }
         }
         builder.append("]");
         return builder.toString();

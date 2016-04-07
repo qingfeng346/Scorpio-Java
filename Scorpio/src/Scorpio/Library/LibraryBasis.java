@@ -7,7 +7,7 @@ import Scorpio.Variable.*;
 public class LibraryBasis {
     private static class ArrayPairs implements ScorpioHandle {
         private Script m_Script;
-        private java.util.Iterator<ScriptObject> m_Enumerator;
+        private ScriptArray.Enumerator m_Enumerator;
         private int m_Index = 0;
         public ArrayPairs(Script script, ScriptArray obj) {
             m_Script = script;
@@ -15,37 +15,37 @@ public class LibraryBasis {
             m_Enumerator = obj.GetIterator();
         }
         public final Object Call(ScriptObject[] args) {
-            if (m_Enumerator.hasNext()) {
+            if (m_Enumerator.MoveNext()) {
                 ScriptTable table = m_Script.CreateTable();
                 table.SetValue("key", m_Script.CreateObject(m_Index++));
-                table.SetValue("value", m_Enumerator.next());
+                table.SetValue("value", m_Enumerator.getCurrent());
                 return table;
             }
             return null;
         }
     }
     private static class ArrayKPairs implements ScorpioHandle {
-        private java.util.Iterator<ScriptObject> m_Enumerator;
+        private ScriptArray.Enumerator m_Enumerator;
         private int m_Index = 0;
         public ArrayKPairs(ScriptArray obj) {
             m_Index = 0;
             m_Enumerator = obj.GetIterator();
         }
         public final Object Call(ScriptObject[] args) {
-            if (m_Enumerator.hasNext()) {
+            if (m_Enumerator.MoveNext()) {
                 return m_Index++;
             }
             return null;
         }
     }
     private static class ArrayVPairs implements ScorpioHandle {
-        private java.util.Iterator<ScriptObject> m_Enumerator;
+        private ScriptArray.Enumerator m_Enumerator;
         public ArrayVPairs(ScriptArray obj) {
             m_Enumerator = obj.GetIterator();
         }
         public final Object Call(ScriptObject[] args) {
-            if (m_Enumerator.hasNext()) {
-                return m_Enumerator.next();
+            if (m_Enumerator.MoveNext()) {
+                return m_Enumerator.getCurrent();
             }
             return null;
         }
