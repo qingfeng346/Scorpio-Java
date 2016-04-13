@@ -8,6 +8,12 @@
 ## 此脚本为java平台一个轻量级脚本,纯java实现 兼容所有Java平台以及Java语言的引擎 语法类似 javascript
 ## 具体脚本示例请前往c#版查看 https://github.com/qingfeng346/Scorpio-CSharp
 ## Scorpio-CSharp的功能会同步更新到java版本
+## 可使用平台:
+- [x] JavaSE
+- [x] JSP
+- [x] Android
+- [x] libGDX
+- [x] 所有使用java语言的平台
 
 ## 注意事项与Scorpio-CSharp版本的差异##
 * 没有generic_method和generic_type函数,因为java下模板是假模版
