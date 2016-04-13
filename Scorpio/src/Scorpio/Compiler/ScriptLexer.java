@@ -89,6 +89,9 @@ public class ScriptLexer {
                         case '?':
                             AddToken(TokenType.QuestionMark);
                             break;
+                        case '#':
+                            AddToken(TokenType.Sharp);
+                            break;
                         case '.':
                             setlexState(LexState.PeriodOrParams);
                             break;
@@ -509,89 +512,76 @@ public class ScriptLexer {
                     }
                     else {
                         TokenType tokenType;
-//C# TO JAVA CONVERTER NOTE: The following 'switch' operated on a string member and was converted to Java 'if-else' logic:
 //                        switch (m_strToken)
-//ORIGINAL LINE: case "eval":
                         if (m_strToken.equals("eval")) {
                                 tokenType = TokenType.Eval;
                         }
-//ORIGINAL LINE: case "var":
                         else if (m_strToken.equals("var") || m_strToken.equals("local")) {
                                 tokenType = TokenType.Var;
                         }
-//ORIGINAL LINE: case "function":
                         else if (m_strToken.equals("function")) {
                                 tokenType = TokenType.Function;
                         }
-//ORIGINAL LINE: case "if":
                         else if (m_strToken.equals("if")) {
                                 tokenType = TokenType.If;
                         }
-//ORIGINAL LINE: case "elseif":
                         else if (m_strToken.equals("elseif") || m_strToken.equals("elif")) {
                                 tokenType = TokenType.ElseIf;
                         }
-//ORIGINAL LINE: case "else":
                         else if (m_strToken.equals("else")) {
                                 tokenType = TokenType.Else;
                         }
-//ORIGINAL LINE: case "while":
                         else if (m_strToken.equals("while")) {
                                 tokenType = TokenType.While;
                         }
-//ORIGINAL LINE: case "for":
                         else if (m_strToken.equals("for")) {
                                 tokenType = TokenType.For;
                         }
-//ORIGINAL LINE: case "foreach":
                         else if (m_strToken.equals("foreach")) {
                                 tokenType = TokenType.Foreach;
                         }
-//ORIGINAL LINE: case "in":
                         else if (m_strToken.equals("in")) {
                                 tokenType = TokenType.In;
                         }
-//ORIGINAL LINE: case "switch":
                         else if (m_strToken.equals("switch")) {
                                 tokenType = TokenType.Switch;
                         }
-//ORIGINAL LINE: case "case":
                         else if (m_strToken.equals("case")) {
                                 tokenType = TokenType.Case;
                         }
-//ORIGINAL LINE: case "default":
                         else if (m_strToken.equals("default")) {
                                 tokenType = TokenType.Default;
                         }
-//ORIGINAL LINE: case "try":
                         else if (m_strToken.equals("try")) {
                                 tokenType = TokenType.Try;
                         }
-//ORIGINAL LINE: case "catch":
                         else if (m_strToken.equals("catch")) {
                                 tokenType = TokenType.Catch;
                         }
-//ORIGINAL LINE: case "throw":
                         else if (m_strToken.equals("throw")) {
                                 tokenType = TokenType.Throw;
                         }
-//ORIGINAL LINE: case "continue":
                         else if (m_strToken.equals("continue")) {
                                 tokenType = TokenType.Continue;
                         }
-//ORIGINAL LINE: case "break":
                         else if (m_strToken.equals("break")) {
                                 tokenType = TokenType.Break;
                         }
-//ORIGINAL LINE: case "return":
                         else if (m_strToken.equals("return")) {
                                 tokenType = TokenType.Return;
                         }
-//ORIGINAL LINE: case "null":
+                        else if (m_strToken.equals("define")) {
+                                tokenType = TokenType.Define;
+                        }
+                        else if (m_strToken.equals("ifndef")) {
+                                tokenType = TokenType.Ifndef;
+                        }
+                        else if (m_strToken.equals("endif")) {
+                                tokenType = TokenType.Endif;
+                        }
                         else if (m_strToken.equals("null") || m_strToken.equals("nil")) {
                                 tokenType = TokenType.Null;
                         }
-//ORIGINAL LINE: case "true":
                         else if (m_strToken.equals("true") || m_strToken.equals("false")) {
                                 tokenType = TokenType.Boolean;
                         }

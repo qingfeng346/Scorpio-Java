@@ -68,295 +68,315 @@ public enum TokenType {
     */
     QuestionMark(12),
     /** 
+     #
+     
+    */
+    Sharp(13),
+    /** 
      +
      
     */
-    Plus(13),
+    Plus(14),
     /** 
      ++
      
     */
-    Increment(14),
+    Increment(15),
     /** 
      +=
      
     */
-    AssignPlus(15),
+    AssignPlus(16),
     /** 
      -
      
     */
-    Minus(16),
+    Minus(17),
     /** 
      --
      
     */
-    Decrement(17),
+    Decrement(18),
     /** 
      -=
      
     */
-    AssignMinus(18),
+    AssignMinus(19),
     /** 
      *
      
     */
-    Multiply(19),
+    Multiply(20),
     /** 
      *=
      
     */
-    AssignMultiply(20),
+    AssignMultiply(21),
     /** 
      /
      
     */
-    Divide(21),
+    Divide(22),
     /** 
      /=
      
     */
-    AssignDivide(22),
+    AssignDivide(23),
     /** 
      % 模运算
      
     */
-    Modulo(23),
+    Modulo(24),
     /** 
      %=
      
     */
-    AssignModulo(24),
+    AssignModulo(25),
     /** 
      | 或运算
      
     */
-    InclusiveOr(25),
+    InclusiveOr(26),
     /** 
      |=
      
     */
-    AssignInclusiveOr(26),
+    AssignInclusiveOr(27),
     /** 
      ||
      
     */
-    Or(27),
+    Or(28),
     /** 
      & 并运算
      
     */
-    Combine(28),
+    Combine(29),
     /** 
      &=
      
     */
-    AssignCombine(29),
+    AssignCombine(30),
     /** 
      &&
      
     */
-    And(30),
+    And(31),
     /** 
      ^ 异或
      
     */
-    XOR(31),
+    XOR(32),
     /** 
      ^=
      
     */
-    AssignXOR(32),
+    AssignXOR(33),
     /** 
      <<左移
      
     */
-    Shi(33),
+    Shi(34),
     /** 
      <<=
      
     */
-    AssignShi(34),
+    AssignShi(35),
     /** 
      >> 右移
      
     */
-    Shr(35),
+    Shr(36),
     /** 
      >>=
      
     */
-    AssignShr(36),
+    AssignShr(37),
     /** 
      !
      
     */
-    Not(37),
+    Not(38),
     /** 
      =
      
     */
-    Assign(38),
+    Assign(39),
     /** 
      ==
      
     */
-    Equal(39),
+    Equal(40),
     /** 
      !=
      
     */
-    NotEqual(40),
+    NotEqual(41),
     /** 
      >
      
     */
-    Greater(41),
+    Greater(42),
     /** 
      >=
      
     */
-    GreaterOrEqual(42),
+    GreaterOrEqual(43),
     /** 
       <
      
     */
-    Less(43),
+    Less(44),
     /** 
      <=
      
     */
-    LessOrEqual(44),
+    LessOrEqual(45),
     /** 
      ...
      
     */
-    Params(45),
+    Params(46),
     /** 
      if
      
     */
-    If(46),
+    If(47),
     /** 
      else
      
     */
-    Else(47),
+    Else(48),
     /** 
      elif
      
     */
-    ElseIf(48),
+    ElseIf(49),
+    /** 
+     ifndef
+     
+    */
+    Ifndef(50),
+    /** 
+     endif
+     
+    */
+    Endif(51),
     /** 
      for
      
     */
-    For(49),
+    For(52),
     /** 
      foreach
      
     */
-    Foreach(50),
+    Foreach(53),
     /** 
      in
      
     */
-    In(51),
+    In(54),
     /** 
      switch
      
     */
-    Switch(52),
+    Switch(55),
     /** 
      case
      
     */
-    Case(53),
+    Case(56),
     /** 
      default
      
     */
-    Default(54),
+    Default(57),
     /** 
      break
      
     */
-    Break(55),
+    Break(58),
     /** 
      continue
      
     */
-    Continue(56),
+    Continue(59),
     /** 
      return
      
     */
-    Return(57),
+    Return(60),
     /** 
      while
      
     */
-    While(58),
+    While(61),
     /** 
      function
      
     */
-    Function(59),
+    Function(62),
     /** 
      try
      
     */
-    Try(60),
+    Try(63),
     /** 
      catch
      
     */
-    Catch(61),
+    Catch(64),
     /** 
      throw
      
     */
-    Throw(62),
+    Throw(65),
+    /** 
+     define
+     
+    */
+    Define(66),
     /** 
      bool true false
      
     */
-    Boolean(63),
+    Boolean(67),
     /** 
      int float
      
     */
-    Number(64),
+    Number(68),
     /** 
      string
      
     */
-    String(65),
+    String(69),
     /** 
      @"" @'' string
      
     */
-    SimpleString(66),
+    SimpleString(70),
     /** 
      null
      
     */
-    Null(67),
+    Null(71),
     /** 
      eval
      
     */
-    Eval(68),
+    Eval(72),
     /** 
      说明符
      
     */
-    Identifier(69),
+    Identifier(73),
     /** 
      结束
      
     */
-    Finished(70);
+    Finished(74);
 
     private int intValue;
     private static java.util.HashMap<Integer, TokenType> mappings;

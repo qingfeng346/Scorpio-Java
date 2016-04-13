@@ -9,12 +9,49 @@ import Scorpio.Variable.*;
 import Scorpio.Function.*;
 
 public class ScriptParser {
+    private enum DefineType {
+        None, //没有进入#if
+        Already, //已经进入条件了
+        Being, //还没找到合适的 正在处理
+        Break; //跳过
+
+        public static DefineType forValue(int value) {
+            return values()[value];
+        }
+    }
+    private static class DefineState {
+        public DefineType State = DefineType.forValue(0);
+        public DefineState(DefineType state) {
+            this.State = state;
+        }
+    }
+    private static class DefineObject {
+        public boolean Not;
+    }
+    private static class DefineString extends DefineObject {
+        public String Define;
+        public DefineString(String define) {
+            this.Define = define;
+        }
+    }
+    private static class DefineOperate extends DefineObject {
+        public DefineObject Left; //左边值
+        public DefineObject Right; //右边值
+        public boolean and; //是否是并且操作
+        public DefineOperate(DefineObject left, DefineObject right, boolean and) {
+            this.Left = left;
+            this.Right = right;
+            this.and = and;
+        }
+    }
     private Script m_script; //脚本类
     private String m_strBreviary; //当前解析的脚本摘要
     private int m_iNextToken; //当前读到token
     private java.util.ArrayList<Token> m_listTokens; //token列表
     private java.util.Stack<ScriptExecutable> m_Executables = new java.util.Stack<ScriptExecutable>(); //指令栈
     private ScriptExecutable m_scriptExecutable; //当前指令栈
+    private java.util.Stack<DefineState> m_Defines = new java.util.Stack<DefineState>(); //define状态
+    private DefineState m_define; //define当前状态
     public ScriptParser(Script script, java.util.ArrayList<Token> listTokens, String strBreviary) {
         m_script = script;
         m_strBreviary = strBreviary;
@@ -22,7 +59,7 @@ public class ScriptParser {
         m_listTokens = new java.util.ArrayList<Token>(listTokens);
     }
     public final void BeginExecutable(Executable_Block block) {
-        m_scriptExecutable = new ScriptExecutable();
+        m_scriptExecutable = new ScriptExecutable(block);
         m_Executables.push(m_scriptExecutable);
     }
     public final void EndExecutable() {
@@ -100,6 +137,9 @@ public class ScriptParser {
             case Return:
                 ParseReturn();
                 break;
+            case Sharp:
+                ParseSharp();
+                break;
             case Identifier:
             case Increment:
             case Decrement:
@@ -134,35 +174,41 @@ public class ScriptParser {
         if (token.getType() != TokenType.Function) {
             throw new ParserException("Function declaration must start with the 'function' keyword.", token);
         }
-        String strFunctionName = needName ? ReadIdentifier() : "";
-        ReadLeftParenthesis();
+        String strFunctionName = needName ? ReadIdentifier() : (PeekToken().getType() == TokenType.Identifier ? ReadIdentifier() : "");
         java.util.ArrayList<String> listParameters = new java.util.ArrayList<String>();
         boolean bParams = false;
-        if (PeekToken().getType() != TokenType.RightPar) {
-            while (true) {
-                token = ReadToken();
-                if (token.getType() == TokenType.Params) {
+        Token peek = ReadToken();
+        if (peek.getType() == TokenType.LeftPar) {
+            if (PeekToken().getType() != TokenType.RightPar) {
+                while (true) {
                     token = ReadToken();
-                    bParams = true;
-                }
-                if (token.getType() != TokenType.Identifier) {
-                    throw new ParserException("Unexpected token '" + token.getLexeme() + "' in function declaration.", token);
-                }
-                String strParameterName = token.getLexeme().toString();
-                listParameters.add(strParameterName);
-                token = PeekToken();
-                if (token.getType() == TokenType.Comma && !bParams) {
-                    ReadComma();
-                }
-                else if (token.getType() == TokenType.RightPar) {
-                    break;
-                }
-                else {
-                    throw new ParserException("Comma ',' or right parenthesis ')' expected in function declararion.", token);
+                    if (token.getType() == TokenType.Params) {
+                        token = ReadToken();
+                        bParams = true;
+                    }
+                    if (token.getType() != TokenType.Identifier) {
+                        throw new ParserException("Unexpected token '" + token.getLexeme() + "' in function declaration.", token);
+                    }
+                    String strParameterName = token.getLexeme().toString();
+                    listParameters.add(strParameterName);
+                    token = PeekToken();
+                    if (token.getType() == TokenType.Comma && !bParams) {
+                        ReadComma();
+                    }
+                    else if (token.getType() == TokenType.RightPar) {
+                        break;
+                    }
+                    else {
+                        throw new ParserException("Comma ',' or right parenthesis ')' expected in function declararion.", token);
+                    }
                 }
             }
+            ReadRightParenthesis();
+            peek = ReadToken();
         }
-        ReadRightParenthesis();
+        if (peek.getType() == TokenType.LeftBrace) {
+            UndoToken();
+        }
         ScriptExecutable executable = ParseStatementBlock(Executable_Block.Function);
         return m_script.CreateFunction(strFunctionName, new ScorpioScriptFunction(m_script, listParameters, executable, bParams));
     }
@@ -385,6 +431,211 @@ public class ScriptParser {
             m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.RET, GetObject()));
         }
     }
+    //解析 #
+    private void ParseSharp() {
+        Token token = ReadToken();
+        if (token.getType() == TokenType.Define) {
+            if (m_scriptExecutable.m_Block != Executable_Block.Context) {
+                throw new ParserException("#define只能使用在上下文", token);
+            }
+            m_script.PushDefine(ReadIdentifier());
+        }
+        else if (token.getType() == TokenType.If) {
+            if (m_define == null) {
+                if (IsDefine()) {
+                    m_define = new DefineState(DefineType.Already);
+                }
+                else {
+                    m_define = new DefineState(DefineType.Being);
+                    PopSharp();
+                }
+            }
+            else if (m_define.State == DefineType.Already) {
+                if (IsDefine()) {
+                    m_Defines.push(m_define);
+                    m_define = new DefineState(DefineType.Already);
+                }
+                else {
+                    m_Defines.push(m_define);
+                    m_define = new DefineState(DefineType.Being);
+                    PopSharp();
+                }
+            }
+            else if (m_define.State == DefineType.Being) {
+                m_Defines.push(m_define);
+                m_define = new DefineState(DefineType.Break);
+                PopSharp();
+            }
+            else if (m_define.State == DefineType.Break) {
+                m_Defines.push(m_define);
+                m_define = new DefineState(DefineType.Break);
+                PopSharp();
+            }
+        }
+        else if (token.getType() == TokenType.Ifndef) {
+            if (m_define == null) {
+                if (!IsDefine()) {
+                    m_define = new DefineState(DefineType.Already);
+                }
+                else {
+                    m_define = new DefineState(DefineType.Being);
+                    PopSharp();
+                }
+            }
+            else if (m_define.State == DefineType.Already) {
+                if (!IsDefine()) {
+                    m_Defines.push(m_define);
+                    m_define = new DefineState(DefineType.Already);
+                }
+                else {
+                    m_Defines.push(m_define);
+                    m_define = new DefineState(DefineType.Being);
+                    PopSharp();
+                }
+            }
+            else if (m_define.State == DefineType.Being) {
+                m_Defines.push(m_define);
+                m_define = new DefineState(DefineType.Break);
+                PopSharp();
+            }
+        }
+        else if (token.getType() == TokenType.ElseIf) {
+            if (m_define == null) {
+                throw new ParserException("未找到#if或#ifndef", token);
+            }
+            else if (m_define.State == DefineType.Already || m_define.State == DefineType.Break) {
+                m_define.State = DefineType.Break;
+                PopSharp();
+            }
+            else if (IsDefine()) {
+                m_define.State = DefineType.Already;
+            }
+            else {
+                m_define.State = DefineType.Being;
+                PopSharp();
+            }
+        }
+        else if (token.getType() == TokenType.Else) {
+            if (m_define == null) {
+                throw new ParserException("未找到#if或#ifndef", token);
+            }
+            else if (m_define.State == DefineType.Already || m_define.State == DefineType.Break) {
+                m_define.State = DefineType.Break;
+                PopSharp();
+            }
+            else {
+                m_define.State = DefineType.Already;
+            }
+        }
+        else if (token.getType() == TokenType.Endif) {
+            if (m_define == null) {
+                throw new ParserException("未找到#if或#ifndef", token);
+            }
+            else if (m_Defines.size() > 0) {
+                m_define = m_Defines.pop();
+                if (m_define.State == DefineType.Break) {
+                    PopSharp();
+                }
+            }
+            else {
+                m_define = null;
+            }
+        }
+        else {
+            throw new ParserException("#后缀不支持" + token.getType(), token);
+        }
+    }
+    private boolean IsDefine() {
+        return IsDefine_impl(ReadDefine());
+    }
+    private boolean IsDefine_impl(DefineObject define) {
+        boolean ret = false;
+        if (define instanceof DefineString) {
+            ret = m_script.ContainDefine(((DefineString)define).Define);
+        }
+        else {
+            DefineOperate oper = (DefineOperate)define;
+            boolean left = IsDefine_impl(oper.Left);
+            if (left && !oper.and) {
+                ret = true;
+            }
+            else if (!left && oper.and) {
+                ret = false;
+            }
+            else if (oper.and) {
+                ret = left && IsDefine_impl(oper.Right);
+            }
+            else {
+                ret = left || IsDefine_impl(oper.Right);
+            }
+        }
+        if (define.Not) {
+            ret = !ret;
+        }
+        return ret;
+    }
+    private DefineObject ReadDefine() {
+        java.util.Stack<Boolean> operateStack = new java.util.Stack<Boolean>();
+        java.util.Stack<DefineObject> objectStack = new java.util.Stack<DefineObject>();
+        while (true) {
+            objectStack.push(GetOneDefine());
+            if (!OperatorDefine(operateStack, objectStack)) {
+                break;
+            }
+        }
+        while (operateStack.size() > 0) {
+            objectStack.push(new DefineOperate(objectStack.pop(), objectStack.pop(), operateStack.pop()));
+        }
+        return objectStack.pop();
+    }
+    private boolean OperatorDefine(java.util.Stack<Boolean> operateStack, java.util.Stack<DefineObject> objectStack) {
+        Token peek = PeekToken();
+        if (peek.getType() != TokenType.And && peek.getType() != TokenType.Or) {
+            return false;
+        }
+        ReadToken();
+        while (operateStack.size() > 0) {
+            objectStack.push(new DefineOperate(objectStack.pop(), objectStack.pop(), operateStack.pop()));
+        }
+        operateStack.push(peek.getType() == TokenType.And);
+        return true;
+    }
+    private DefineObject GetOneDefine() {
+        Token token = ReadToken();
+        boolean not = false;
+        if (token.getType() == TokenType.Not) {
+            not = true;
+            token = ReadToken();
+        }
+        if (token.getType() == TokenType.LeftPar) {
+            DefineObject ret = ReadDefine();
+            ReadRightParenthesis();
+            ret.Not = not;
+            return ret;
+        }
+        else if (token.getType() == TokenType.Identifier) {
+            DefineString tempVar = new DefineString(token.getLexeme().toString());
+            tempVar.Not = not;
+            return tempVar;
+        }
+        else {
+            throw new ParserException("宏定义判断只支持 字符串", token);
+        }
+    }
+    //跳过未解析宏定义 
+    private void PopSharp() {
+        for (;;) {
+            if (ReadToken().getType() == TokenType.Sharp) {
+                if (PeekToken().getType() == TokenType.Define) {
+                    ReadToken();
+                }
+                else {
+                    break;
+                }
+            }
+        }
+        ParseSharp();
+    }
     //解析表达式
     private void ParseExpression() {
         UndoToken();
@@ -418,13 +669,8 @@ public class ScriptParser {
                 break;
             }
         }
-        while (true) {
-            if (operateStack.size() <= 0) {
-                break;
-            }
-            TempOperator oper = operateStack.pop();
-            CodeOperator binexp = new CodeOperator(objectStack.pop(), objectStack.pop(), oper.Operator, m_strBreviary, GetSourceLine());
-            objectStack.push(binexp);
+        while (operateStack.size() > 0) {
+            objectStack.push(new CodeOperator(objectStack.pop(), objectStack.pop(), operateStack.pop().Operator, m_strBreviary, GetSourceLine()));
         }
         CodeObject ret = objectStack.pop();
         if (ret instanceof CodeMember) {
@@ -470,11 +716,8 @@ public class ScriptParser {
         }
         ReadToken();
         while (operateStack.size() > 0) {
-            TempOperator oper = operateStack.peek();
-            if (oper.Level >= curr.Level) {
-                operateStack.pop();
-                CodeOperator binexp = new CodeOperator(objectStack.pop(), objectStack.pop(), oper.Operator, m_strBreviary, GetSourceLine());
-                objectStack.push(binexp);
+            if (operateStack.peek().Level >= curr.Level) {
+                objectStack.push(new CodeOperator(objectStack.pop(), objectStack.pop(), operateStack.pop().Operator, m_strBreviary, GetSourceLine()));
             }
             else {
                 break;
