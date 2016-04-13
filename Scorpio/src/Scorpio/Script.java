@@ -22,6 +22,7 @@ public class Script {
     private ScriptTable m_GlobalTable; //全局Table
     private java.util.ArrayList<StackInfo> m_StackInfoStack = new java.util.ArrayList<StackInfo>(); //堆栈数据
     private java.util.ArrayList<String> m_SearchPath = new java.util.ArrayList<String>(); //request所有文件的路径集合
+    private java.util.ArrayList<String> m_Defines = new java.util.ArrayList<String>(); //所有Define
     private java.util.HashMap<java.lang.Class<?>, IScorpioFastReflectClass> m_FastReflectClass = new java.util.HashMap<java.lang.Class<?>, IScorpioFastReflectClass>();
     private StackInfo m_StackInfo = new StackInfo(); //最近堆栈数据
     private ScriptNull privateNull;
@@ -129,6 +130,14 @@ public class Script {
         ScriptParser scriptParser = new ScriptParser(this, tokens, strBreviary);
         ScriptExecutable scriptExecutable = scriptParser.Parse();
         return new ScriptContext(this, scriptExecutable, context, Executable_Block.Context).Execute();
+    }
+    public final void PushDefine(String define) {
+        if (!m_Defines.contains(define)) {
+            m_Defines.add(define);
+        }
+    }
+    public final boolean ContainDefine(String define) {
+        return m_Defines.contains(define);
     }
     public final void PushSearchPath(String path) {
         if (!m_SearchPath.contains(path)) {

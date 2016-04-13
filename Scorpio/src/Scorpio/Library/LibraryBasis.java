@@ -140,7 +140,8 @@ public class LibraryBasis {
         script.SetObjectInternal("require", script.CreateFunction(new require(script)));
         script.SetObjectInternal("import", script.CreateFunction(new require(script)));
         script.SetObjectInternal("using", script.CreateFunction(new require(script)));
-
+        script.SetObjectInternal("push_search", script.CreateFunction(new push_search(script)));
+        script.SetObjectInternal("push_define", script.CreateFunction(new push_define(script)));
         script.SetObjectInternal("import_type", script.CreateFunction(new import_type(script)));
     }
     private static class print implements ScorpioHandle {
@@ -204,7 +205,7 @@ public class LibraryBasis {
     }
     private static class type implements ScorpioHandle {
         public final Object Call(ScriptObject[] args) {
-            return args[0].getType().getValue();
+        	return args[0].getType().getValue();
         }
     }
     private static class is_null implements ScorpioHandle {
@@ -356,6 +357,30 @@ public class LibraryBasis {
             ScriptString str = (ScriptString)((args[0] instanceof ScriptString) ? args[0] : null);
             Util.Assert(str != null, m_script, "require 参数必须是 string");
             return m_script.LoadSearchPathFile(str.getValue());
+        }
+    }
+    private static class push_search implements ScorpioHandle {
+        private Script m_script;
+        public push_search(Script script) {
+            m_script = script;
+        }
+        public final Object Call(ScriptObject[] args) {
+            ScriptString str = (ScriptString)((args[0] instanceof ScriptString) ? args[0] : null);
+            Util.Assert(str != null, m_script, "push_search 参数必须是 string");
+            m_script.PushSearchPath(str.getValue());
+            return null;
+        }
+    }
+    private static class push_define implements ScorpioHandle {
+        private Script m_script;
+        public push_define(Script script) {
+            m_script = script;
+        }
+        public final Object Call(ScriptObject[] args) {
+            ScriptString str = (ScriptString)((args[0] instanceof ScriptString) ? args[0] : null);
+            Util.Assert(str != null, m_script, "push_define 参数必须是 string");
+            m_script.PushDefine(str.getValue());
+            return null;
         }
     }
     private static class import_type implements ScorpioHandle {

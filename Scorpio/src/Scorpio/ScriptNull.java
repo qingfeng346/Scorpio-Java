@@ -24,12 +24,12 @@ public class ScriptNull extends ScriptObject {
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
-            return false;
+            return true;
         }
-        if (!(obj instanceof ScriptNull)) {
-            return false;
+        if (obj instanceof ScriptNull) {
+            return true;
         }
-        return true;
+        return false;
     }
     @Override
     public int hashCode() {

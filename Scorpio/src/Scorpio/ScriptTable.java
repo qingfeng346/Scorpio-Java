@@ -1,6 +1,8 @@
 package Scorpio;
 
 import Scorpio.Function.*;
+import Scorpio.Compiler.*;
+import Scorpio.Exception.*;
 
 //脚本table类型
 public class ScriptTable extends ScriptObject {
@@ -14,17 +16,68 @@ public class ScriptTable extends ScriptObject {
     }
     @Override
     public void SetValue(Object key, ScriptObject value) {
-        if (key == null) {
-            return;
-        }
         Util.SetObject(m_listObject, key, value);
     }
     @Override
     public ScriptObject GetValue(Object key) {
-        if (key == null) {
-            return getScript().getNull();
-        }
         return m_listObject.containsKey(key) ? m_listObject.get(key) : getScript().getNull();
+    }
+    @Override
+    public ScriptObject AssignCompute(TokenType type, ScriptObject value) {
+        if (type != TokenType.AssignPlus) {
+            return super.AssignCompute(type, value);
+        }
+        ScriptTable table = (ScriptTable)((value instanceof ScriptTable) ? value : null);
+        if (table == null) {
+            throw new ExecutionException(getScript(), "table [+=] 操作只支持两个table " + value.getType());
+        }
+        ScriptObject obj = null;
+        ScriptScriptFunction func = null;
+        for (java.util.Map.Entry<Object, ScriptObject> pair : table.m_listObject.entrySet()) {
+            obj = pair.getValue().clone();
+            if (obj instanceof ScriptScriptFunction) {
+                func = (ScriptScriptFunction)obj;
+                if (!func.getIsStatic()) {
+                    func.SetTable(this);
+                }
+            }
+            m_listObject.put(pair.getKey(), obj);
+        }
+        return this;
+    }
+    @Override
+    public ScriptObject Compute(TokenType type, ScriptObject value) {
+        if (type != TokenType.Plus) {
+            return super.Compute(type, value);
+        }
+        ScriptTable table = (ScriptTable)((value instanceof ScriptTable) ? value : null);
+        if (table == null) {
+            throw new ExecutionException(getScript(), "table [+] 操作只支持两个table " + value.getType());
+        }
+        ScriptTable ret = getScript().CreateTable();
+        ScriptObject obj = null;
+        ScriptScriptFunction func = null;
+        for (java.util.Map.Entry<Object, ScriptObject> pair : m_listObject.entrySet()) {
+            obj = pair.getValue().clone();
+            if (obj instanceof ScriptScriptFunction) {
+                func = (ScriptScriptFunction)obj;
+                if (!func.getIsStatic()) {
+                    func.SetTable(ret);
+                }
+            }
+            ret.m_listObject.put(pair.getKey(), obj);
+        }
+        for (java.util.Map.Entry<Object, ScriptObject> pair : table.m_listObject.entrySet()) {
+            obj = pair.getValue().clone();
+            if (obj instanceof ScriptScriptFunction) {
+                func = (ScriptScriptFunction)obj;
+                if (!func.getIsStatic()) {
+                    func.SetTable(ret);
+                }
+            }
+            ret.m_listObject.put(pair.getKey(), obj);
+        }
+        return ret;
     }
     public final boolean HasValue(Object key) {
         if (key == null) {
