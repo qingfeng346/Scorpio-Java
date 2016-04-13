@@ -4,7 +4,9 @@ package Scorpio.Runtime;
 public class ScriptExecutable {
     private java.util.ArrayList<ScriptInstruction> m_listScriptInstructions; //指令列表
     private ScriptInstruction[] m_arrayScriptInstructions; //指令列表
-    public ScriptExecutable() {
+    public Executable_Block m_Block = Executable_Block.forValue(0);
+    public ScriptExecutable(Executable_Block block) {
+        m_Block = block;
         m_listScriptInstructions = new java.util.ArrayList<ScriptInstruction>();
     }
     //添加一条指令
