@@ -29,6 +29,10 @@ public class ScriptBoolean extends ScriptObject {
     public String ToJson() {
         return getValue() ? "true" : "false";
     }
+    @Override
+    public String toString() {
+    	return getValue() ? "true" : "false";
+    }
     public final ScriptBoolean Inverse() {
         return getValue() ? getScript().getFalse() : getScript().getTrue();
     }

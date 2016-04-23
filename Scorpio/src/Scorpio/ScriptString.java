@@ -43,13 +43,13 @@ public class ScriptString extends ScriptObject {
         }
         switch (type) {
             case Greater:
-                return getValue().compareTo(val.getValue()) < 0;
-            case GreaterOrEqual:
-                return getValue().compareTo(val.getValue()) <= 0;
-            case Less:
                 return getValue().compareTo(val.getValue()) > 0;
-            case LessOrEqual:
+            case GreaterOrEqual:
                 return getValue().compareTo(val.getValue()) >= 0;
+            case Less:
+                return getValue().compareTo(val.getValue()) < 0;
+            case LessOrEqual:
+                return getValue().compareTo(val.getValue()) <= 0;
             default:
                 throw new ExecutionException(getScript(), "String类型 操作符[" + type + "]不支持");
         }
