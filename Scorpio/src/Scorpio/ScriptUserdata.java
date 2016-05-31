@@ -2,20 +2,21 @@ package Scorpio;
 
 //语言数据
 public abstract class ScriptUserdata extends ScriptObject {
+    protected Object m_Value;
     @Override
     public Object getObjectValue() {
-        return getValue();
+        return m_Value;
+    }
+    @Override
+    public Object getKeyValue() {
+        return m_Value;
     }
     @Override
     public ObjectType getType() {
         return ObjectType.UserData;
     }
-    private Object privateValue;
     public final Object getValue() {
-        return privateValue;
-    }
-    protected final void setValue(Object value) {
-        privateValue = value;
+        return m_Value;
     }
     private java.lang.Class<?> privateValueType;
     public final java.lang.Class<?> getValueType() {

@@ -12,6 +12,18 @@ public class ScriptFunction extends ScriptObject {
         super(script);
         setName(name);
     }
+    public int GetParamCount() {
+        return 0;
+    }
+    public boolean IsParams() {
+        return false;
+    }
+    public boolean IsStatic() {
+        return false;
+    }
+    public ScriptArray GetParams() {
+        return getScript().CreateArray();
+    }
     @Override
     public String toString() {
         return "Function(" + getName() + ")";

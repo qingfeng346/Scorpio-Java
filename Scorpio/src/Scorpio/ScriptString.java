@@ -5,16 +5,13 @@ import Scorpio.Exception.*;
 
 //脚本字符串类型
 public class ScriptString extends ScriptObject {
+    private String m_Value;
     public ScriptString(Script script, String value) {
         super(script);
-        this.setValue(value);
+        this.m_Value = value;
     }
-    private String privateValue;
     public final String getValue() {
-        return privateValue;
-    }
-    public final void setValue(String value) {
-        privateValue = value;
+        return m_Value;
     }
     @Override
     public ObjectType getType() {
@@ -22,18 +19,22 @@ public class ScriptString extends ScriptObject {
     }
     @Override
     public Object getObjectValue() {
-        return getValue();
+        return m_Value;
+    }
+    @Override
+    public Object getKeyValue() {
+        return m_Value;
     }
     @Override
     public ScriptObject Assign() {
-        return getScript().CreateString(getValue());
+        return getScript().CreateString(m_Value);
     }
     @Override
     public ScriptObject GetValue(Object index) {
         if (!(index instanceof Double || index instanceof Integer || index instanceof Long)) {
             throw new ExecutionException(getScript(), "String GetValue只支持Number类型");
         }
-        return getScript().CreateString(getValue().charAt(Util.ToInt32(index)) + "");
+        return getScript().CreateString(m_Value.charAt(Util.ToInt32(index)) + "");
     }
     @Override
     public boolean Compare(TokenType type, ScriptObject obj) {
@@ -43,13 +44,13 @@ public class ScriptString extends ScriptObject {
         }
         switch (type) {
             case Greater:
-                return getValue().compareTo(val.getValue()) > 0;
+                return m_Value.compareTo(val.m_Value) > 0;
             case GreaterOrEqual:
-                return getValue().compareTo(val.getValue()) >= 0;
+                return m_Value.compareTo(val.m_Value) >= 0;
             case Less:
-                return getValue().compareTo(val.getValue()) < 0;
+                return m_Value.compareTo(val.m_Value) < 0;
             case LessOrEqual:
-                return getValue().compareTo(val.getValue()) <= 0;
+                return m_Value.compareTo(val.m_Value) <= 0;
             default:
                 throw new ExecutionException(getScript(), "String类型 操作符[" + type + "]不支持");
         }
@@ -57,17 +58,17 @@ public class ScriptString extends ScriptObject {
     @Override
     public ScriptObject AssignCompute(TokenType type, ScriptObject obj) {
         if (type == TokenType.AssignPlus) {
-            setValue(getValue() + obj.toString());
+            m_Value += obj.toString();
             return this;
         }
         throw new ExecutionException(getScript(), "String类型 操作符[" + type + "]不支持");
     }
     @Override
     public ScriptObject clone() {
-        return getScript().CreateString(getValue());
+        return getScript().CreateString(m_Value);
     }
     @Override
     public String ToJson() {
-        return "\"" + getValue() + "\"";
+        return "\"" + m_Value.replace("\"", "\\\"") + "\"";
     }
 }

@@ -7,7 +7,11 @@ public class ScriptEnum extends ScriptObject {
     }
     @Override
     public Object getObjectValue() {
-        return m_Object;
+        return m_Value;
+    }
+    @Override
+    public Object getKeyValue() {
+        return m_Value;
     }
     private java.lang.Class<?> privateEnumType;
     public final java.lang.Class<?> getEnumType() {
@@ -16,10 +20,10 @@ public class ScriptEnum extends ScriptObject {
     private void setEnumType(java.lang.Class<?> value) {
         privateEnumType = value;
     }
-    public Object m_Object;
+    public Object m_Value;
     public ScriptEnum(Script script, Object obj) {
         super(script);
-        m_Object = obj;
-        setEnumType(m_Object.getClass());
+        m_Value = obj;
+        setEnumType(m_Value.getClass());
     }
 }

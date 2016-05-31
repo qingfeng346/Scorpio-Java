@@ -22,6 +22,10 @@ public class ScriptBoolean extends ScriptObject {
         return getValue();
     }
     @Override
+    public Object getKeyValue() {
+        return getValue();
+    }
+    @Override
     public boolean LogicOperation() {
         return getValue();
     }
@@ -31,7 +35,7 @@ public class ScriptBoolean extends ScriptObject {
     }
     @Override
     public String toString() {
-    	return getValue() ? "true" : "false";
+        return getValue() ? "true" : "false";
     }
     public final ScriptBoolean Inverse() {
         return getValue() ? getScript().getFalse() : getScript().getTrue();

@@ -108,6 +108,9 @@ public abstract class ScriptObject {
     public Object getObjectValue() {
         return this;
     }
+    public Object getKeyValue() {
+        return this;
+    }
     public final boolean getIsPrimitive() {
         return getIsBoolean() || getIsNumber() || getIsString();
     }
