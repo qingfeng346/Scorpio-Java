@@ -5,11 +5,11 @@ import java.nio.charset.Charset;
 import Scorpio.Runtime.*;
 import Scorpio.Compiler.*;
 import Scorpio.Exception.*;
-import Scorpio.Function.*;
 import Scorpio.Library.*;
 import Scorpio.Userdata.*;
 import Scorpio.Variable.*;
 import Scorpio.Serialize.*;
+import Scorpio.Function.*;
 //脚本类
 public class Script {
     public static final String DynamicDelegateName = "__DynamicDelegate__";
@@ -25,34 +25,25 @@ public class Script {
     private java.util.ArrayList<String> m_Defines = new java.util.ArrayList<String>(); //所有Define
     private java.util.HashMap<java.lang.Class<?>, IScorpioFastReflectClass> m_FastReflectClass = new java.util.HashMap<java.lang.Class<?>, IScorpioFastReflectClass>();
     private StackInfo m_StackInfo = new StackInfo(); //最近堆栈数据
-    private ScriptNull privateNull;
+    private ScriptNull m_Null; //null对象
+    private ScriptBoolean m_True; //true对象
+    private ScriptBoolean m_False; //false对象
     public final ScriptNull getNull() {
-        return privateNull;
+        return m_Null;
     }
-    private void setNull(ScriptNull value) {
-        privateNull = value;
-    }
-    private ScriptBoolean privateTrue;
     public final ScriptBoolean getTrue() {
-        return privateTrue;
+        return m_True;
     }
-    private void setTrue(ScriptBoolean value) {
-        privateTrue = value;
-    }
-    private ScriptBoolean privateFalse;
     public final ScriptBoolean getFalse() {
-        return privateFalse;
-    }
-    private void setFalse(ScriptBoolean value) {
-        privateFalse = value;
+        return m_False;
     }
     public final ScriptBoolean GetBoolean(boolean value) {
         return value ? getTrue() : getFalse();
     }
     public Script() {
-        setNull(new ScriptNull(this));
-        setTrue(new ScriptBoolean(this, true));
-        setFalse(new ScriptBoolean(this, false));
+        m_Null = new ScriptNull(this);
+        m_True = new ScriptBoolean(this, true);
+        m_False = new ScriptBoolean(this, false);
         m_UserdataFactory = new DefaultScriptUserdataFactory(this);
         m_GlobalTable = CreateTable();
         m_GlobalTable.SetValue(GLOBAL_TABLE, m_GlobalTable);
@@ -131,14 +122,6 @@ public class Script {
         ScriptExecutable scriptExecutable = scriptParser.Parse();
         return new ScriptContext(this, scriptExecutable, context, Executable_Block.Context).Execute();
     }
-    public final void PushDefine(String define) {
-        if (!m_Defines.contains(define)) {
-            m_Defines.add(define);
-        }
-    }
-    public final boolean ContainDefine(String define) {
-        return m_Defines.contains(define);
-    }
     public final void PushSearchPath(String path) {
         if (!m_SearchPath.contains(path)) {
             m_SearchPath.add(path);
@@ -153,6 +136,14 @@ public class Script {
         }
         throw new ExecutionException(this, "require 找不到文件 : " + fileName);
     }
+    public final void PushDefine(String define) {
+        if (!m_Defines.contains(define)) {
+            m_Defines.add(define);
+        }
+    }
+    public final boolean ContainDefine(String define) {
+        return m_Defines.contains(define);
+    }
     public final ScriptObject LoadType(String str) {
     	try {
             Class<?> type = java.lang.Class.forName(str);
@@ -160,7 +151,7 @@ public class Script {
                 return CreateUserdata(type);
             }
     	} catch (Exception e) {}
-        return getNull();
+        return m_Null;
     }
     public final void PushFastReflectClass(java.lang.Class<?> type, IScorpioFastReflectClass value) {
         m_FastReflectClass.put(type, value);
@@ -306,5 +297,6 @@ public class Script {
         LibraryTable.Load(this);
         LibraryJson.Load(this);
         LibraryMath.Load(this);
+        LibraryFunc.Load(this);
     }
 }
