@@ -87,7 +87,7 @@ public class Script {
     public final ScriptObject LoadString(String strBreviary, String strBuffer, ScriptContext context, boolean clearStack) {
         try {
             if (Util.IsNullOrEmpty(strBuffer)) {
-                return getNull();
+                return m_Null;
             }
             if (clearStack) {
                 m_StackInfoStack.clear();
@@ -105,7 +105,7 @@ public class Script {
     public final ScriptObject LoadTokens(String strBreviary, java.util.ArrayList<Token> tokens) {
         try {
             if (tokens.isEmpty()) {
-                return getNull();
+                return m_Null;
             }
             m_StackInfoStack.clear();
             return Load(strBreviary, tokens, null);
@@ -116,7 +116,7 @@ public class Script {
     }
     private ScriptObject Load(String strBreviary, java.util.ArrayList<Token> tokens, ScriptContext context) {
         if (tokens.isEmpty()) {
-            return getNull();
+            return m_Null;
         }
         ScriptParser scriptParser = new ScriptParser(this, tokens, strBreviary);
         ScriptExecutable scriptExecutable = scriptParser.Parse();
@@ -220,7 +220,7 @@ public class Script {
     }
     public final ScriptObject CreateObject(Object value) {
         if (value == null) {
-            return getNull();
+            return m_Null;
         }
         else if (value instanceof ScriptObject) {
             return (ScriptObject)value;
