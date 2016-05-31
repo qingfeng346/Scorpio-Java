@@ -27,20 +27,20 @@ public class ScriptString extends ScriptObject {
     }
     @Override
     public ScriptObject Assign() {
-        return getScript().CreateString(m_Value);
+        return m_Script.CreateString(m_Value);
     }
     @Override
     public ScriptObject GetValue(Object index) {
         if (!(index instanceof Double || index instanceof Integer || index instanceof Long)) {
-            throw new ExecutionException(getScript(), "String GetValue只支持Number类型");
+            throw new ExecutionException(m_Script, "String GetValue只支持Number类型");
         }
-        return getScript().CreateString(m_Value.charAt(Util.ToInt32(index)) + "");
+        return m_Script.CreateString(m_Value.charAt(Util.ToInt32(index)) + "");
     }
     @Override
     public boolean Compare(TokenType type, ScriptObject obj) {
         ScriptString val = (ScriptString)((obj instanceof ScriptString) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(getScript(), "字符串比较 右边必须为字符串类型");
+            throw new ExecutionException(m_Script, "字符串比较 右边必须为字符串类型");
         }
         switch (type) {
             case Greater:
@@ -52,7 +52,7 @@ public class ScriptString extends ScriptObject {
             case LessOrEqual:
                 return m_Value.compareTo(val.m_Value) <= 0;
             default:
-                throw new ExecutionException(getScript(), "String类型 操作符[" + type + "]不支持");
+                throw new ExecutionException(m_Script, "String类型 操作符[" + type + "]不支持");
         }
     }
     @Override
@@ -61,11 +61,11 @@ public class ScriptString extends ScriptObject {
             m_Value += obj.toString();
             return this;
         }
-        throw new ExecutionException(getScript(), "String类型 操作符[" + type + "]不支持");
+        throw new ExecutionException(m_Script, "String类型 操作符[" + type + "]不支持");
     }
     @Override
     public ScriptObject clone() {
-        return getScript().CreateString(m_Value);
+        return m_Script.CreateString(m_Value);
     }
     @Override
     public String ToJson() {

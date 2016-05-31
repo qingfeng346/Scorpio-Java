@@ -2,16 +2,13 @@ package Scorpio;
 
 //脚本bool类型
 public class ScriptBoolean extends ScriptObject {
+    private boolean m_Value;
     public ScriptBoolean(Script script, boolean value) {
         super(script);
-        this.setValue(value);
+        this.m_Value = value;
     }
-    private boolean privateValue;
     public final boolean getValue() {
-        return privateValue;
-    }
-    private void setValue(boolean value) {
-        privateValue = value;
+        return m_Value;
     }
     @Override
     public ObjectType getType() {
@@ -19,25 +16,25 @@ public class ScriptBoolean extends ScriptObject {
     }
     @Override
     public Object getObjectValue() {
-        return getValue();
+        return m_Value;
     }
     @Override
     public Object getKeyValue() {
-        return getValue();
+        return m_Value;
     }
     @Override
     public boolean LogicOperation() {
-        return getValue();
+        return m_Value;
     }
     @Override
     public String ToJson() {
-        return getValue() ? "true" : "false";
+        return m_Value ? "true" : "false";
     }
     @Override
     public String toString() {
-        return getValue() ? "true" : "false";
+        return m_Value ? "true" : "false";
     }
     public final ScriptBoolean Inverse() {
-        return getValue() ? getScript().getFalse() : getScript().getTrue();
+        return m_Value ? m_Script.getFalse() : m_Script.getTrue();
     }
 }

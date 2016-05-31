@@ -1,6 +1,8 @@
 package Scorpio;
 
 public class ScriptEnum extends ScriptObject {
+    private Object m_Value;
+    private java.lang.Class<?> m_EnumType;
     @Override
     public ObjectType getType() {
         return ObjectType.Enum;
@@ -13,17 +15,12 @@ public class ScriptEnum extends ScriptObject {
     public Object getKeyValue() {
         return m_Value;
     }
-    private java.lang.Class<?> privateEnumType;
     public final java.lang.Class<?> getEnumType() {
-        return privateEnumType;
+        return m_EnumType;
     }
-    private void setEnumType(java.lang.Class<?> value) {
-        privateEnumType = value;
-    }
-    public Object m_Value;
     public ScriptEnum(Script script, Object obj) {
         super(script);
         m_Value = obj;
-        setEnumType(m_Value.getClass());
+        m_EnumType = m_Value.getClass();
     }
 }

@@ -22,7 +22,7 @@ public class ScriptFunction extends ScriptObject {
         return false;
     }
     public ScriptArray GetParams() {
-        return getScript().CreateArray();
+        return m_Script.CreateArray();
     }
     @Override
     public String toString() {

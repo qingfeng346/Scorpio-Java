@@ -17,10 +17,10 @@ public abstract class ScriptNumber extends ScriptObject {
     public abstract ScriptNumber Floor(); //取数的整数
     public abstract ScriptNumber Clamp(ScriptNumber min, ScriptNumber max); //取值的区间
     public final ScriptNumber Sqrt() { //取平方根
-        return getScript().CreateDouble(Math.sqrt (ToDouble()));
+        return m_Script.CreateDouble(Math.sqrt (ToDouble()));
     }
     public final ScriptNumber Pow(ScriptNumber value) { //取几次方
-        return getScript().CreateDouble(Math.pow (ToDouble(), value.ToDouble()));
+        return m_Script.CreateDouble(Math.pow (ToDouble(), value.ToDouble()));
     }
     public int ToInt32() {
         return Util.ToInt32(getObjectValue());

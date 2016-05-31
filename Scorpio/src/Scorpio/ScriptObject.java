@@ -21,17 +21,17 @@ public abstract class ScriptObject {
     }
     //设置变量
     public void SetValue(Object key, ScriptObject value) {
-        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持设置变量[" + key + "]");
+        throw new ExecutionException(m_Script, "类型[" + getType() + "]不支持设置变量[" + key + "]");
     }
     //获取变量
     public ScriptObject GetValue(Object key) {
-        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持获取变量[" + key + "]");
+        throw new ExecutionException(m_Script, "类型[" + getType() + "]不支持获取变量[" + key + "]");
     }
     public final Object call(Object... args) {
         int length = args.length;
         ScriptObject[] parameters = new ScriptObject[length];
         for (int i = 0; i < length; ++i) {
-            parameters[i] = getScript().CreateObject(args[i]);
+            parameters[i] = m_Script.CreateObject(args[i]);
         }
         return Call(parameters);
     }
@@ -41,19 +41,19 @@ public abstract class ScriptObject {
     }
     //调用函数
     public Object Call(ScriptObject[] parameters) {
-        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持函数调用[" + getName() + "]");
+        throw new ExecutionException(m_Script, "类型[" + getType() + "]不支持函数调用[" + getName() + "]");
     }
     //两个数值比较 > >= < <=
     public boolean Compare(TokenType type, ScriptObject obj) {
-        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持值比较[" + type + "]");
+        throw new ExecutionException(m_Script, "类型[" + getType() + "]不支持值比较[" + type + "]");
     }
     //运算符或者位运算 + - * / % | & ^ >> <<
     public ScriptObject Compute(TokenType type, ScriptObject obj) {
-        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持运算符[" + type + "]");
+        throw new ExecutionException(m_Script, "类型[" + getType() + "]不支持运算符[" + type + "]");
     }
     //运算符或者位运算赋值运算 += -= *= /= %= |= &= ^= >>= <<=
     public ScriptObject AssignCompute(TokenType type, ScriptObject obj) {
-        throw new ExecutionException(getScript(), "类型[" + getType() + "]不支持赋值运算符[" + type + "]");
+        throw new ExecutionException(m_Script, "类型[" + getType() + "]不支持赋值运算符[" + type + "]");
     }
     //逻辑运算符 逻辑运算时 Object 算 true 或者 false
     public boolean LogicOperation() {
@@ -91,15 +91,12 @@ public abstract class ScriptObject {
     public int hashCode() {
         return super.hashCode();
     }
+    protected Script m_Script;
     public ScriptObject(Script script) { // 构图函数
-        setScript(script);
+        m_Script = script;
     }
-    private Script privateScript;
-    public final Script getScript() {
-        return privateScript;
-    }
-    protected final void setScript(Script value) {
-        privateScript = value;
+    public final Script getGetScript() {
+        return m_Script;
     }
     public abstract ObjectType getType();
     public int getBranchType() {
