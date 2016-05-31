@@ -1,7 +1,5 @@
 package Scorpio.Userdata;
 
-import java.lang.reflect.InvocationTargetException;
-
 import Scorpio.*;
 import Scorpio.Exception.*;
 
@@ -105,7 +103,7 @@ public class UserdataMethod {
     }
     public UserdataMethod() {
     }
-    protected UserdataMethod(Script script, java.lang.Class<?> type, String methodName, java.lang.reflect.Method[] methods) {
+    protected final void Initialize(Script script, java.lang.Class<?> type, String methodName, java.lang.reflect.Method[] methods) {
         m_Script = script;
         java.util.ArrayList<MethodInfo> methodBases = new java.util.ArrayList<MethodInfo>(); 
     	for (java.lang.reflect.Method method : methods) {
