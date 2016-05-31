@@ -1,5 +1,7 @@
 package Scorpio;
+
 import Scorpio.Exception.*;
+
 //脚本数组类型
 public class ScriptArray extends ScriptObject {
     public final class Comparer implements java.util.Comparator<ScriptObject> {
@@ -45,7 +47,6 @@ public class ScriptArray extends ScriptObject {
         }
     }
 
-
     @Override
     public ObjectType getType() {
         return ObjectType.Array;
@@ -65,7 +66,7 @@ public class ScriptArray extends ScriptObject {
         if (index instanceof Double || index instanceof Integer || index instanceof Long) {
             int i = Util.ToInt32(index);
             if (i < 0) {
-                throw new ExecutionException(getScript(), "Array GetValue索引小于0 index值为:" + index);
+                throw new ExecutionException(m_Script, "Array GetValue索引小于0 index值为:" + index);
             }
             if (i >= m_size) {
                 return m_null;
@@ -73,16 +74,16 @@ public class ScriptArray extends ScriptObject {
             return ((m_listObject[i]) != null) ? m_listObject[i] : m_null;
         }
         else if (index instanceof String && index.equals("length")) {
-            return getScript().CreateNumber(m_size);
+            return m_Script.CreateNumber(m_size);
         }
-        throw new ExecutionException(getScript(), "Array SetValue只支持Number类型 index值为:" + index);
+        throw new ExecutionException(m_Script, "Array SetValue只支持Number类型 index值为:" + index);
     }
     @Override
     public void SetValue(Object index, ScriptObject obj) {
         if (index instanceof Double || index instanceof Integer || index instanceof Long) {
             int i = Util.ToInt32(index);
             if (i < 0) {
-                throw new ExecutionException(getScript(), "Array SetValue索引小于0 index值为:" + index);
+                throw new ExecutionException(m_Script, "Array SetValue索引小于0 index值为:" + index);
             }
             if (i >= m_size) {
                 EnsureCapacity(i + 1);
@@ -91,7 +92,7 @@ public class ScriptArray extends ScriptObject {
             m_listObject[i] = obj;
         }
         else {
-            throw new ExecutionException(getScript(), "Array SetValue只支持Number类型 index值为:" + index);
+            throw new ExecutionException(m_Script, "Array SetValue只支持Number类型 index值为:" + index);
         }
     }
     private void SetCapacity(int value) {
@@ -176,7 +177,7 @@ public class ScriptArray extends ScriptObject {
     }
     public final void Resize(int length) {
         if (length < 0) {
-            throw new ExecutionException(getScript(), "Resize长度小于0 length:" + length);
+            throw new ExecutionException(m_Script, "Resize长度小于0 length:" + length);
         }
         if (length > m_size) {
             EnsureCapacity(length);
@@ -189,15 +190,17 @@ public class ScriptArray extends ScriptObject {
         }
     }
     public final void Clear() {
-        for (int i = 0; i < m_size; i++)
-            m_listObject[i] = null;
-        m_size = 0;
+        if (m_size > 0) {
+            for (int i = 0; i < m_size; i++)
+                m_listObject[i] = null;
+            m_size = 0;
+        }
     }
     public final int Count() {
         return m_size;
     }
-    public final void Sort(final ScriptFunction func) {
-    	java.util.Arrays.sort(m_listObject, 0, m_size, new Comparer(getScript(), func));
+    public final void Sort(ScriptFunction func) {
+    	java.util.Arrays.sort(m_listObject, 0, m_size, new Comparer(m_Script, func));
     }
     public final ScriptObject First() {
         if (m_size > 0) {
@@ -213,7 +216,7 @@ public class ScriptArray extends ScriptObject {
     }
     public final ScriptObject PopFirst() {
         if (m_size == 0) {
-            throw new ExecutionException(getScript(), "Array Pop 数组长度为0");
+            throw new ExecutionException(m_Script, "Array Pop 数组长度为 0");
         }
         ScriptObject obj = m_listObject[0];
         RemoveAt(0);
@@ -229,7 +232,7 @@ public class ScriptArray extends ScriptObject {
     }
     public final ScriptObject PopLast() {
         if (m_size == 0) {
-            throw new ExecutionException(getScript(), "Array Pop 数组长度为0");
+            throw new ExecutionException(m_Script, "Array Pop 数组长度为 0");
         }
         int index = m_size - 1;
         ScriptObject obj = m_listObject[index];
@@ -256,7 +259,7 @@ public class ScriptArray extends ScriptObject {
     }
     @Override
     public ScriptObject clone() {
-        ScriptArray ret = getScript().CreateArray();
+        ScriptArray ret = m_Script.CreateArray();
         ret.m_listObject = new ScriptObject[m_size];
         ret.m_size = m_size;
         for (int i = 0; i < m_size; ++i) {

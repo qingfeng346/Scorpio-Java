@@ -20,7 +20,7 @@ public class ScriptTable extends ScriptObject {
     }
     @Override
     public ScriptObject GetValue(Object key) {
-        return m_listObject.containsKey(key) ? m_listObject.get(key) : getScript().getNull();
+        return m_listObject.containsKey(key) ? m_listObject.get(key) : m_Script.getNull();
     }
     @Override
     public ScriptObject AssignCompute(TokenType type, ScriptObject value) {
@@ -29,7 +29,7 @@ public class ScriptTable extends ScriptObject {
         }
         ScriptTable table = (ScriptTable)((value instanceof ScriptTable) ? value : null);
         if (table == null) {
-            throw new ExecutionException(getScript(), "table [+=] 操作只支持两个table " + value.getType());
+            throw new ExecutionException(m_Script, "table [+=] 操作只支持两个table " + value.getType());
         }
         ScriptObject obj = null;
         ScriptScriptFunction func = null;
@@ -37,7 +37,7 @@ public class ScriptTable extends ScriptObject {
             obj = pair.getValue().clone();
             if (obj instanceof ScriptScriptFunction) {
                 func = (ScriptScriptFunction)obj;
-                if (!func.getIsStatic()) {
+                if (!func.getIsStaticFunction()) {
                     func.SetTable(this);
                 }
             }
@@ -52,16 +52,16 @@ public class ScriptTable extends ScriptObject {
         }
         ScriptTable table = (ScriptTable)((value instanceof ScriptTable) ? value : null);
         if (table == null) {
-            throw new ExecutionException(getScript(), "table [+] 操作只支持两个table " + value.getType());
+            throw new ExecutionException(m_Script, "table [+] 操作只支持两个table " + value.getType());
         }
-        ScriptTable ret = getScript().CreateTable();
+        ScriptTable ret = m_Script.CreateTable();
         ScriptObject obj = null;
         ScriptScriptFunction func = null;
         for (java.util.Map.Entry<Object, ScriptObject> pair : m_listObject.entrySet()) {
             obj = pair.getValue().clone();
             if (obj instanceof ScriptScriptFunction) {
                 func = (ScriptScriptFunction)obj;
-                if (!func.getIsStatic()) {
+                if (!func.getIsStaticFunction()) {
                     func.SetTable(ret);
                 }
             }
@@ -71,7 +71,7 @@ public class ScriptTable extends ScriptObject {
             obj = pair.getValue().clone();
             if (obj instanceof ScriptScriptFunction) {
                 func = (ScriptScriptFunction)obj;
-                if (!func.getIsStatic()) {
+                if (!func.getIsStaticFunction()) {
                     func.SetTable(ret);
                 }
             }
@@ -95,14 +95,14 @@ public class ScriptTable extends ScriptObject {
         m_listObject.remove(key);
     }
     public final ScriptArray GetKeys() {
-        ScriptArray ret = getScript().CreateArray();
+        ScriptArray ret = m_Script.CreateArray();
         for (java.util.Map.Entry<Object, ScriptObject> pair : m_listObject.entrySet()) {
-            ret.Add(getScript().CreateObject(pair.getKey()));
+            ret.Add(m_Script.CreateObject(pair.getKey()));
         }
         return ret;
     }
     public final ScriptArray GetValues() {
-        ScriptArray ret = getScript().CreateArray();
+        ScriptArray ret = m_Script.CreateArray();
         for (java.util.Map.Entry<Object, ScriptObject> pair : m_listObject.entrySet()) {
             ret.Add(pair.getValue().Assign());
         }
@@ -113,7 +113,7 @@ public class ScriptTable extends ScriptObject {
     }
     @Override
     public ScriptObject clone() {
-        ScriptTable ret = getScript().CreateTable();
+        ScriptTable ret = m_Script.CreateTable();
         ScriptObject obj = null;
         ScriptScriptFunction func = null;
         for (java.util.Map.Entry<Object, ScriptObject> pair : m_listObject.entrySet()) {
@@ -124,7 +124,7 @@ public class ScriptTable extends ScriptObject {
                 obj = pair.getValue().clone();
                 if (obj instanceof ScriptScriptFunction) {
                     func = (ScriptScriptFunction)obj;
-                    if (!func.getIsStatic()) {
+                    if (!func.getIsStaticFunction()) {
                         func.SetTable(ret);
                     }
                 }
