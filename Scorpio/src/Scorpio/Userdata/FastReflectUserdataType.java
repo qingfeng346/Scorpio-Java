@@ -1,8 +1,9 @@
 package Scorpio.Userdata;
 
 import Scorpio.*;
-import Scorpio.Compiler.*;
+import Scorpio.Exception.*;
 import Scorpio.Variable.*;
+import Scorpio.Compiler.*;
 
 public class FastReflectUserdataType extends UserdataType {
     private IScorpioFastReflectClass m_Value;
@@ -22,16 +23,16 @@ public class FastReflectUserdataType extends UserdataType {
         switch (type) {
         case Plus:
             Object tempVar = m_Value.GetValue(null, "op_Addition");
-            return (ScorpioMethod)((tempVar instanceof UserdataMethod) ? tempVar : null);
+            return (ScorpioMethod)((tempVar instanceof ScorpioMethod) ? tempVar : null);
         case Minus:
             Object tempVar2 = m_Value.GetValue(null, "op_Subtraction");
-            return (ScorpioMethod)((tempVar2 instanceof UserdataMethod) ? tempVar2 : null);
+            return (ScorpioMethod)((tempVar2 instanceof ScorpioMethod) ? tempVar2 : null);
         case Multiply:
             Object tempVar3 = m_Value.GetValue(null, "op_Multiply");
-            return (ScorpioMethod)((tempVar3 instanceof UserdataMethod) ? tempVar3 : null);
+            return (ScorpioMethod)((tempVar3 instanceof ScorpioMethod) ? tempVar3 : null);
         case Divide:
             Object tempVar4 = m_Value.GetValue(null, "op_Division");
-            return (ScorpioMethod)((tempVar4 instanceof UserdataMethod) ? tempVar4 : null);
+            return (ScorpioMethod)((tempVar4 instanceof ScorpioMethod) ? tempVar4 : null);
         default:
             return null;
         }

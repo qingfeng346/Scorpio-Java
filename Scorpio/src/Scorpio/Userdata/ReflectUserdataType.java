@@ -62,7 +62,7 @@ public class ReflectUserdataType extends UserdataType {
         return new ScorpioObjectMethod(obj, name, method);
     }
     private UserdataVariable GetVariable(String name) {
-        if (m_Variables.containsKey(name)) {
+    	if (m_Variables.containsKey(name)) {
             return m_Variables.get(name);
         }
         java.lang.reflect.Field fInfo = null;
@@ -85,19 +85,19 @@ public class ReflectUserdataType extends UserdataType {
     */
     @Override
     public ScorpioMethod GetComputeMethod(TokenType type) {
-    	switch (type) {
+        switch (type) {
         case Plus:
             Object tempVar = GetValue(null, "op_Addition");
-            return (ScorpioMethod)((tempVar instanceof UserdataMethod) ? tempVar : null);
+            return (ScorpioMethod)((tempVar instanceof ScorpioMethod) ? tempVar : null);
         case Minus:
             Object tempVar2 = GetValue(null, "op_Subtraction");
-            return (ScorpioMethod)((tempVar2 instanceof UserdataMethod) ? tempVar2 : null);
+            return (ScorpioMethod)((tempVar2 instanceof ScorpioMethod) ? tempVar2 : null);
         case Multiply:
             Object tempVar3 = GetValue(null, "op_Multiply");
-            return (ScorpioMethod)((tempVar3 instanceof UserdataMethod) ? tempVar3 : null);
+            return (ScorpioMethod)((tempVar3 instanceof ScorpioMethod) ? tempVar3 : null);
         case Divide:
             Object tempVar4 = GetValue(null, "op_Division");
-            return (ScorpioMethod)((tempVar4 instanceof UserdataMethod) ? tempVar4 : null);
+            return (ScorpioMethod)((tempVar4 instanceof ScorpioMethod) ? tempVar4 : null);
         default:
             return null;
         }
