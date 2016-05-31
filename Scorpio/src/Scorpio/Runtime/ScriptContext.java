@@ -85,7 +85,7 @@ public class ScriptContext {
         return false;
     }
     private Object GetMember(CodeMember member) {
-        return member.Type == MEMBER_TYPE.VALUE ? member.MemberValue : ResolveOperand(member.MemberObject).getObjectValue();
+        return member.Type == MEMBER_TYPE.VALUE ? member.MemberValue : ResolveOperand(member.MemberObject).getKeyValue();
     }
     private ScriptObject GetVariable(CodeMember member) {
         ScriptObject ret = null;
