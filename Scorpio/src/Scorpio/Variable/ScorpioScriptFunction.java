@@ -11,6 +11,19 @@ public class ScorpioScriptFunction {
     private ScriptExecutable m_ScriptExecutable; //函数执行命令
     private int m_ParameterCount; //参数个数
     private boolean m_Params; //是否是不定参函数
+    public final int GetParameterCount() {
+        return m_ParameterCount;
+    }
+    public final boolean IsParams() {
+        return m_Params;
+    }
+    public final ScriptArray GetParameters() {
+        ScriptArray ret = m_Script.CreateArray();
+        for (String par : m_ListParameters) {
+            ret.Add(m_Script.CreateString(par));
+        }
+        return ret;
+    }
     public ScorpioScriptFunction(Script script, java.util.ArrayList<String> listParameters, ScriptExecutable scriptExecutable, boolean bParams) {
         this.m_Script = script;
         this.m_ListParameters = listParameters.toArray(new String[]{});

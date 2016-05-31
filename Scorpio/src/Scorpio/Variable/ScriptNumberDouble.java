@@ -9,6 +9,7 @@ import Scorpio.Exception.*;
 
 public class ScriptNumberDouble extends ScriptNumber {
 	private static DecimalFormat DoubleFormat = new DecimalFormat("#.############");
+    public double m_Value;
     @Override
     public ObjectType getType() {
         return ObjectType.Number;
@@ -28,7 +29,6 @@ public class ScriptNumberDouble extends ScriptNumber {
     public final double getValue() {
         return m_Value;
     }
-    public double m_Value;
     public ScriptNumberDouble(Script script, double value) {
         super(script);
         m_Value = value;
@@ -43,9 +43,9 @@ public class ScriptNumberDouble extends ScriptNumber {
                 --m_Value;
                 break;
             case POST_INCREMENT:
-                return getScript().CreateDouble(m_Value++);
+                return m_Script.CreateDouble(m_Value++);
             case POST_DECREMENT:
-                return getScript().CreateDouble(m_Value--);
+                return m_Script.CreateDouble(m_Value--);
             default:
                 return this;
         }
@@ -53,32 +53,32 @@ public class ScriptNumberDouble extends ScriptNumber {
     }
     @Override
     public ScriptNumber Negative() {
-        return getScript().CreateDouble(-m_Value);
+        return m_Script.CreateDouble(-m_Value);
     }
     @Override
     public ScriptNumber Abs() {
         if (m_Value >= 0) {
-            return getScript().CreateDouble(m_Value);
+            return m_Script.CreateDouble(m_Value);
         }
-        return getScript().CreateDouble(-m_Value);
+        return m_Script.CreateDouble(-m_Value);
     }
     @Override
     public ScriptNumber Floor() {
-        return getScript().CreateDouble(Math.floor (m_Value));
+        return m_Script.CreateDouble(Math.floor (m_Value));
     }
     @Override
     public ScriptNumber Clamp(ScriptNumber min, ScriptNumber max) {
         if (m_Value < min.ToDouble()) {
-            return getScript().CreateDouble(min.ToDouble());
+            return m_Script.CreateDouble(min.ToDouble());
         }
         if (m_Value > max.ToDouble()) {
-            return getScript().CreateDouble(max.ToDouble());
+            return m_Script.CreateDouble(max.ToDouble());
         }
-        return getScript().CreateDouble(m_Value);
+        return m_Script.CreateDouble(m_Value);
     }
     @Override
     public ScriptObject Assign() {
-        return getScript().CreateDouble(m_Value);
+        return m_Script.CreateDouble(m_Value);
     }
     @Override
     public double ToDouble() {
@@ -88,7 +88,7 @@ public class ScriptNumberDouble extends ScriptNumber {
     public boolean Compare(TokenType type, ScriptObject obj) {
         ScriptNumberDouble val = (ScriptNumberDouble)((obj instanceof ScriptNumberDouble) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较");
+            throw new ExecutionException(m_Script, "数字比较 两边的数字类型不一致 请先转换再比较");
         }
         switch (type) {
             case Greater:
@@ -100,35 +100,35 @@ public class ScriptNumberDouble extends ScriptNumber {
             case LessOrEqual:
                 return m_Value <= val.m_Value;
             default:
-                throw new ExecutionException(getScript(), "Double类型 操作符[" + type + "]不支持");
+                throw new ExecutionException(m_Script, "Double类型 操作符[" + type + "]不支持");
         }
     }
     @Override
     public ScriptObject Compute(TokenType type, ScriptObject obj) {
         ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(getScript(), "逻辑计算 右边值必须为数字类型");
+            throw new ExecutionException(m_Script, "逻辑计算 右边值必须为数字类型");
         }
         switch (type) {
             case Plus:
-                return getScript().CreateDouble(m_Value + val.ToDouble());
+                return m_Script.CreateDouble(m_Value + val.ToDouble());
             case Minus:
-                return getScript().CreateDouble(m_Value - val.ToDouble());
+                return m_Script.CreateDouble(m_Value - val.ToDouble());
             case Multiply:
-                return getScript().CreateDouble(m_Value * val.ToDouble());
+                return m_Script.CreateDouble(m_Value * val.ToDouble());
             case Divide:
-                return getScript().CreateDouble(m_Value / val.ToDouble());
+                return m_Script.CreateDouble(m_Value / val.ToDouble());
             case Modulo:
-                return getScript().CreateDouble(m_Value % val.ToDouble());
+                return m_Script.CreateDouble(m_Value % val.ToDouble());
             default:
-                throw new ExecutionException(getScript(), "Double不支持的运算符 " + type);
+                throw new ExecutionException(m_Script, "Double不支持的运算符 " + type);
         }
     }
     @Override
     public ScriptObject AssignCompute(TokenType type, ScriptObject obj) {
         ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(getScript(), "赋值逻辑计算 右边值必须为数字类型");
+            throw new ExecutionException(m_Script, "赋值逻辑计算 右边值必须为数字类型");
         }
         switch (type) {
             case AssignPlus:
@@ -147,7 +147,7 @@ public class ScriptNumberDouble extends ScriptNumber {
                 m_Value %= val.ToDouble();
                 return this;
             default:
-                throw new ExecutionException(getScript(), "Double不支持的运算符 " + type);
+                throw new ExecutionException(m_Script, "Double不支持的运算符 " + type);
         }
     }
     @Override
@@ -156,6 +156,6 @@ public class ScriptNumberDouble extends ScriptNumber {
     }
     @Override
     public ScriptObject clone() {
-        return getScript().CreateDouble(m_Value);
+        return m_Script.CreateDouble(m_Value);
     }
 }

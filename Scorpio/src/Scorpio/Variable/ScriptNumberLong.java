@@ -6,6 +6,7 @@ import Scorpio.Compiler.*;
 import Scorpio.Exception.*;
 
 public class ScriptNumberLong extends ScriptNumber {
+    public long m_Value;
     @Override
     public ObjectType getType() {
         return ObjectType.Number;
@@ -25,7 +26,6 @@ public class ScriptNumberLong extends ScriptNumber {
     public final long getValue() {
         return m_Value;
     }
-    public long m_Value;
     public ScriptNumberLong(Script script, long value) {
         super(script);
         m_Value = value;
@@ -40,9 +40,9 @@ public class ScriptNumberLong extends ScriptNumber {
                 --m_Value;
                 break;
             case POST_INCREMENT:
-                return getScript().CreateLong(m_Value++);
+                return m_Script.CreateLong(m_Value++);
             case POST_DECREMENT:
-                return getScript().CreateLong(m_Value--);
+                return m_Script.CreateLong(m_Value--);
             default:
                 return this;
         }
@@ -50,32 +50,32 @@ public class ScriptNumberLong extends ScriptNumber {
     }
     @Override
     public ScriptNumber Negative() {
-        return getScript().CreateLong(-m_Value);
+        return m_Script.CreateLong(-m_Value);
     }
     @Override
     public ScriptNumber Abs() {
         if (m_Value >= 0) {
-            return getScript().CreateLong(m_Value);
+            return m_Script.CreateLong(m_Value);
         }
-        return getScript().CreateLong(-m_Value);
+        return m_Script.CreateLong(-m_Value);
     }
     @Override
     public ScriptNumber Floor() {
-        return getScript().CreateLong(m_Value);
+        return m_Script.CreateLong(m_Value);
     }
     @Override
     public ScriptNumber Clamp(ScriptNumber min, ScriptNumber max) {
         if (m_Value < min.ToLong()) {
-            return getScript().CreateLong(min.ToLong());
+            return m_Script.CreateLong(min.ToLong());
         }
         if (m_Value > max.ToLong()) {
-            return getScript().CreateLong(max.ToLong());
+            return m_Script.CreateLong(max.ToLong());
         }
-        return getScript().CreateLong(m_Value);
+        return m_Script.CreateLong(m_Value);
     }
     @Override
     public ScriptObject Assign() {
-        return getScript().CreateLong(m_Value);
+        return m_Script.CreateLong(m_Value);
     }
     @Override
     public long ToLong() {
@@ -85,7 +85,7 @@ public class ScriptNumberLong extends ScriptNumber {
     public boolean Compare(TokenType type, ScriptObject num) {
         ScriptNumberLong val = (ScriptNumberLong)((num instanceof ScriptNumberLong) ? num : null);
         if (val == null) {
-            throw new ExecutionException(getScript(), "数字比较 两边的数字类型不一致 请先转换再比较 ");
+            throw new ExecutionException(m_Script, "数字比较 两边的数字类型不一致 请先转换再比较 ");
         }
         switch (type) {
             case Greater:
@@ -97,45 +97,45 @@ public class ScriptNumberLong extends ScriptNumber {
             case LessOrEqual:
                 return m_Value <= val.m_Value;
             default:
-                throw new ExecutionException(getScript(), "Long类型 操作符[" + type + "]不支持");
+                throw new ExecutionException(m_Script, "Long类型 操作符[" + type + "]不支持");
         }
     }
     @Override
     public ScriptObject Compute(TokenType type, ScriptObject obj) {
         ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(getScript(), "赋值逻辑计算 右边值必须为数字类型");
+            throw new ExecutionException(m_Script, "赋值逻辑计算 右边值必须为数字类型");
         }
         switch (type) {
             case Plus:
-                return getScript().CreateLong(m_Value + val.ToLong());
+                return m_Script.CreateLong(m_Value + val.ToLong());
             case Minus:
-                return getScript().CreateLong(m_Value - val.ToLong());
+                return m_Script.CreateLong(m_Value - val.ToLong());
             case Multiply:
-                return getScript().CreateLong(m_Value * val.ToLong());
+                return m_Script.CreateLong(m_Value * val.ToLong());
             case Divide:
-                return getScript().CreateLong(m_Value / val.ToLong());
+                return m_Script.CreateLong(m_Value / val.ToLong());
             case Modulo:
-                return getScript().CreateLong(m_Value % val.ToLong());
+                return m_Script.CreateLong(m_Value % val.ToLong());
             case InclusiveOr:
-                return getScript().CreateLong(m_Value | val.ToLong());
+                return m_Script.CreateLong(m_Value | val.ToLong());
             case Combine:
-                return getScript().CreateLong(m_Value & val.ToLong());
+                return m_Script.CreateLong(m_Value & val.ToLong());
             case XOR:
-                return getScript().CreateLong(m_Value ^ val.ToLong());
+                return m_Script.CreateLong(m_Value ^ val.ToLong());
             case Shr:
-                return getScript().CreateLong(m_Value >> val.ToInt32());
+                return m_Script.CreateLong(m_Value >> val.ToInt32());
             case Shi:
-                return getScript().CreateLong(m_Value << val.ToInt32());
+                return m_Script.CreateLong(m_Value << val.ToInt32());
             default:
-                throw new ExecutionException(getScript(), "Long不支持的运算符 " + type);
+                throw new ExecutionException(m_Script, "Long不支持的运算符 " + type);
         }
     }
     @Override
     public ScriptObject AssignCompute(TokenType type, ScriptObject obj) {
         ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(getScript(), "赋值逻辑计算 右边值必须为数字类型");
+            throw new ExecutionException(m_Script, "赋值逻辑计算 右边值必须为数字类型");
         }
         switch (type) {
             case AssignPlus:
@@ -169,11 +169,11 @@ public class ScriptNumberLong extends ScriptNumber {
                 m_Value <<= val.ToInt32();
                 return this;
             default:
-                throw new ExecutionException(getScript(), "Long不支持的运算符 " + type);
+                throw new ExecutionException(m_Script, "Long不支持的运算符 " + type);
         }
     }
     @Override
     public ScriptObject clone() {
-        return getScript().CreateLong(m_Value);
+        return m_Script.CreateLong(m_Value);
     }
 }
