@@ -21,6 +21,10 @@ public class ScriptNumberDouble extends ScriptNumber {
     public Object getObjectValue() {
         return m_Value;
     }
+    @Override
+    public Object getKeyValue() {
+        return m_Value;
+    }
     public final double getValue() {
         return m_Value;
     }
