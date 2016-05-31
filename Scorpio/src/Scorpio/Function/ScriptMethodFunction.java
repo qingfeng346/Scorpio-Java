@@ -22,7 +22,7 @@ public class ScriptMethodFunction extends ScriptFunction {
             return m_Method.Call(parameters);
         }
         catch (RuntimeException ex) {
-            throw new ExecutionException(getScript(), "CallFunction [" + getName() + "] is error : " + ex.toString());
+            throw new ExecutionException(m_Script, "CallFunction [" + getName() + "] is error : " + ex.toString());
         }
     }
 }
