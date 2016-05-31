@@ -11,8 +11,8 @@ public class ScorpioTypeMethod extends ScorpioMethod {
     public ScorpioTypeMethod(Script script, String name, UserdataMethod method, java.lang.Class<?> type) {
         m_script = script;
         m_Type = type;
-        setMethod(method);
-        setMethodName(name);
+        m_Method = method;
+        m_MethodName = name;
     }
     @Override
     public Object Call(ScriptObject[] parameters) {
@@ -22,14 +22,14 @@ public class ScorpioTypeMethod extends ScorpioMethod {
             ScriptObject[] pars = new ScriptObject[parameters.length - 1];
             System.arraycopy(parameters, 1, pars, 0, pars.length);
             if (parameters[0] instanceof ScriptNumber) {
-                return getMethod().Call(Util.ChangeType_impl(parameters[0].getObjectValue(), m_Type), pars);
+                return m_Method.Call(Util.ChangeType_impl(parameters[0].getObjectValue(), m_Type), pars);
             }
             else {
-                return getMethod().Call(parameters[0].getObjectValue(), pars);
+                return m_Method.Call(parameters[0].getObjectValue(), pars);
             }
         }
         else {
-            return getMethod().Call(parameters[0].getObjectValue(), new ScriptObject[0]);
+            return m_Method.Call(parameters[0].getObjectValue(), new ScriptObject[0]);
         }
     }
 }

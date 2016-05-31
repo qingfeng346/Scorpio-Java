@@ -4,19 +4,13 @@ import Scorpio.*;
 import Scorpio.Userdata.*;
 
 public abstract class ScorpioMethod {
-    private UserdataMethod privateMethod;
+    protected UserdataMethod m_Method;
+    protected String m_MethodName;
     public final UserdataMethod getMethod() {
-        return privateMethod;
+        return m_Method;
     }
-    protected final void setMethod(UserdataMethod value) {
-        privateMethod = value;
-    }
-    private String privateMethodName;
     public final String getMethodName() {
-        return privateMethodName;
-    }
-    protected final void setMethodName(String value) {
-        privateMethodName = value;
+        return m_MethodName;
     }
     public abstract Object Call(ScriptObject[] parameters); //调用函数
 }

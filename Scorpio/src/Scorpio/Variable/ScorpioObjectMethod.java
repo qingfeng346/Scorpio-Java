@@ -8,11 +8,11 @@ public class ScorpioObjectMethod extends ScorpioMethod {
     private Object m_Object;
     public ScorpioObjectMethod(Object obj, String name, UserdataMethod method) {
         m_Object = obj;
-        setMethod(method);
-        setMethodName(name);
+        m_Method = method;
+        m_MethodName = name;
     }
     @Override
     public Object Call(ScriptObject[] parameters) {
-        return getMethod().Call(m_Object, parameters);
+        return m_Method.Call(m_Object, parameters);
     }
 }
