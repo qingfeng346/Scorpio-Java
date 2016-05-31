@@ -1,5 +1,7 @@
 package Scorpio.Userdata;
 
+import java.lang.reflect.InvocationTargetException;
+
 import Scorpio.*;
 import Scorpio.Exception.*;
 
@@ -12,13 +14,7 @@ public class UserdataMethod {
         public java.lang.Class<?> ParamType; //变长参数类型
         public String ParameterTypes; //传递参数的类型
         public Object[] Args; //参数数组（预创建 可以共用）
-        private boolean privateIsValid;
-        public final boolean getIsValid() {
-            return privateIsValid;
-        }
-        protected final void setIsValid(boolean value) {
-            privateIsValid = value;
-        }
+        public boolean IsValid; //是否是有效的函数 (模版函数没有声明的时候就是无效的)
         public FunctionBase(java.lang.Class<?>[] ParameterType, java.lang.Class<?> ParamType, boolean Params, String ParameterTypes) {
             this.ParameterType = ParameterType;
             this.ParamType = ParamType;
@@ -33,7 +29,7 @@ public class UserdataMethod {
         public FunctionMethod(java.lang.reflect.Method Method, java.lang.Class<?>[] ParameterType, java.lang.Class<?> ParamType, boolean Params, String ParameterTypes) {
             super(ParameterType, ParamType, Params, ParameterTypes);
             this.Method = Method;
-            setIsValid(true);
+            this.IsValid = true;
         }
         @Override
         public Object invoke(Object obj, java.lang.Class<?> type) throws Exception {
@@ -44,8 +40,8 @@ public class UserdataMethod {
         public java.lang.reflect.Constructor<?> Constructor; //构造函数对象
         public FunctionConstructor(java.lang.reflect.Constructor<?> Constructor, java.lang.Class<?>[] ParameterType, java.lang.Class<?> ParamType, boolean Params, String ParameterTypes) {
             super(ParameterType, ParamType, Params, ParameterTypes);
+            this.IsValid = true;
             this.Constructor = Constructor;
-            setIsValid(true);
         }
         @Override
         public Object invoke(Object obj, java.lang.Class<?> type) throws Exception {
@@ -56,8 +52,8 @@ public class UserdataMethod {
         public IScorpioFastReflectMethod Method;
         public FunctionFastMethod(IScorpioFastReflectMethod Method, java.lang.Class<?>[] ParameterType, java.lang.Class<?> ParamType, boolean Params, String ParameterTypes) {
             super(ParameterType, ParamType, Params, ParameterTypes);
+            this.IsValid = true;
             this.Method = Method;
-            setIsValid(true);
         }
         @Override
         public Object invoke(Object obj, java.lang.Class<?> type) {
@@ -99,35 +95,29 @@ public class UserdataMethod {
     private java.lang.Class<?> m_Type; //所在类型
     private int m_Count; //相同名字函数数量
     private FunctionBase[] m_Methods; //所有函数对象
-    private String privateMethodName;
+    private String m_MethodName; //函数名字
+    private boolean m_IsStatic; //是否是静态函数
     public final String getMethodName() {
-        return privateMethodName;
+        return m_MethodName;
     }
-    private void setMethodName(String value) {
-        privateMethodName = value;
-    }
-    private boolean privateIsStatic;
     public final boolean getIsStatic() {
-        return privateIsStatic;
-    }
-    private void setIsStatic(boolean value) {
-        privateIsStatic = value;
+        return m_IsStatic;
     }
     public UserdataMethod() {
     }
-    protected final void Initialize(Script script, java.lang.Class<?> type, String methodName, java.lang.reflect.Method[] methods) {
+    protected UserdataMethod(Script script, java.lang.Class<?> type, String methodName, java.lang.reflect.Method[] methods) {
         m_Script = script;
         java.util.ArrayList<MethodInfo> methodBases = new java.util.ArrayList<MethodInfo>(); 
     	for (java.lang.reflect.Method method : methods) {
     		if (method.getName().equals(methodName))
     			methodBases.add(new MethodInfo(method));
     	}
-        setIsStatic(methodBases.size() > 0 ? methodBases.get(0).isStatic() : false);
+    	m_IsStatic = methodBases.size() > 0 ? methodBases.get(0).isStatic() : false;
         Initialize_impl(type, methodName, methodBases);
     }
     protected final void Initialize(Script script, java.lang.Class<?> type, String methodName, java.lang.reflect.Constructor<?>[] cons) {
         m_Script = script;
-        setIsStatic(false);
+        m_IsStatic = false;
         java.util.ArrayList<MethodInfo> methodBases = new java.util.ArrayList<MethodInfo>(); 
     	for (java.lang.reflect.Constructor<?> con : cons) {
     		methodBases.add(new MethodInfo(con));
@@ -136,7 +126,7 @@ public class UserdataMethod {
     }
     private void Initialize_impl(java.lang.Class<?> type, String methodName, java.util.ArrayList<MethodInfo> methods) {
         m_Type = type;
-        setMethodName(methodName);
+        m_MethodName = methodName;
         java.util.ArrayList<FunctionBase> functionMethod = new java.util.ArrayList<FunctionBase>();
         boolean Params = false;
         java.lang.Class<?> ParamType = null;
@@ -152,7 +142,7 @@ public class UserdataMethod {
             method = methods.get(i);
             Class<?>[] pars = method.GetParameters();
             for (Class<?> par : pars) {
-                ParameterTypes += (par.getName() + "+");
+            	ParameterTypes += (par.getName() + "+");
                 parameters.add(par);
             }
             if (method.isVarArgs()) {
@@ -171,9 +161,9 @@ public class UserdataMethod {
     }
     protected final void Initialize(boolean isStatic, Script script, java.lang.Class<?> type, String methodName, ScorpioMethodInfo[] methods, IScorpioFastReflectMethod fastMethod) {
         m_Script = script;
-        setIsStatic(isStatic);
+        m_IsStatic = isStatic;
         m_Type = type;
-        setMethodName(methodName);
+        m_MethodName = methodName;
         java.util.ArrayList<FunctionBase> functionMethod = new java.util.ArrayList<FunctionBase>();
         for (ScorpioMethodInfo method : methods) {
             functionMethod.add(new FunctionFastMethod(fastMethod, method.ParameterType, method.ParamType, method.Params, method.ParameterTypes));
@@ -182,11 +172,11 @@ public class UserdataMethod {
         m_Count = m_Methods.length;
     }
     public final Object Call(Object obj, ScriptObject[] parameters) {
-    	FunctionBase methodInfo = null;
+        FunctionBase methodInfo = null;
         FunctionBase functionBase = null;
         for (int i = 0; i < m_Count; ++i) {
             functionBase = m_Methods[i];
-            if (functionBase.getIsValid()) {
+            if (functionBase.IsValid) {
                 if (functionBase.Params) {
                     boolean fit = true;
                     int length = functionBase.ParameterType.length;
@@ -203,31 +193,36 @@ public class UserdataMethod {
                         methodInfo = functionBase;
                         break;
                     }
-                } else if (Util.CanChangeType(parameters, functionBase.ParameterType)) {
+                }
+                else if (Util.CanChangeType(parameters, functionBase.ParameterType)) {
                     methodInfo = functionBase;
                     break;
                 }
             }
         }
         try {
-        	if (methodInfo != null) {
+            if (methodInfo != null) {
                 int length = methodInfo.ParameterType.length;
                 Object[] objs = methodInfo.Args;
                 if (methodInfo.Params) {
-                    for (int i = 0; i < length - 1; ++i)
+                    for (int i = 0; i < length - 1; ++i) {
                         objs[i] = Util.ChangeType(m_Script, parameters[i], methodInfo.ParameterType[i]);
+                    }
                     Object array = java.lang.reflect.Array.newInstance(methodInfo.ParamType, parameters.length - length + 1);
                     for (int i = length - 1; i < parameters.length; ++i)
                     	java.lang.reflect.Array.set(array, i - length + 1, Util.ChangeType(m_Script, parameters[i], methodInfo.ParamType));
                     objs[length - 1] = array;
                     return methodInfo.invoke(obj, m_Type);
-                } else {
-                    for (int i = 0; i < length; i++)
+                }
+                else {
+                    for (int i = 0; i < length; i++) {
                         objs[i] = Util.ChangeType(m_Script, parameters[i], methodInfo.ParameterType[i]);
+                    }
                     return methodInfo.invoke(obj, m_Type);
                 }
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new ExecutionException(m_Script, "Type[" + m_Type.toString() + "] 调用函数出错 [" + getMethodName() + "] : " + e.toString());
         }
         throw new ExecutionException(m_Script, "Type[" + m_Type.toString() + "] 找不到合适的函数 [" + getMethodName() + "]");
