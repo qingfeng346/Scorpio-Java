@@ -826,16 +826,10 @@ public class ScriptParser {
                 CodeObject member = GetObject();
                 ReadRightBracket();
                 if (member instanceof CodeScriptObject) {
-                    ScriptObject obj = ((CodeScriptObject)member).getObject();
-                    if (obj instanceof ScriptNumber || obj instanceof ScriptString) {
-                        ret = new CodeMember(obj.getObjectValue(), ret);
-                    }
-                    else {
-                        throw new ParserException("获取变量只能是 number或string", m);
-                    }
+                    ret = new CodeMember(((CodeScriptObject)member).getObject().getKeyValue(), ret);
                 }
                 else {
-                     ret = new CodeMember(member, ret);
+                    ret = new CodeMember(member, ret);
                 }
             }
             else if (m.getType() == TokenType.LeftPar) {
@@ -902,10 +896,15 @@ public class ScriptParser {
         ReadLeftBrace();
         while (PeekToken().getType() != TokenType.RightBrace) {
             Token token = ReadToken();
-            if (token.getType() == TokenType.Identifier || token.getType() == TokenType.String || token.getType() == TokenType.SimpleString || token.getType() == TokenType.Number) {
+            if (token.getType() == TokenType.Identifier || token.getType() == TokenType.String || token.getType() == TokenType.SimpleString || token.getType() == TokenType.Number || token.getType() == TokenType.Boolean || token.getType() == TokenType.Null) {
                 Token next = ReadToken();
                 if (next.getType() == TokenType.Assign || next.getType() == TokenType.Colon) {
-                    ret._Variables.add(new CodeTable.TableVariable(token.getLexeme(), GetObject()));
+                    if (token.getType() == TokenType.Null) {
+                        ret._Variables.add(new CodeTable.TableVariable(m_script.getNull().getKeyValue(), GetObject()));
+                    }
+                    else {
+                        ret._Variables.add(new CodeTable.TableVariable(token.getLexeme(), GetObject()));
+                    }
                     Token peek = PeekToken();
                     if (peek.getType() == TokenType.Comma || peek.getType() == TokenType.SemiColon) {
                         ReadToken();
