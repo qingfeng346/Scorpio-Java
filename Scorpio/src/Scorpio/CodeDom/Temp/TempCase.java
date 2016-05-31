@@ -10,7 +10,7 @@ public class TempCase {
     public ScriptExecutable Executable; //指令列表
     public CodeObject[] Allow; //判断条件
     public TempCase(Script script, java.util.ArrayList<CodeObject> allow, ScriptExecutable executable) {
-        this.Allow = allow.toArray(new CodeObject[]{});
+        this.Allow = allow != null ? allow.toArray(new CodeObject[]{}) : new CodeObject[0];
         this.Executable = executable;
     }
 }
