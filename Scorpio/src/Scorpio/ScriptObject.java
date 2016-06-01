@@ -95,7 +95,7 @@ public abstract class ScriptObject {
     public ScriptObject(Script script) { // 构图函数
         m_Script = script;
     }
-    public final Script getGetScript() {
+    public final Script getScript() {
         return m_Script;
     }
     public abstract ObjectType getType();
