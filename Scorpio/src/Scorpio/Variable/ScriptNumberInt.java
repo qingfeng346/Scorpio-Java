@@ -40,9 +40,9 @@ public class ScriptNumberInt extends ScriptNumber {
                 --m_Value;
                 break;
             case POST_INCREMENT:
-                return m_Script.CreateInt(m_Value++);
+                return new ScriptNumberInt(m_Script, m_Value++);
             case POST_DECREMENT:
-                return m_Script.CreateInt(m_Value--);
+                return new ScriptNumberInt(m_Script, m_Value--);
             default:
                 return this;
         }
@@ -50,32 +50,32 @@ public class ScriptNumberInt extends ScriptNumber {
     }
     @Override
     public ScriptNumber Negative() {
-        return m_Script.CreateInt(-m_Value);
+        return new ScriptNumberInt(m_Script, -m_Value);
     }
     @Override
     public ScriptNumber Abs() {
         if (m_Value >= 0) {
-            return m_Script.CreateInt(m_Value);
+            return new ScriptNumberInt(m_Script, m_Value);
         }
-        return m_Script.CreateInt(-m_Value);
+        return new ScriptNumberInt(m_Script, -m_Value);
     }
     @Override
     public ScriptNumber Floor() {
-        return m_Script.CreateInt(m_Value);
+        return new ScriptNumberInt(m_Script, m_Value);
     }
     @Override
     public ScriptNumber Clamp(ScriptNumber min, ScriptNumber max) {
         if (m_Value < min.ToInt32()) {
-            return m_Script.CreateInt(min.ToInt32());
+            return new ScriptNumberInt(m_Script, min.ToInt32());
         }
         if (m_Value > max.ToInt32()) {
-            return m_Script.CreateInt(max.ToInt32());
+            return new ScriptNumberInt(m_Script, max.ToInt32());
         }
-        return m_Script.CreateInt(m_Value);
+        return new ScriptNumberInt(m_Script, m_Value);
     }
     @Override
     public ScriptObject Assign() {
-        return m_Script.CreateInt(m_Value);
+        return new ScriptNumberInt(m_Script, m_Value);
     }
     @Override
     public int ToInt32() {
@@ -108,25 +108,25 @@ public class ScriptNumberInt extends ScriptNumber {
         }
         switch (type) {
             case Plus:
-                return m_Script.CreateInt(m_Value + val.ToInt32());
+                return new ScriptNumberInt(m_Script, m_Value + val.ToInt32());
             case Minus:
-                return m_Script.CreateInt(m_Value - val.ToInt32());
+                return new ScriptNumberInt(m_Script, m_Value - val.ToInt32());
             case Multiply:
-                return m_Script.CreateInt(m_Value * val.ToInt32());
+                return new ScriptNumberInt(m_Script, m_Value * val.ToInt32());
             case Divide:
-                return m_Script.CreateInt(m_Value / val.ToInt32());
+                return new ScriptNumberInt(m_Script, m_Value / val.ToInt32());
             case Modulo:
-                return m_Script.CreateInt(m_Value % val.ToInt32());
+                return new ScriptNumberInt(m_Script, m_Value % val.ToInt32());
             case InclusiveOr:
-                return m_Script.CreateInt(m_Value | val.ToInt32());
+                return new ScriptNumberInt(m_Script, m_Value | val.ToInt32());
             case Combine:
-                return m_Script.CreateInt(m_Value & val.ToInt32());
+                return new ScriptNumberInt(m_Script, m_Value & val.ToInt32());
             case XOR:
-                return m_Script.CreateInt(m_Value ^ val.ToInt32());
+                return new ScriptNumberInt(m_Script, m_Value ^ val.ToInt32());
             case Shr:
-                return m_Script.CreateInt(m_Value >> val.ToInt32());
+                return new ScriptNumberInt(m_Script, m_Value >> val.ToInt32());
             case Shi:
-                return m_Script.CreateInt(m_Value << val.ToInt32());
+                return new ScriptNumberInt(m_Script, m_Value << val.ToInt32());
             default:
                 throw new ExecutionException(m_Script, "Int不支持的运算符 " + type);
         }
@@ -175,6 +175,6 @@ public class ScriptNumberInt extends ScriptNumber {
 
     @Override
     public ScriptObject clone() {
-        return m_Script.CreateInt(m_Value);
+        return new ScriptNumberInt(m_Script, m_Value);
     }
 }

@@ -40,9 +40,9 @@ public class ScriptNumberLong extends ScriptNumber {
                 --m_Value;
                 break;
             case POST_INCREMENT:
-                return m_Script.CreateLong(m_Value++);
+                return new ScriptNumberLong(m_Script, m_Value++);
             case POST_DECREMENT:
-                return m_Script.CreateLong(m_Value--);
+                return new ScriptNumberLong(m_Script, m_Value--);
             default:
                 return this;
         }
@@ -50,32 +50,34 @@ public class ScriptNumberLong extends ScriptNumber {
     }
     @Override
     public ScriptNumber Negative() {
-        return m_Script.CreateLong(-m_Value);
+        return new ScriptNumberLong(m_Script, -m_Value);
     }
     @Override
     public ScriptNumber Abs() {
         if (m_Value >= 0) {
-            return m_Script.CreateLong(m_Value);
+            return new ScriptNumberLong(m_Script, m_Value);
         }
-        return m_Script.CreateLong(-m_Value);
+        return new ScriptNumberLong(m_Script, -m_Value);
     }
     @Override
     public ScriptNumber Floor() {
-        return m_Script.CreateLong(m_Value);
+        return new ScriptNumberLong(m_Script, m_Value);
     }
     @Override
     public ScriptNumber Clamp(ScriptNumber min, ScriptNumber max) {
-        if (m_Value < min.ToLong()) {
-            return m_Script.CreateLong(min.ToLong());
+        long val = min.ToLong();
+        if (m_Value < val) {
+            return new ScriptNumberLong(m_Script, val);
         }
-        if (m_Value > max.ToLong()) {
-            return m_Script.CreateLong(max.ToLong());
+        val = max.ToLong();
+        if (m_Value > val) {
+            return new ScriptNumberLong(m_Script, val);
         }
-        return m_Script.CreateLong(m_Value);
+        return new ScriptNumberLong(m_Script, m_Value);
     }
     @Override
     public ScriptObject Assign() {
-        return m_Script.CreateLong(m_Value);
+        return new ScriptNumberLong(m_Script, m_Value);
     }
     @Override
     public long ToLong() {
@@ -108,25 +110,25 @@ public class ScriptNumberLong extends ScriptNumber {
         }
         switch (type) {
             case Plus:
-                return m_Script.CreateLong(m_Value + val.ToLong());
+                return new ScriptNumberLong(m_Script, m_Value + val.ToLong());
             case Minus:
-                return m_Script.CreateLong(m_Value - val.ToLong());
+                return new ScriptNumberLong(m_Script, m_Value - val.ToLong());
             case Multiply:
-                return m_Script.CreateLong(m_Value * val.ToLong());
+                return new ScriptNumberLong(m_Script, m_Value * val.ToLong());
             case Divide:
-                return m_Script.CreateLong(m_Value / val.ToLong());
+                return new ScriptNumberLong(m_Script, m_Value / val.ToLong());
             case Modulo:
-                return m_Script.CreateLong(m_Value % val.ToLong());
+                return new ScriptNumberLong(m_Script, m_Value % val.ToLong());
             case InclusiveOr:
-                return m_Script.CreateLong(m_Value | val.ToLong());
+                return new ScriptNumberLong(m_Script, m_Value | val.ToLong());
             case Combine:
-                return m_Script.CreateLong(m_Value & val.ToLong());
+                return new ScriptNumberLong(m_Script, m_Value & val.ToLong());
             case XOR:
-                return m_Script.CreateLong(m_Value ^ val.ToLong());
+                return new ScriptNumberLong(m_Script, m_Value ^ val.ToLong());
             case Shr:
-                return m_Script.CreateLong(m_Value >> val.ToInt32());
+                return new ScriptNumberLong(m_Script, m_Value >> val.ToInt32());
             case Shi:
-                return m_Script.CreateLong(m_Value << val.ToInt32());
+                return new ScriptNumberLong(m_Script, m_Value << val.ToInt32());
             default:
                 throw new ExecutionException(m_Script, "Long不支持的运算符 " + type);
         }
@@ -174,6 +176,6 @@ public class ScriptNumberLong extends ScriptNumber {
     }
     @Override
     public ScriptObject clone() {
-        return m_Script.CreateLong(m_Value);
+        return new ScriptNumberLong(m_Script, m_Value);
     }
 }

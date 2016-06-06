@@ -43,9 +43,9 @@ public class ScriptNumberDouble extends ScriptNumber {
                 --m_Value;
                 break;
             case POST_INCREMENT:
-                return m_Script.CreateDouble(m_Value++);
+                return new ScriptNumberDouble(m_Script, m_Value++);
             case POST_DECREMENT:
-                return m_Script.CreateDouble(m_Value--);
+                return new ScriptNumberDouble(m_Script, m_Value--);
             default:
                 return this;
         }
@@ -53,32 +53,28 @@ public class ScriptNumberDouble extends ScriptNumber {
     }
     @Override
     public ScriptNumber Negative() {
-        return m_Script.CreateDouble(-m_Value);
+        return new ScriptNumberDouble(m_Script, -m_Value);
     }
     @Override
     public ScriptNumber Abs() {
         if (m_Value >= 0) {
-            return m_Script.CreateDouble(m_Value);
+            return new ScriptNumberDouble(m_Script, m_Value);
         }
-        return m_Script.CreateDouble(-m_Value);
+        return new ScriptNumberDouble(m_Script, -m_Value);
     }
     @Override
     public ScriptNumber Floor() {
-        return m_Script.CreateDouble(Math.floor (m_Value));
+        return new ScriptNumberDouble(m_Script, Math.floor(m_Value));
     }
     @Override
     public ScriptNumber Clamp(ScriptNumber min, ScriptNumber max) {
         if (m_Value < min.ToDouble()) {
-            return m_Script.CreateDouble(min.ToDouble());
+            return new ScriptNumberDouble(m_Script, min.ToDouble());
         }
         if (m_Value > max.ToDouble()) {
-            return m_Script.CreateDouble(max.ToDouble());
+            return new ScriptNumberDouble(m_Script, max.ToDouble());
         }
-        return m_Script.CreateDouble(m_Value);
-    }
-    @Override
-    public ScriptObject Assign() {
-        return m_Script.CreateDouble(m_Value);
+        return new ScriptNumberDouble(m_Script, m_Value);
     }
     @Override
     public double ToDouble() {
@@ -111,15 +107,15 @@ public class ScriptNumberDouble extends ScriptNumber {
         }
         switch (type) {
             case Plus:
-                return m_Script.CreateDouble(m_Value + val.ToDouble());
+                return new ScriptNumberDouble(m_Script, m_Value + val.ToDouble());
             case Minus:
-                return m_Script.CreateDouble(m_Value - val.ToDouble());
+                return new ScriptNumberDouble(m_Script, m_Value - val.ToDouble());
             case Multiply:
-                return m_Script.CreateDouble(m_Value * val.ToDouble());
+                return new ScriptNumberDouble(m_Script, m_Value * val.ToDouble());
             case Divide:
-                return m_Script.CreateDouble(m_Value / val.ToDouble());
+                return new ScriptNumberDouble(m_Script, m_Value / val.ToDouble());
             case Modulo:
-                return m_Script.CreateDouble(m_Value % val.ToDouble());
+                return new ScriptNumberDouble(m_Script, m_Value % val.ToDouble());
             default:
                 throw new ExecutionException(m_Script, "Double不支持的运算符 " + type);
         }
@@ -151,11 +147,15 @@ public class ScriptNumberDouble extends ScriptNumber {
         }
     }
     @Override
-    public String toString() {
-    	return DoubleFormat.format(m_Value);
+    public ScriptObject Assign() {
+        return new ScriptNumberDouble(m_Script, m_Value);
     }
     @Override
     public ScriptObject clone() {
-        return m_Script.CreateDouble(m_Value);
+        return new ScriptNumberDouble(m_Script, m_Value);
+    }
+    @Override
+    public String toString() {
+    	return DoubleFormat.format(m_Value);
     }
 }
