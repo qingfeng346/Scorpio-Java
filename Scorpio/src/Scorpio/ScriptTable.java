@@ -16,7 +16,7 @@ public class ScriptTable extends ScriptObject {
     }
     @Override
     public void SetValue(Object key, ScriptObject value) {
-        Util.SetObject(m_listObject, key, value);
+        m_listObject.put(key, value.Assign());
     }
     @Override
     public ScriptObject GetValue(Object key) {

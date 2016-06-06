@@ -5,9 +5,9 @@ import Scorpio.Exception.*;
 
 /**  枚举类型 
 */
-public class DefaultScriptUserdataEnum extends ScriptUserdata {
+public class ScriptUserdataEnum extends ScriptUserdata {
     private java.util.HashMap<String, ScriptEnum> m_Enums; //如果是枚举的话 所有枚举的值
-    public DefaultScriptUserdataEnum(Script script, java.lang.Class<?> value) {
+    public ScriptUserdataEnum(Script script, java.lang.Class<?> value) {
         super(script);
         this.m_Value = value;
         this.m_ValueType = value;
@@ -16,7 +16,7 @@ public class DefaultScriptUserdataEnum extends ScriptUserdata {
         	java.lang.reflect.Method values = m_ValueType.getMethod("values");
     		Object[] rets = (Object[]) values.invoke(null);
     		for (Object v : rets) {
-    			m_Enums.put(v.toString(), script.CreateEnum(v));
+    			m_Enums.put(v.toString(), new ScriptEnum(script, v));
     		}
         } catch (Exception e) { }
     }

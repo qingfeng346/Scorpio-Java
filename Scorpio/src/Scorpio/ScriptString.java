@@ -27,14 +27,14 @@ public class ScriptString extends ScriptObject {
     }
     @Override
     public ScriptObject Assign() {
-        return m_Script.CreateString(m_Value);
+        return new ScriptString(m_Script, m_Value);
     }
     @Override
     public ScriptObject GetValue(Object index) {
         if (!(index instanceof Double || index instanceof Integer || index instanceof Long)) {
             throw new ExecutionException(m_Script, "String GetValue只支持Number类型");
         }
-        return m_Script.CreateString(m_Value.charAt(Util.ToInt32(index)) + "");
+        return new ScriptString(m_Script, m_Value.charAt(Util.ToInt32(index)) + "");
     }
     @Override
     public boolean Compare(TokenType type, ScriptObject obj) {
@@ -65,7 +65,7 @@ public class ScriptString extends ScriptObject {
     }
     @Override
     public ScriptObject clone() {
-        return m_Script.CreateString(m_Value);
+        return new ScriptString(m_Script, m_Value);
     }
     @Override
     public String ToJson() {

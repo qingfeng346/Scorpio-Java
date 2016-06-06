@@ -74,7 +74,7 @@ public class ScriptArray extends ScriptObject {
             return ((m_listObject[i]) != null) ? m_listObject[i] : m_null;
         }
         else if (index instanceof String && index.equals("length")) {
-            return m_Script.CreateNumber(m_size);
+            return m_Script.CreateDouble(Util.ToDouble(m_size));
         }
         throw new ExecutionException(m_Script, "Array SetValue只支持Number类型 index值为:" + index);
     }

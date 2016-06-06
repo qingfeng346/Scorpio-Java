@@ -1,5 +1,8 @@
 package Scorpio;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.nio.charset.Charset;
 
 import Scorpio.Runtime.*;
@@ -12,18 +15,18 @@ import Scorpio.Serialize.*;
 import Scorpio.Function.*;
 //脚本类
 public class Script {
-    public static final String DynamicDelegateName = "__DynamicDelegate__";
+	public static final Charset UTF8 = Charset.forName("UTF8");
     public static final String Version = "master";
-    public static final Charset UTF8 = Charset.forName("UTF8");
     private static final String GLOBAL_TABLE = "_G"; //全局table
     private static final String GLOBAL_VERSION = "_VERSION"; //版本号
     private static final String GLOBAL_SCRIPT = "_SCRIPT"; //Script对象
-    private IScriptUserdataFactory m_UserdataFactory = null; //Userdata工厂
     private ScriptTable m_GlobalTable; //全局Table
     private java.util.ArrayList<StackInfo> m_StackInfoStack = new java.util.ArrayList<StackInfo>(); //堆栈数据
     private java.util.ArrayList<String> m_SearchPath = new java.util.ArrayList<String>(); //request所有文件的路径集合
     private java.util.ArrayList<String> m_Defines = new java.util.ArrayList<String>(); //所有Define
-    private java.util.HashMap<java.lang.Class<?>, IScorpioFastReflectClass> m_FastReflectClass = new java.util.HashMap<java.lang.Class<?>, IScorpioFastReflectClass>();
+    private java.util.HashMap<java.lang.Class<?>, IScorpioFastReflectClass> m_FastReflectClass = new java.util.HashMap<java.lang.Class<?>, IScorpioFastReflectClass>(); //快速反射集合
+    private java.util.HashMap<java.lang.Class<?>, ScriptUserdataEnum> m_Enums = new java.util.HashMap<java.lang.Class<?>, ScriptUserdataEnum>(); //所有枚举集合
+    private java.util.HashMap<java.lang.Class<?>, UserdataType> m_Types = new java.util.HashMap<java.lang.Class<?>, UserdataType>(); //所有的类集合
     private StackInfo m_StackInfo = new StackInfo(); //最近堆栈数据
     private ScriptNull m_Null; //null对象
     private ScriptBoolean m_True; //true对象
@@ -37,24 +40,41 @@ public class Script {
     public final ScriptBoolean getFalse() {
         return m_False;
     }
-    public final ScriptBoolean GetBoolean(boolean value) {
-        return value ? getTrue() : getFalse();
-    }
     public Script() {
         m_Null = new ScriptNull(this);
         m_True = new ScriptBoolean(this, true);
         m_False = new ScriptBoolean(this, false);
-        m_UserdataFactory = new DefaultScriptUserdataFactory(this);
         m_GlobalTable = CreateTable();
         m_GlobalTable.SetValue(GLOBAL_TABLE, m_GlobalTable);
         m_GlobalTable.SetValue(GLOBAL_VERSION, CreateString(Version));
         m_GlobalTable.SetValue(GLOBAL_SCRIPT, CreateObject(this));
     }
+    public final void LoadLibrary() {
+        LibraryBasis.Load(this);
+        LibraryArray.Load(this);
+        LibraryString.Load(this);
+        LibraryTable.Load(this);
+        LibraryJson.Load(this);
+        LibraryMath.Load(this);
+        LibraryFunc.Load(this);
+    }
     public final ScriptObject LoadFile(String strFileName) {
         return LoadFile(strFileName, UTF8);
     }
     public final ScriptObject LoadFile(String fileName, Charset encoding) {
-        return LoadBuffer(fileName, ScriptExtensions.GetFileBuffer(fileName), encoding);
+    	try {
+        	ByteArrayOutputStream output = new ByteArrayOutputStream();
+    		FileInputStream stream = new FileInputStream(new File(fileName));
+            int n = 0;
+            byte[] buffer = new byte[4096];
+            while (-1 != (n = stream.read(buffer))) {
+                output.write(buffer, 0, n);
+            }
+            stream.close();
+            return LoadBuffer(fileName, buffer, encoding);
+    	} catch (Exception e) {
+    		return m_Null;
+    	}
     }
     public final ScriptObject LoadBuffer(byte[] buffer) {
         return LoadBuffer("Undefined", buffer, UTF8);
@@ -130,7 +150,8 @@ public class Script {
     public final ScriptObject LoadSearchPathFile(String fileName) {
         for (int i = 0; i < m_SearchPath.size(); ++i) {
             String file = m_SearchPath.get(i) + "/" + fileName;
-            if (ScriptExtensions.FileExist(file)) {
+            File f = new File(file);
+            if (f.exists() && f.isFile()) {
                 return LoadFile(file);
             }
         }
@@ -222,52 +243,40 @@ public class Script {
         if (value == null) {
             return m_Null;
         }
+        else if (value instanceof Boolean) {
+            return CreateBool(((Boolean)value));
+        }
+        else if (value instanceof String) {
+            return new ScriptString(this, (String)value);
+        }
+        else if (value instanceof Long) {
+            return new ScriptNumberLong(this, ((Long)value));
+        }
+        else if (value instanceof Byte || value instanceof Byte || value instanceof Short || value instanceof Short || value instanceof Integer || value instanceof Integer || value instanceof Float || value instanceof Double || value instanceof java.math.BigDecimal) {
+            return new ScriptNumberDouble(this, Util.ToDouble(value));
+        }
         else if (value instanceof ScriptObject) {
             return (ScriptObject)value;
         }
         else if (value instanceof ScorpioHandle) {
-            return CreateFunction((ScorpioHandle)value);
+            return new ScriptHandleFunction(this, (ScorpioHandle)value);
         }
         else if (value instanceof ScorpioMethod) {
-            return CreateFunction((ScorpioMethod)value);
+            return new ScriptMethodFunction(this, (ScorpioMethod)value);
         }
-        else if (Util.IsBoolObject(value)) {
-            return CreateBool(((Boolean)value).booleanValue());
-        }
-        else if (Util.IsStringObject(value)) {
-            return CreateString((String)value);
-        }
-        else if (Util.IsNumberObject(value)) {
-            return CreateNumber(value);
-        }
-        else if (Util.IsEnumObject(value)) {
-            return CreateEnum(value);
+        else if (value.getClass().isEnum()) {
+            return new ScriptEnum(this, value);
         }
         return CreateUserdata(value);
     }
     public final ScriptBoolean CreateBool(boolean value) {
-        return GetBoolean(value);
+        return value ? getTrue() : getFalse();
     }
     public final ScriptString CreateString(String value) {
         return new ScriptString(this, value);
     }
-    public final ScriptNumber CreateNumber(Object value) {
-        return Util.IsLongObject(value) ? CreateLong(((Long)value).longValue()) : CreateDouble(Util.ToDouble(value));
-    }
     public final ScriptNumber CreateDouble(double value) {
         return new ScriptNumberDouble(this, value);
-    }
-    public final ScriptNumber CreateLong(long value) {
-        return new ScriptNumberLong(this, value);
-    }
-    public final ScriptNumber CreateInt(int value) {
-        return new ScriptNumberInt(this, value);
-    }
-    public final ScriptEnum CreateEnum(Object value) {
-        return new ScriptEnum(this, value);
-    }
-    public final ScriptUserdata CreateUserdata(Object value) {
-        return m_UserdataFactory.create(this, value);
     }
     public final ScriptArray CreateArray() {
         return new ScriptArray(this);
@@ -275,28 +284,41 @@ public class Script {
     public final ScriptTable CreateTable() {
         return new ScriptTable(this);
     }
-    public final ScriptScriptFunction CreateFunction(String name, ScorpioScriptFunction value) {
-        return new ScriptScriptFunction(this, name, value);
+    public final ScriptUserdata CreateUserdata(Object obj) {
+        java.lang.Class<?> type = (java.lang.Class<?>)((obj instanceof java.lang.Class<?>) ? obj : null);
+        if (type != null) {
+            if (type.isEnum()) {
+                return GetEnum(type);
+            }
+            else {
+                return new ScriptUserdataObjectType(this, type, GetScorpioType(type));
+            }
+        }
+        return new ScriptUserdataObject(this, obj, GetScorpioType(obj.getClass()));
     }
     public final ScriptFunction CreateFunction(ScorpioHandle value) {
         return new ScriptHandleFunction(this, value);
     }
-    public final ScriptFunction CreateFunction(ScorpioMethod value) {
-        return new ScriptMethodFunction(this, value);
+    public final ScriptUserdata GetEnum(java.lang.Class<?> type) {
+        if (m_Enums.containsKey(type)) {
+            return m_Enums.get(type);
+        }
+        ScriptUserdataEnum ret = new ScriptUserdataEnum(this, type);
+        m_Enums.put(type, ret);
+        return ret;
     }
-    public final IScriptUserdataFactory GetUserdataFactory() {
-        return m_UserdataFactory;
-    }
-    public final void SetUserdataFactory(IScriptUserdataFactory value) {
-        m_UserdataFactory = value;
-    }
-    public final void LoadLibrary() {
-        LibraryBasis.Load(this);
-        LibraryArray.Load(this);
-        LibraryString.Load(this);
-        LibraryTable.Load(this);
-        LibraryJson.Load(this);
-        LibraryMath.Load(this);
-        LibraryFunc.Load(this);
+    public final UserdataType GetScorpioType(java.lang.Class<?> type) {
+        if (m_Types.containsKey(type)) {
+            return m_Types.get(type);
+        }
+        UserdataType scorpioType = null;
+        if (ContainsFastReflectClass(type)) {
+            scorpioType = new FastReflectUserdataType(this, type, GetFastReflectClass(type));
+        }
+        else {
+            scorpioType = new ReflectUserdataType(this, type);
+        }
+        m_Types.put(type, scorpioType);
+        return scorpioType;
     }
 }

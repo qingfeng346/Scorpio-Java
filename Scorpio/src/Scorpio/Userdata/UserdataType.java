@@ -1,14 +1,9 @@
 package Scorpio.Userdata;
 
 import Scorpio.*;
-import Scorpio.Compiler.*;
 import Scorpio.Variable.*;
+import Scorpio.Compiler.*;
 
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-//#if SCORPIO_UWP && !UNITY_EDITOR
-//C# TO JAVA CONVERTER TODO TASK: There is no preprocessor in Java:
-//#define UWP
-//#endif
 /**  保存一个类的所有元素 
 */
 public abstract class UserdataType {

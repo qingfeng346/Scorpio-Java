@@ -5,9 +5,9 @@ import Scorpio.Exception.*;
 
 /**  普通Object Type类型 
 */
-public class DefaultScriptUserdataObjectType extends ScriptUserdata {
+public class ScriptUserdataObjectType extends ScriptUserdata {
     protected UserdataType m_UserdataType;
-    public DefaultScriptUserdataObjectType(Script script, java.lang.Class<?> value, UserdataType type) {
+    public ScriptUserdataObjectType(Script script, java.lang.Class<?> value, UserdataType type) {
         super(script);
         this.m_Value = value;
         this.m_ValueType = value;
@@ -19,16 +19,18 @@ public class DefaultScriptUserdataObjectType extends ScriptUserdata {
     }
     @Override
     public ScriptObject GetValue(Object key) {
-        if (!(key instanceof String)) {
+        String name = (String)((key instanceof String) ? key : null);
+        if (name == null) {
             throw new ExecutionException(m_Script, "ObjectType GetValue只支持String类型");
         }
-        return m_Script.CreateObject(m_UserdataType.GetValue(null, (String)key));
+        return m_Script.CreateObject(m_UserdataType.GetValue(null, name));
     }
     @Override
     public void SetValue(Object key, ScriptObject value) {
-        if (!(key instanceof String)) {
+        String name = (String)((key instanceof String) ? key : null);
+        if (name == null) {
             throw new ExecutionException(m_Script, "ObjectType SetValue只支持String类型");
         }
-        m_UserdataType.SetValue(null, (String)key, value);
+        m_UserdataType.SetValue(null, name, value);
     }
 }

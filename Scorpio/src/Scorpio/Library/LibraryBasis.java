@@ -142,12 +142,13 @@ public class LibraryBasis {
         script.SetObjectInternal("using", script.CreateFunction(new require(script)));
         script.SetObjectInternal("push_search", script.CreateFunction(new push_search(script)));
         script.SetObjectInternal("push_define", script.CreateFunction(new push_define(script)));
+
         script.SetObjectInternal("import_type", script.CreateFunction(new import_type(script)));
     }
     private static class print implements ScorpioHandle {
         public final Object Call(ScriptObject[] args) {
             for (int i = 0; i < args.length; ++i) {
-                ScriptExtensions.print(args[i].toString());
+                System.out.println(args[i].toString());
             }
             return null;
         }
@@ -205,7 +206,7 @@ public class LibraryBasis {
     }
     private static class type implements ScorpioHandle {
         public final Object Call(ScriptObject[] args) {
-        	return args[0].getType().getValue();
+            return args[0].getType().getValue();
         }
     }
     private static class is_null implements ScorpioHandle {
@@ -297,7 +298,7 @@ public class LibraryBasis {
         public final Object Call(ScriptObject[] args) {
             ScriptObject obj = args[0];
             Util.Assert(obj instanceof ScriptNumber || obj instanceof ScriptString || obj instanceof ScriptEnum, m_script, "tolong 不能从类型 " + obj.getType() + " 转换成Long类型");
-            return m_script.CreateLong(Util.ToInt64(obj.getObjectValue()));
+            return new ScriptNumberLong(m_script, Util.ToInt64(obj.getObjectValue()));
         }
     }
     private static class toint implements ScorpioHandle {
@@ -308,7 +309,7 @@ public class LibraryBasis {
         public final Object Call(ScriptObject[] args) {
             ScriptObject obj = args[0];
             Util.Assert(obj instanceof ScriptNumber || obj instanceof ScriptString || obj instanceof ScriptEnum, m_script, "toint 不能从类型 " + obj.getType() + " 转换成int类型");
-            return m_script.CreateInt(Util.ToInt32(obj.getObjectValue()));
+            return new ScriptNumberInt(m_script, Util.ToInt32(obj.getObjectValue()));
         }
     }
     private static class toenum implements ScorpioHandle {
@@ -324,7 +325,7 @@ public class LibraryBasis {
 	            Util.Assert(obj != null && number != null, m_script, "toenum 第一个参数是枚举类 第二个参数必须是number类型");
 				java.lang.reflect.Method values = obj.getValueType().getMethod("values");
 	    		Object[] rets = (Object[]) values.invoke(null);
-	            return m_script.CreateEnum(rets[number.ToInt32()]);
+	            return new ScriptEnum(m_script, rets[number.ToInt32()]);
         	} catch (Exception e) {
         		throw new ExecutionException(m_script, "toenum 第一个参数是枚举类 第二个参数必须是number类型");
         	}
