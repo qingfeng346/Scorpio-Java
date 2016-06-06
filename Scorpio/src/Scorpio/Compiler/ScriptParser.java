@@ -14,7 +14,6 @@ public class ScriptParser {
         Already, //已经进入条件了
         Being, //还没找到合适的 正在处理
         Break; //跳过
-
         public static DefineType forValue(int value) {
             return values()[value];
         }
@@ -210,7 +209,7 @@ public class ScriptParser {
             UndoToken();
         }
         ScriptExecutable executable = ParseStatementBlock(Executable_Block.Function);
-        return m_script.CreateFunction(strFunctionName, new ScorpioScriptFunction(m_script, listParameters, executable, bParams));
+        return new ScriptScriptFunction(m_script, strFunctionName, new ScorpioScriptFunction(m_script, listParameters, executable, bParams));
     }
     //解析Var关键字
     private void ParseVar() {
