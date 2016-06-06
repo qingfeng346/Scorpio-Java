@@ -6,6 +6,7 @@ import Scorpio.CodeDom.*;
 import Scorpio.CodeDom.Temp.*;
 import Scorpio.Exception.*;
 import Scorpio.Function.*;
+import Scorpio.Variable.*;
 
 //执行命令
 //注意事项:
@@ -76,7 +77,7 @@ public class ScriptContext {
     }
     private boolean SetVariableObject(String name, ScriptObject obj) {
         if (m_variableDictionary.containsKey(name)) {
-            Util.SetObject(m_variableDictionary, name, obj);
+            m_variableDictionary.put(name, obj.Assign());
             return true;
         }
         if (m_parent != null) {
@@ -281,7 +282,7 @@ public class ScriptContext {
         ScriptContext context;
         for (int i = begin; i <= finished; i += step) {
             context = new ScriptContext(m_script, code.BlockExecutable, this, Executable_Block.For);
-            context.Initialize(code.Identifier, m_script.CreateNumber(i));
+            context.Initialize(code.Identifier, new ScriptNumberDouble(m_script, Util.ToDouble(i)));
             context.Execute();
             if (context.getIsOver()) {
                 break;
@@ -539,7 +540,7 @@ public class ScriptContext {
         case Plus:
             ScriptObject right = ResolveOperand(operate.Right);
             if (left instanceof ScriptString || right instanceof ScriptString) {
-                return m_script.CreateString(left.toString() + right.toString());
+                return new ScriptString(m_script, left.toString() + right.toString());
             }
             return left.Compute(type, right);
         case Minus:
@@ -556,21 +557,21 @@ public class ScriptContext {
             if (!left.LogicOperation()) {
                 return m_script.getFalse();
             }
-            return m_script.GetBoolean(ResolveOperand(operate.Right).LogicOperation());
+            return m_script.CreateBool(ResolveOperand(operate.Right).LogicOperation());
         case Or:
             if (left.LogicOperation()) {
                 return m_script.getTrue();
             }
-            return m_script.GetBoolean(ResolveOperand(operate.Right).LogicOperation());
+            return m_script.CreateBool(ResolveOperand(operate.Right).LogicOperation());
         case Equal:
-            return m_script.GetBoolean(left.equals(ResolveOperand(operate.Right)));
+            return m_script.CreateBool(left.equals(ResolveOperand(operate.Right)));
         case NotEqual:
-            return m_script.GetBoolean(!left.equals(ResolveOperand(operate.Right)));
+            return m_script.CreateBool(!left.equals(ResolveOperand(operate.Right)));
         case Greater:
         case GreaterOrEqual:
         case Less:
         case LessOrEqual:
-            return m_script.GetBoolean(left.Compare(type, ResolveOperand(operate.Right)));
+            return m_script.CreateBool(left.Compare(type, ResolveOperand(operate.Right)));
         default:
             throw new ExecutionException(m_script, "不支持的运算符 " + type);
         }
