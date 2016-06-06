@@ -40,9 +40,9 @@ public class ScriptNumberInt extends ScriptNumber {
                 --m_Value;
                 break;
             case POST_INCREMENT:
-                return m_Script.CreateLong(m_Value++);
+                return m_Script.CreateInt(m_Value++);
             case POST_DECREMENT:
-                return m_Script.CreateLong(m_Value--);
+                return m_Script.CreateInt(m_Value--);
             default:
                 return this;
         }
