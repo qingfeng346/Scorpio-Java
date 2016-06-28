@@ -97,7 +97,7 @@ public class ScriptContext {
             ret.setName(name);
         }
         else {
-            ret = ResolveOperand(member.Parent);
+            ScriptObject parent = ResolveOperand(member.Parent);
 //                此处设置一下堆栈位置 否则 函数返回值取值出错会报错位置 例如  
 //                    function Get() { 
 //                        return null 
@@ -107,7 +107,16 @@ public class ScriptContext {
 //                上述代码报错会报道 return null 那一行 但实际出错 是 .a 的时候 下面这句话就是把堆栈设置回 .a 那一行
 //                
             m_script.SetStackInfo(member.StackInfo);
-            ret = ret.GetValue(GetMember(member));
+            if (member.Type == MEMBER_TYPE.VALUE) {
+                Object name = member.MemberValue;
+                ret = parent.GetValue(name);
+                ret.setName(parent.getName() + "." + name.toString());
+            }
+            else {
+                Object name = ResolveOperand(member.MemberObject).getKeyValue();
+                ret = parent.GetValue(name);
+                ret.setName(parent.getName() + "." + name.toString());
+            }
         }
         if (ret == null) {
             throw new ExecutionException(m_script, "GetVariable member is error");
@@ -162,7 +171,7 @@ public class ScriptContext {
         return m_returnObject;
     }
     private void ExecuteInstruction() {
-        switch (m_scriptInstruction.getOpcode()) {
+        switch (m_scriptInstruction.Opcode) {
             case VAR:
                 ProcessVar();
                 break;
@@ -223,20 +232,19 @@ public class ScriptContext {
         return m_block == Executable_Block.For || m_block == Executable_Block.Foreach || m_block == Executable_Block.While;
     }
     private void ProcessVar() {
-        ApplyVariableObject((String)m_scriptInstruction.getValue());
+        ApplyVariableObject(m_scriptInstruction.Value);
     }
     private void ProcessMov() {
-        CodeObject tempVar = m_scriptInstruction.getOperand0();
-        SetVariable((CodeMember)((tempVar instanceof CodeMember) ? tempVar : null), ResolveOperand(m_scriptInstruction.getOperand1()));
+        SetVariable((CodeMember)((m_scriptInstruction.Operand0 instanceof CodeMember) ? m_scriptInstruction.Operand0 : null), ResolveOperand(m_scriptInstruction.Operand1));
     }
     private void ProcessContinue() {
-        InvokeContinue(m_scriptInstruction.getOperand0());
+        InvokeContinue(m_scriptInstruction.Operand0);
     }
     private void ProcessBreak() {
-        InvokeBreak(m_scriptInstruction.getOperand0());
+        InvokeBreak(m_scriptInstruction.Operand0);
     }
     private void ProcessCallFor() {
-        CodeFor code = (CodeFor)m_scriptInstruction.getOperand0();
+        CodeFor code = (CodeFor)m_scriptInstruction.Operand0;
         ScriptContext context = new ScriptContext(m_script, null, this, Executable_Block.For);
         context.Execute(code.BeginExecutable);
         for (; ;) {
@@ -254,7 +262,7 @@ public class ScriptContext {
         }
     }
     private void ProcessCallForSimple() {
-        CodeForSimple code = (CodeForSimple)m_scriptInstruction.getOperand0();
+        CodeForSimple code = (CodeForSimple)m_scriptInstruction.Operand0;
         ScriptObject tempVar = ResolveOperand(code.Begin);
         ScriptNumber beginNumber = (ScriptNumber)((tempVar instanceof ScriptNumber) ? tempVar : null);
         if (beginNumber == null) {
@@ -290,7 +298,7 @@ public class ScriptContext {
         }
     }
     private void ProcessCallForeach() {
-        CodeForeach code = (CodeForeach)m_scriptInstruction.getOperand0();
+        CodeForeach code = (CodeForeach)m_scriptInstruction.Operand0;
         ScriptObject loop = ResolveOperand(code.LoopObject);
         if (!(loop instanceof ScriptFunction)) {
             throw new ExecutionException(m_script, "foreach函数必须返回一个ScriptFunction");
@@ -312,7 +320,7 @@ public class ScriptContext {
         }
     }
     private void ProcessCallIf() {
-        CodeIf code = (CodeIf)m_scriptInstruction.getOperand0();
+        CodeIf code = (CodeIf)m_scriptInstruction.Operand0;
         if (ProcessAllow(code.If)) {
             ProcessCondition(code.If);
             return;
@@ -337,7 +345,7 @@ public class ScriptContext {
         new ScriptContext(m_script, condition.Executable, this, condition.Block).Execute();
     }
     private void ProcessCallWhile() {
-        CodeWhile code = (CodeWhile)m_scriptInstruction.getOperand0();
+        CodeWhile code = (CodeWhile)m_scriptInstruction.Operand0;
         TempCondition condition = code.While;
         ScriptContext context;
         for (; ;) {
@@ -352,7 +360,7 @@ public class ScriptContext {
         }
     }
     private void ProcessCallSwitch() {
-        CodeSwitch code = (CodeSwitch)m_scriptInstruction.getOperand0();
+        CodeSwitch code = (CodeSwitch)m_scriptInstruction.Operand0;
         ScriptObject obj = ResolveOperand(code.Condition);
         boolean exec = false;
         for (TempCase Case : code.Cases) {
@@ -372,7 +380,7 @@ public class ScriptContext {
         }
     }
     private void ProcessTry() {
-        CodeTry code = (CodeTry)m_scriptInstruction.getOperand0();
+        CodeTry code = (CodeTry)m_scriptInstruction.Operand0;
         try {
             new ScriptContext(m_script, code.TryExecutable, this).Execute();
         }
@@ -388,24 +396,24 @@ public class ScriptContext {
         }
     }
     private void ProcessThrow() {
-        throw new InteriorException(ResolveOperand(((CodeThrow)m_scriptInstruction.getOperand0()).obj));
+        throw new InteriorException(ResolveOperand(((CodeThrow)m_scriptInstruction.Operand0).obj));
     }
     private void ProcessRet() {
-        if (m_scriptInstruction.getOperand0() == null) {
+        if (m_scriptInstruction.Operand0 == null) {
             InvokeReturnValue(null);
         }
         else {
-            InvokeReturnValue(ResolveOperand(m_scriptInstruction.getOperand0()));
+            InvokeReturnValue(ResolveOperand(m_scriptInstruction.Operand0));
         }
     }
     private void ProcessResolve() {
-        ResolveOperand(m_scriptInstruction.getOperand0());
+        ResolveOperand(m_scriptInstruction.Operand0);
     }
     private void ProcessCallBlock() {
-        ParseCallBlock((CodeCallBlock)m_scriptInstruction.getOperand0());
+        ParseCallBlock((CodeCallBlock)m_scriptInstruction.Operand0);
     }
     private void ProcessCallFunction() {
-        ParseCall((CodeCallFunction)m_scriptInstruction.getOperand0(), false);
+        ParseCall((CodeCallFunction)m_scriptInstruction.Operand0, false);
     }
     private void InvokeReturnValue(ScriptObject value) {
         m_Over = true;
@@ -474,11 +482,7 @@ public class ScriptContext {
         m_script.SetStackInfo(value.StackInfo);
         ScriptObject ret = ResolveOperand_impl(value);
         if (value.Not) {
-            ScriptBoolean b = (ScriptBoolean)((ret instanceof ScriptBoolean) ? ret : null);
-            if (b == null) {
-                throw new ExecutionException(m_script, "Script Object Type [" + ret.getType() + "] is cannot use [!] sign");
-            }
-            ret = b.Inverse();
+            ret = m_script.CreateBool(!ret.LogicOperation());
         }
         else if (value.Negative) {
             ScriptNumber b = (ScriptNumber)((ret instanceof ScriptNumber) ? ret : null);
@@ -491,7 +495,7 @@ public class ScriptContext {
     }
     private ScriptObject ParseScriptObject(CodeScriptObject obj) {
         //此处原先使用Clone 是因为 number 和 string 有自运算的操作 会影响常量 但是现在设置变量会调用Assign() 基础类型会自动复制一次 所以去掉clone
-        return obj.getObject();
+        return obj.Object;
         //return obj.Object.Clone();
     }
     private ScriptObject ParseRegion(CodeRegion region) {
@@ -513,6 +517,7 @@ public class ScriptContext {
         }
         m_script.PushStackInfo();
         Object ret = obj.Call(parameters);
+        m_script.PopStackInfo();
         return needRet ? m_script.CreateObject(ret) : null;
     }
     private ScriptArray ParseArray(CodeArray array) {
