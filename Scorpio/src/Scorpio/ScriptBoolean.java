@@ -34,7 +34,4 @@ public class ScriptBoolean extends ScriptObject {
     public String toString() {
         return m_Value ? "true" : "false";
     }
-    public final ScriptBoolean Inverse() {
-        return m_Value ? m_Script.getFalse() : m_Script.getTrue();
-    }
 }

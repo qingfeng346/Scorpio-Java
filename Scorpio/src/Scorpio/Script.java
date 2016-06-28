@@ -21,7 +21,7 @@ public class Script {
     private static final String GLOBAL_VERSION = "_VERSION"; //版本号
     private static final String GLOBAL_SCRIPT = "_SCRIPT"; //Script对象
     private ScriptTable m_GlobalTable; //全局Table
-    private java.util.ArrayList<StackInfo> m_StackInfoStack = new java.util.ArrayList<StackInfo>(); //堆栈数据
+    private java.util.Stack<StackInfo> m_StackInfoStack = new java.util.Stack<StackInfo>(); //堆栈数据
     private java.util.ArrayList<String> m_SearchPath = new java.util.ArrayList<String>(); //request所有文件的路径集合
     private java.util.ArrayList<String> m_Defines = new java.util.ArrayList<String>(); //所有Define
     private java.util.HashMap<java.lang.Class<?>, IScorpioFastReflectClass> m_FastReflectClass = new java.util.HashMap<java.lang.Class<?>, IScorpioFastReflectClass>(); //快速反射集合
@@ -91,7 +91,7 @@ public class Script {
                 return LoadTokens(strBreviary, ScorpioMaker.Deserialize(buffer));
             }
             else {
-                return LoadString(strBreviary, new String(buffer, encoding));
+            	return LoadString(strBreviary, new String(buffer, encoding));
             }
         }
         catch (RuntimeException e) {
@@ -190,16 +190,21 @@ public class Script {
         return m_StackInfo;
     }
     public final void PushStackInfo() {
-        m_StackInfoStack.add(m_StackInfo);
+        m_StackInfoStack.push(m_StackInfo);
+    }
+    public final void PopStackInfo() {
+        if (m_StackInfoStack.size() > 0) {
+            m_StackInfoStack.pop();
+        }
     }
     public final void ClearStackInfo() {
         m_StackInfoStack.clear();
     }
     public final String GetStackInfo() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Source [ " + m_StackInfo.Breviary + "] Line [" + m_StackInfo.Line + "]\n");
-        for (int i = m_StackInfoStack.size() - 1; i >= 0;--i) {
-            builder.append("        Source [" + m_StackInfoStack.get(i).Breviary + "] Line [" + m_StackInfoStack.get(i).Line + "]\n");
+        builder.append("Source [" + m_StackInfo.Breviary + "] Line [" + m_StackInfo.Line + "]\n");
+        for (StackInfo info : m_StackInfoStack) {
+            builder.append("        Source [" + info.Breviary + "] Line [" + info.Line + "]\n");
         }
         return builder.toString();
     }
@@ -244,15 +249,15 @@ public class Script {
             return m_Null;
         }
         else if (value instanceof Boolean) {
-            return CreateBool(((Boolean)value));
+            return CreateBool(((Boolean)value).booleanValue());
         }
         else if (value instanceof String) {
             return new ScriptString(this, (String)value);
         }
         else if (value instanceof Long) {
-            return new ScriptNumberLong(this, ((Long)value));
+            return new ScriptNumberLong(this, ((Long)value).longValue());
         }
-        else if (value instanceof Byte || value instanceof Byte || value instanceof Short || value instanceof Short || value instanceof Integer || value instanceof Integer || value instanceof Float || value instanceof Double || value instanceof java.math.BigDecimal) {
+        else if (value instanceof Byte || value instanceof Short || value instanceof Integer || value instanceof Float || value instanceof Double || value instanceof java.math.BigDecimal) {
             return new ScriptNumberDouble(this, Util.ToDouble(value));
         }
         else if (value instanceof ScriptObject) {

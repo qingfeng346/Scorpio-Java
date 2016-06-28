@@ -29,7 +29,7 @@ public class ScriptTable extends ScriptObject {
         }
         ScriptTable table = (ScriptTable)((value instanceof ScriptTable) ? value : null);
         if (table == null) {
-            throw new ExecutionException(m_Script, "table [+=] 操作只支持两个table " + value.getType());
+            throw new ExecutionException(m_Script, this, "table [+=] 操作只限两个[table]之间,传入数据类型:" + value.getType());
         }
         ScriptObject obj = null;
         ScriptScriptFunction func = null;
@@ -52,7 +52,7 @@ public class ScriptTable extends ScriptObject {
         }
         ScriptTable table = (ScriptTable)((value instanceof ScriptTable) ? value : null);
         if (table == null) {
-            throw new ExecutionException(m_Script, "table [+] 操作只支持两个table " + value.getType());
+            throw new ExecutionException(m_Script, this, "table [+] 操作只限两个[table]之间,传入数据类型:" + value.getType());
         }
         ScriptTable ret = m_Script.CreateTable();
         ScriptObject obj = null;
