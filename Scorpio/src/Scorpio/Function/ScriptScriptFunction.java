@@ -37,14 +37,14 @@ public class ScriptScriptFunction extends ScriptFunction {
     @Override
     public void SetValue(Object key, ScriptObject value) {
         if (!(key instanceof String)) {
-            throw new ExecutionException(this.m_Script, "Function SetValue只支持String类型 key值为:" + key);
+            throw new ExecutionException(this.m_Script, this, "Function SetValue只支持String类型 key值为:" + key);
         }
         m_stackObject.put((String)key, value);
     }
     @Override
     public ScriptObject GetValue(Object key) {
         if (!(key instanceof String)) {
-            throw new ExecutionException(this.m_Script, "Function GetValue只支持String类型 key值为:" + key);
+            throw new ExecutionException(this.m_Script, this, "Function GetValue只支持String类型 key值为:" + key);
         }
         String skey = (String)key;
         return m_stackObject.containsKey(skey) ? m_stackObject.get(skey) : m_Script.getNull();

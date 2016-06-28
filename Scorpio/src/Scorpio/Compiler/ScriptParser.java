@@ -424,7 +424,7 @@ public class ScriptParser {
     private void ParseReturn() {
         Token peek = PeekToken();
         if (peek.getType() == TokenType.RightBrace || peek.getType() == TokenType.SemiColon || peek.getType() == TokenType.Finished) {
-            m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.RET, null));
+            m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.RET, (CodeObject)null));
         }
         else {
             m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.RET, GetObject()));
@@ -818,14 +818,26 @@ public class ScriptParser {
         for (; ;) {
             Token m = ReadToken();
             if (m.getType() == TokenType.Period) {
-                String identifier = ReadIdentifier();
-                ret = new CodeMember(identifier, ret);
+                ret = new CodeMember(ReadIdentifier(), ret);
             }
             else if (m.getType() == TokenType.LeftBracket) {
                 CodeObject member = GetObject();
                 ReadRightBracket();
                 if (member instanceof CodeScriptObject) {
-                    ret = new CodeMember(((CodeScriptObject)member).getObject().getKeyValue(), ret);
+                    ScriptObject obj = ((CodeScriptObject)member).Object;
+                    if (member.Not) {
+                        ret = new CodeMember(!obj.LogicOperation(), ret);
+                    }
+                    else if (member.Negative) {
+                        ScriptNumber num = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
+                        if (num == null) {
+                            throw new ParserException("Script Object Type [" + obj.getType() + "] is cannot use [-] sign", m);
+                        }
+                        ret = new CodeMember(num.Negative().getKeyValue(), ret);
+                    }
+                    else {
+                        ret = new CodeMember(obj.getKeyValue(), ret);
+                    }
                 }
                 else {
                     ret = new CodeMember(member, ret);
