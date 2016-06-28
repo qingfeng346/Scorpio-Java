@@ -118,9 +118,6 @@ public class ScriptContext {
                 ret.setName(parent.getName() + "." + name.toString());
             }
         }
-        if (ret == null) {
-            throw new ExecutionException(m_script, "GetVariable member is error");
-        }
         if (member.Calc != CALC.NONE) {
             ScriptNumber num = (ScriptNumber)((ret instanceof ScriptNumber) ? ret : null);
             if (num == null) {
