@@ -85,7 +85,7 @@ public class ScriptNumberInt extends ScriptNumber {
     public boolean Compare(TokenType type, ScriptObject num) {
         ScriptNumberInt val = (ScriptNumberInt)((num instanceof ScriptNumberInt) ? num : null);
         if (val == null) {
-            throw new ExecutionException(m_Script, "数字比较 两边的数字类型不一致 请先转换再比较 ");
+            throw new ExecutionException(m_Script, this, "数字比较 两边的数字类型不一致 请先转换再比较 ");
         }
         switch (type) {
             case Greater:
@@ -97,14 +97,14 @@ public class ScriptNumberInt extends ScriptNumber {
             case LessOrEqual:
                 return m_Value <= val.m_Value;
             default:
-                throw new ExecutionException(m_Script, "Int类型 操作符[" + type + "]不支持");
+                throw new ExecutionException(m_Script, this, "Int类型 操作符[" + type + "]不支持");
         }
     }
     @Override
     public ScriptObject Compute(TokenType type, ScriptObject obj) {
         ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(m_Script, "逻辑计算 右边值必须为数字类型");
+            throw new ExecutionException(m_Script, this, "逻辑计算 右边值必须为数字类型");
         }
         switch (type) {
             case Plus:
@@ -128,14 +128,14 @@ public class ScriptNumberInt extends ScriptNumber {
             case Shi:
                 return new ScriptNumberInt(m_Script, m_Value << val.ToInt32());
             default:
-                throw new ExecutionException(m_Script, "Int不支持的运算符 " + type);
+                throw new ExecutionException(m_Script, this, "Int不支持的运算符 " + type);
         }
     }
     @Override
     public ScriptObject AssignCompute(TokenType type, ScriptObject obj) {
         ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(m_Script, "赋值逻辑计算 右边值必须为数字类型");
+            throw new ExecutionException(m_Script, this, "赋值逻辑计算 右边值必须为数字类型");
         }
         switch (type) {
             case AssignPlus:
@@ -169,7 +169,7 @@ public class ScriptNumberInt extends ScriptNumber {
                 m_Value <<= val.ToInt32();
                 return this;
             default:
-                throw new ExecutionException(m_Script, "Int不支持的运算符 " + type);
+                throw new ExecutionException(m_Script, this, "Int不支持的运算符 " + type);
         }
     }
 

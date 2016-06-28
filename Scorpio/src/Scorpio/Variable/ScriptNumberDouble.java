@@ -84,7 +84,7 @@ public class ScriptNumberDouble extends ScriptNumber {
     public boolean Compare(TokenType type, ScriptObject obj) {
         ScriptNumberDouble val = (ScriptNumberDouble)((obj instanceof ScriptNumberDouble) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(m_Script, "数字比较 两边的数字类型不一致 请先转换再比较");
+            throw new ExecutionException(m_Script, this, "数字比较 两边的数字类型不一致 请先转换再比较");
         }
         switch (type) {
             case Greater:
@@ -96,14 +96,14 @@ public class ScriptNumberDouble extends ScriptNumber {
             case LessOrEqual:
                 return m_Value <= val.m_Value;
             default:
-                throw new ExecutionException(m_Script, "Double类型 操作符[" + type + "]不支持");
+                throw new ExecutionException(m_Script, this, "Double类型 操作符[" + type + "]不支持");
         }
     }
     @Override
     public ScriptObject Compute(TokenType type, ScriptObject obj) {
         ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(m_Script, "逻辑计算 右边值必须为数字类型");
+            throw new ExecutionException(m_Script, this, "逻辑计算 右边值必须为数字类型");
         }
         switch (type) {
             case Plus:
@@ -117,14 +117,14 @@ public class ScriptNumberDouble extends ScriptNumber {
             case Modulo:
                 return new ScriptNumberDouble(m_Script, m_Value % val.ToDouble());
             default:
-                throw new ExecutionException(m_Script, "Double不支持的运算符 " + type);
+                throw new ExecutionException(m_Script, this, "Double不支持的运算符 " + type);
         }
     }
     @Override
     public ScriptObject AssignCompute(TokenType type, ScriptObject obj) {
         ScriptNumber val = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
         if (val == null) {
-            throw new ExecutionException(m_Script, "赋值逻辑计算 右边值必须为数字类型");
+            throw new ExecutionException(m_Script, this, "赋值逻辑计算 右边值必须为数字类型");
         }
         switch (type) {
             case AssignPlus:
@@ -143,7 +143,7 @@ public class ScriptNumberDouble extends ScriptNumber {
                 m_Value %= val.ToDouble();
                 return this;
             default:
-                throw new ExecutionException(m_Script, "Double不支持的运算符 " + type);
+                throw new ExecutionException(m_Script, this, "Double不支持的运算符 " + type);
         }
     }
     @Override
