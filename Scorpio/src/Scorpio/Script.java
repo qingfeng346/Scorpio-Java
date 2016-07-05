@@ -62,8 +62,8 @@ public class Script {
         return LoadFile(strFileName, UTF8);
     }
     public final ScriptObject LoadFile(String fileName, Charset encoding) {
+    	ByteArrayOutputStream output = new ByteArrayOutputStream();
     	try {
-        	ByteArrayOutputStream output = new ByteArrayOutputStream();
     		FileInputStream stream = new FileInputStream(new File(fileName));
             int n = 0;
             byte[] buffer = new byte[4096];
@@ -71,10 +71,10 @@ public class Script {
                 output.write(buffer, 0, n);
             }
             stream.close();
-            return LoadBuffer(fileName, buffer, encoding);
     	} catch (Exception e) {
-    		return m_Null;
+    		throw new ScriptException("load file [" + fileName + "] is error : " + e.toString());
     	}
+        return LoadBuffer(fileName, output.toByteArray(), encoding);
     }
     public final ScriptObject LoadBuffer(byte[] buffer) {
         return LoadBuffer("Undefined", buffer, UTF8);
