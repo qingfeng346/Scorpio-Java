@@ -82,6 +82,7 @@ public class ScriptParser {
         BeginExecutable(block);
         if (readLeftBrace && PeekToken().getType() != TokenType.LeftBrace) {
             ParseStatement();
+            if (PeekToken().getType() == TokenType.SemiColon) ReadToken();
         }
         else {
             if (readLeftBrace) {
