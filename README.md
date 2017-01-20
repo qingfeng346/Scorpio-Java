@@ -1,6 +1,5 @@
 # Scorpio-Java #
 * author : while
-* 当前版本有BUG，请不要更新 *
 * QQ群 : 245199668 [加群](http://shang.qq.com/wpa/qunwpa?idkey=8ef904955c52f7b3764403ab81602b9c08b856f040d284f7e2c1d05ed3428de8)
 * Sco脚本的c#实现 : https://github.com/qingfeng346/Scorpio-CSharp
 * 网络协议,Excel表数据转换工具 : https://github.com/qingfeng346/ScorpioConversion
