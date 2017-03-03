@@ -217,6 +217,9 @@ public class Script {
     public final ScriptObject GetValue(String key) {
         return m_GlobalTable.GetValue(key);
     }
+    public void SetValue(String key, Object value)  {
+        m_GlobalTable.SetValue(key, CreateObject(value));
+    }
     public final void SetObject(String key, Object value) {
         m_GlobalTable.SetValue(key, CreateObject(value));
     }

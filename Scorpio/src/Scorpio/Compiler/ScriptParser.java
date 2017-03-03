@@ -908,6 +908,9 @@ public class ScriptParser {
         ReadLeftBrace();
         while (PeekToken().getType() != TokenType.RightBrace) {
             Token token = ReadToken();
+            if (token.getType() == TokenType.Comma || token.getType() == TokenType.SemiColon) {
+                continue;
+            }
             if (token.getType() == TokenType.Identifier || token.getType() == TokenType.String || token.getType() == TokenType.SimpleString || token.getType() == TokenType.Number || token.getType() == TokenType.Boolean || token.getType() == TokenType.Null) {
                 Token next = ReadToken();
                 if (next.getType() == TokenType.Assign || next.getType() == TokenType.Colon) {
@@ -916,10 +919,6 @@ public class ScriptParser {
                     }
                     else {
                         ret._Variables.add(new CodeTable.TableVariable(token.getLexeme(), GetObject()));
-                    }
-                    Token peek = PeekToken();
-                    if (peek.getType() == TokenType.Comma || peek.getType() == TokenType.SemiColon) {
-                        ReadToken();
                     }
                 }
                 else {

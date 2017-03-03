@@ -85,6 +85,9 @@ public class ScriptContext {
         }
         return false;
     }
+    private void SetVariableForce(String name, ScriptObject obj) {
+        m_variableDictionary.put(name, obj.Assign());
+    }
     private Object GetMember(CodeMember member) {
         return member.Type == MEMBER_TYPE.VALUE ? member.MemberValue : ResolveOperand(member.MemberObject).getKeyValue();
     }
@@ -525,13 +528,17 @@ public class ScriptContext {
         return ret;
     }
     private ScriptTable ParseTable(CodeTable table) {
+    	ScriptContext context = new ScriptContext(m_script, null, this, Executable_Block.None);
         ScriptTable ret = m_script.CreateTable();
-        for (CodeTable.TableVariable variable : table.Variables) {
-            ret.SetValue(variable.key, ResolveOperand(variable.value));
-        }
         for (ScriptScriptFunction func : table.Functions) {
             func.SetTable(ret);
             ret.SetValue(func.getName(), func);
+            context.SetVariableForce(func.getName(), func);
+        }
+        for (CodeTable.TableVariable variable : table.Variables) {
+        	ScriptObject value = context.ResolveOperand(variable.value);
+            ret.SetValue(variable.key, value);
+            context.SetVariableForce(variable.key.toString(), value);
         }
         return ret;
     }
