@@ -523,7 +523,7 @@ public class ScriptContext {
     private ScriptArray ParseArray(CodeArray array) {
         ScriptArray ret = m_script.CreateArray();
         for (CodeObject ele : array.Elements) {
-            ret.Add(ResolveOperand(ele));
+            ret.Add(ResolveOperand(ele).Assign());
         }
         return ret;
     }

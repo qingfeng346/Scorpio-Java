@@ -15,7 +15,7 @@
 		<mkdir dir="${build.classes}"/>
 	</target>
 	<target name="compile" depends="init" description="Compile the source.">
-		<javac destdir="${build.classes}" encoding="utf8" optimize="on" debug="on" nowarn="off" source="1.7" target="1.7" includeantruntime="false">
+		<javac destdir="${build.classes}" encoding="utf8" optimize="on" debug="on" nowarn="off" source="1.8" target="1.8" includeantruntime="false">
 		    <compilerarg value="-Xlint:unchecked"/>
 			<src path="${src}"/>
 		</javac>
