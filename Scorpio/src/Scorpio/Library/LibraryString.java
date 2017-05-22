@@ -19,6 +19,8 @@ public class LibraryString {
         Table.SetValue("endswith", script.CreateFunction(new endswith()));
         Table.SetValue("contains", script.CreateFunction(new contains()));
         Table.SetValue("split", script.CreateFunction(new split(script)));
+        Table.SetValue("join", script.CreateFunction(new join()));
+        Table.SetValue("at", script.CreateFunction(new at()));
         script.SetObjectInternal("string", Table);
     }
     private static final String DELIM_STR = "{}";
@@ -164,6 +166,29 @@ public class LibraryString {
                 ret.Add(m_script.CreateString(s));
             }
             return ret;
+        }
+    }
+    private static class join implements ScorpioHandle {
+        public join() {
+        }
+        public Object Call(ScriptObject[] args) {
+        	String separator = ((ScriptString)((args[0] instanceof ScriptString) ? args[0] : null)).getValue();
+        	ScriptArray value = ((ScriptArray)((args[1] instanceof ScriptArray) ? args[1] : null));
+            int count = value.Count();
+            String[] values = new String[count];
+            for (int i = 0;i < count; ++i) {
+                values[i] = value.GetValue(i).toString();
+            }
+            return String.join(separator, values);
+        }
+    }
+    private static class at implements ScorpioHandle {
+        public at() {
+        }
+        public final Object Call(ScriptObject[] args) {
+        	String str = ((ScriptString)((args[0] instanceof ScriptString) ? args[0] : null)).getValue();
+            int index = ((ScriptNumber)((args[1] instanceof ScriptNumber) ? args[1] : null)).ToInt32();
+            return (int)(str.charAt(index));
         }
     }
 }

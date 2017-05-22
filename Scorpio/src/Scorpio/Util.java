@@ -141,12 +141,12 @@ public final class Util {
     }
     public static double ToDouble(Object value) {
     	if (value instanceof String)
-    		return Integer.parseInt((String)value);
+    		return Double.parseDouble((String)value);
     	return ((Number)value).doubleValue();
     }
     public static long ToInt64(Object value) {
     	if (value instanceof String)
-    		return Integer.parseInt((String)value);
+    		return Long.parseLong((String)value);
     	return ((Number)value).longValue();
     }
 }
