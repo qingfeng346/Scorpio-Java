@@ -8,6 +8,8 @@
 	<property name="target" location="../Library/library"/>			<!-- 生成jar后,如果此目录存在则复制jar文件到此目录 -->
 	
 	<target name="clean" description="Removes build directory.">
+        <echo message="ant版本号 : ${ant.version}"/>
+        <echo message="Java版本号 : ${ant.java.version}"/>
 		<delete dir="${build}"/>
 	</target>
 	<target name="init" depends = "clean" description="Create the output directories.">
