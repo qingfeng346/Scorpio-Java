@@ -175,11 +175,15 @@ public class LibraryString {
         	String separator = ((ScriptString)((args[0] instanceof ScriptString) ? args[0] : null)).getValue();
         	ScriptArray value = ((ScriptArray)((args[1] instanceof ScriptArray) ? args[1] : null));
             int count = value.Count();
-            String[] values = new String[count];
+            StringBuffer buffer = new StringBuffer();
             for (int i = 0;i < count; ++i) {
-                values[i] = value.GetValue(i).toString();
+            	if (i == count - 1) {
+            		buffer.append(value.GetValue(i).toString());
+            	} else {
+            		buffer.append(value.GetValue(i).toString()).append(separator);
+            	}
             }
-            return String.join(separator, values);
+            return new String(buffer);
         }
     }
     private static class at implements ScorpioHandle {
