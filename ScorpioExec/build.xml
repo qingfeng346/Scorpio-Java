@@ -53,7 +53,7 @@
 			<fileset dir="${libs}"> <include name="*.jar"/> </fileset>
 		</copy>
 		<copy todir="${build.dist.target}">
-			<fileset dir="${project}"> <include name="sco.bat"/> </fileset>
+			<fileset dir="${project}"> <include name="sco.*"/> </fileset>
 		</copy>
         <delete file="${build}/${export}.jar" />
 	</target>
