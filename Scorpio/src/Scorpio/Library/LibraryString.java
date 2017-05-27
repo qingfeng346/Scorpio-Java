@@ -21,6 +21,8 @@ public class LibraryString {
         Table.SetValue("split", script.CreateFunction(new split(script)));
         Table.SetValue("join", script.CreateFunction(new join()));
         Table.SetValue("at", script.CreateFunction(new at()));
+        Table.SetValue("char2ascii", script.CreateFunction(new char2ascii(script)));
+        Table.SetValue("ascii2char", script.CreateFunction(new ascii2char()));
         script.SetObjectInternal("string", Table);
     }
     private static final String DELIM_STR = "{}";
@@ -169,8 +171,6 @@ public class LibraryString {
         }
     }
     private static class join implements ScorpioHandle {
-        public join() {
-        }
         public Object Call(ScriptObject[] args) {
         	String separator = ((ScriptString)((args[0] instanceof ScriptString) ? args[0] : null)).getValue();
         	ScriptArray value = ((ScriptArray)((args[1] instanceof ScriptArray) ? args[1] : null));
@@ -187,12 +187,45 @@ public class LibraryString {
         }
     }
     private static class at implements ScorpioHandle {
-        public at() {
-        }
         public final Object Call(ScriptObject[] args) {
         	String str = ((ScriptString)((args[0] instanceof ScriptString) ? args[0] : null)).getValue();
             int index = ((ScriptNumber)((args[1] instanceof ScriptNumber) ? args[1] : null)).ToInt32();
             return (int)(str.charAt(index));
+        }
+    }
+    private static class char2ascii implements ScorpioHandle {
+        private Script m_script;
+        public char2ascii(Script script) {
+            this.m_script = script;
+        }
+        public Object Call(ScriptObject[] args) {
+            String str = ((ScriptString)args[0]).getValue();
+            int length = str.length();
+            if (length == 0) {
+                return null;
+            } else if (length == 1) {
+                return (int)(str.charAt(0));
+            } else {
+                ScriptArray array = m_script.CreateArray();
+                for (int i = 0; i < length; ++i) {
+                    array.Add(m_script.CreateObject((int)(str.charAt(i))));
+                }
+                return array;
+            }
+        }
+    }
+    private static class ascii2char implements ScorpioHandle {
+        public Object Call(ScriptObject[] args) {
+            if (args[0] instanceof ScriptNumber) {
+                return new String(new char[] { (char)(((ScriptNumber)args[0]).ToInt32()) });
+            } else {
+                ScriptArray array = (ScriptArray)args[0];
+                char[] chars = new char[array.Count()];
+                for (int i = 0;i<array.Count();++i) {
+                    chars[i] = (char)(((ScriptNumber)array.GetValue(i)).ToInt32());
+                }
+                return new String(chars);
+            }
         }
     }
 }
