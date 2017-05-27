@@ -9,7 +9,7 @@
 	<property name="build" location="build"/>									<!-- 生成目录 -->
 	<property name="build.classes" location="${build}/classes"/>				<!-- 生成class目录 -->
 	<property name="build.dist" location="${build}/dist"/>						<!-- 生成执行目录 -->
-	<property name="build.dist.target" location="${build.dist}/${export}"/>		<!-- 生成执行目录 -->
+	<property name="build.dist.target" location="${build.dist}"/>		<!-- 生成执行目录 -->
 	
 	<!-- 需要的所有jar库 -->
 	<path id="classpath">
@@ -24,7 +24,7 @@
 	</target>
 	<!-- 编译所有java文件 -->
 	<target name="compile" depends="init">
-		<javac srcdir="${src}" destdir="${build.classes}" encoding="utf8" optimize="on" debug="on" nowarn="off" source="1.7" target="1.7" includeantruntime="false">
+		<javac srcdir="${src}" destdir="${build.classes}" encoding="utf8" optimize="on" debug="on" nowarn="off" includeantruntime="false">
 		    <classpath refid="classpath"/>
 		    <compilerarg value="-Xlint:unchecked"/>
 		</javac>
@@ -46,7 +46,8 @@
 			<fileset dir="${libs}"> <include name="*.jar"/> </fileset>
 		</copy>
 		<copy todir="${build.dist.target}">
-			<fileset dir="${project}"> <include name="start.bat"/> </fileset>
+			<fileset dir="${project}"> <include name="sco.bat"/> </fileset>
 		</copy>
+        <delete file="${build}/${export}.jar" />
 	</target>
 </project>
