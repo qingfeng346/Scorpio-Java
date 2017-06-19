@@ -109,7 +109,7 @@ public abstract class ScriptObject {
         return this;
     }
     public final boolean getIsPrimitive() {
-        return getIsBoolean() || getIsNumber() || getIsString();
+        return getIsNull() || getIsBoolean() || getIsNumber() || getIsString();
     }
     public final boolean getIsNull() {
         return (getType() == ObjectType.Null);

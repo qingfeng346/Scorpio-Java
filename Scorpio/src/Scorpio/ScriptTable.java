@@ -16,6 +16,9 @@ public class ScriptTable extends ScriptObject {
     }
     @Override
     public void SetValue(Object key, ScriptObject value) {
+    	if (value instanceof ScriptScriptFunction) {
+    		((ScriptScriptFunction)value).SetTable(this);
+    	}
         m_listObject.put(key, value.Assign());
     }
     @Override

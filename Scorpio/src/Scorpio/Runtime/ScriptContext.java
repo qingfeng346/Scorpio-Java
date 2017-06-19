@@ -531,7 +531,6 @@ public class ScriptContext {
     	ScriptContext context = new ScriptContext(m_script, null, this, Executable_Block.None);
         ScriptTable ret = m_script.CreateTable();
         for (ScriptScriptFunction func : table.Functions) {
-            func.SetTable(ret);
             ret.SetValue(func.getName(), func);
             context.SetVariableForce(func.getName(), func);
         }
