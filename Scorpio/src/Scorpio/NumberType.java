@@ -1,8 +1,5 @@
 package Scorpio;
 
-import Scorpio.CodeDom.*;
-import Scorpio.Exception.*;
-
 public class NumberType {
     public static final int TypeDouble = 0;
     public static final int TypeLong = 1;

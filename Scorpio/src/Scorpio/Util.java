@@ -8,10 +8,9 @@ public final class Util {
     private static final java.lang.Class<?> TYPE_VOID = void.class;
     private static final java.lang.Class<?> TYPE_OBJECT = Object.class;
     private static final java.lang.Class<?> TYPE_TYPE = java.lang.Class.class;
-    private static final java.lang.Class<?> TYPE_STRING = String.class;
-    
     private static final java.lang.Class<?> TYPE_BOOL = Boolean.class;
     private static final java.lang.Class<?> TYPE_BOOL_PRI = Boolean.TYPE;
+    private static final java.lang.Class<?> TYPE_STRING = String.class;
     private static final java.lang.Class<?> TYPE_SBYTE = Byte.class;
     private static final java.lang.Class<?> TYPE_SBYTE_PRI = Byte.TYPE;
     private static final java.lang.Class<?> TYPE_SHORT = Short.class;
@@ -44,17 +43,6 @@ public final class Util {
             }
         }
     }
-    public static boolean CanChangeType(ScriptObject[] pars, java.lang.Class<?>[] types) {
-        if (pars.length != types.length) {
-            return false;
-        }
-        for (int i = 0; i < pars.length;++i) {
-            if (!CanChangeType(pars[i], types[i])) {
-                return false;
-            }
-        }
-        return true;
-    }
     public static boolean CanChangeType(ScriptObject par, java.lang.Class<?> type) {
         if (type == TYPE_OBJECT) {
             return true;
@@ -86,6 +74,11 @@ public final class Util {
             return type.isAssignableFrom(par.getClass());
         }
     }
+    public static void Assert(boolean b, Script script, String message) {
+        if (!b) {
+            throw new ExecutionException(script, message);
+        }
+    }
     public static void WriteString(ByteBuffer writer, String value) {
     	try {
             if (value == null || value.length() == 0)  {
@@ -109,8 +102,20 @@ public final class Util {
     	} catch (Exception e) {}
     	return "";
     }
-    public static boolean IsNullOrEmpty(String str) {
-        return str == null || str.length() == 0;
+    public static boolean IsNullOrEmpty(String value) {
+        return value == null || value.length() == 0;
+    }
+    public static String Join(String separator, String[] stringarray) {
+        int startindex = 0;
+        int count = stringarray.length;
+        String result = "";
+        for (int index = startindex; index < count; index++) {
+            if (index > startindex) {
+                result += separator;
+            }
+            result += stringarray[index];
+        }
+        return result;
     }
     public static Object ChangeType_impl(Object value, java.lang.Class<?> conversionType) {
     	Number num = (Number)value;
@@ -129,24 +134,93 @@ public final class Util {
 	    }
 	    return null;
     }
-    public static void Assert(boolean b, Script script, String message) {
-        if (!b) {
-            throw new ExecutionException(script, message);
-        }
+    public static Object ToEnum(java.lang.Class<?> type, int value) {
+    	try {
+    		java.lang.reflect.Method values = type.getMethod("values");
+            Object[] rets = (Object[]) values.invoke(null);
+            return rets[value];
+    	} catch (Exception e) { }
+        return null;
+    }
+    public static byte ToSByte(Object value) {
+    	if (value instanceof String)
+    		return Byte.parseByte((String)value);
+    	else if (value instanceof Enum<?>) {
+    		return (byte) ((Enum<?>)value).ordinal();
+    	}
+    	return ((Number)value).byteValue();
+    }
+    public static byte ToByte(Object value) {
+    	if (value instanceof String)
+    		return Byte.parseByte((String)value);
+    	else if (value instanceof Enum<?>) {
+    		return (byte) ((Enum<?>)value).ordinal();
+    	}
+    	return ((Number)value).byteValue();
+    }
+    public static short ToInt16(Object value) {
+    	if (value instanceof String)
+    		return Short.parseShort((String)value);
+    	else if (value instanceof Enum<?>) {
+    		return (short) ((Enum<?>)value).ordinal();
+    	}
+    	return ((Number)value).shortValue();
+    }
+    public static short ToUInt16(Object value) {
+    	if (value instanceof String)
+    		return Short.parseShort((String)value);
+    	else if (value instanceof Enum<?>) {
+    		return (short) ((Enum<?>)value).ordinal();
+    	}
+    	return ((Number)value).shortValue();
     }
     public static int ToInt32(Object value) {
     	if (value instanceof String)
     		return Integer.parseInt((String)value);
+    	else if (value instanceof Enum<?>) {
+    		return (int) ((Enum<?>)value).ordinal();
+    	}
     	return ((Number)value).intValue();
     }
-    public static double ToDouble(Object value) {
+    public static int ToUInt32(Object value) {
     	if (value instanceof String)
-    		return Double.parseDouble((String)value);
-    	return ((Number)value).doubleValue();
+    		return Integer.parseInt((String)value);
+    	else if (value instanceof Enum<?>) {
+    		return (int) ((Enum<?>)value).ordinal();
+    	}
+    	return ((Number)value).intValue();
     }
     public static long ToInt64(Object value) {
     	if (value instanceof String)
     		return Long.parseLong((String)value);
+    	else if (value instanceof Enum<?>) {
+    		return (int) ((Enum<?>)value).ordinal();
+    	}
     	return ((Number)value).longValue();
     }
+    public static long ToUInt64(Object value) {
+    	if (value instanceof String)
+    		return Long.parseLong((String)value);
+    	else if (value instanceof Enum<?>) {
+    		return (int) ((Enum<?>)value).ordinal();
+    	}
+    	return ((Number)value).longValue();
+    }
+    public static float ToSingle(Object value) {
+    	if (value instanceof String)
+    		return Float.parseFloat((String)value);
+    	else if (value instanceof Enum<?>) {
+    		return (float) ((Enum<?>)value).ordinal();
+    	}
+    	return ((Number)value).floatValue();
+    }
+    public static double ToDouble(Object value) {
+    	if (value instanceof String)
+    		return Double.parseDouble((String)value);
+    	else if (value instanceof Enum<?>) {
+    		return (double) ((Enum<?>)value).ordinal();
+    	}
+    	return ((Number)value).doubleValue();
+    }
+
 }

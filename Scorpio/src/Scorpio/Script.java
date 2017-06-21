@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.Charset;
-
 import Scorpio.Runtime.*;
 import Scorpio.Compiler.*;
 import Scorpio.Exception.*;
@@ -13,20 +12,22 @@ import Scorpio.Userdata.*;
 import Scorpio.Variable.*;
 import Scorpio.Serialize.*;
 import Scorpio.Function.*;
+
 //脚本类
 public class Script {
-	public static final Charset UTF8 = Charset.forName("UTF8");
     public static final String Version = "master";
     private static final String GLOBAL_TABLE = "_G"; //全局table
     private static final String GLOBAL_VERSION = "_VERSION"; //版本号
     private static final String GLOBAL_SCRIPT = "_SCRIPT"; //Script对象
+    private static final Charset UTF8 = Charset.forName("UTF8");
     private ScriptTable m_GlobalTable; //全局Table
     private java.util.Stack<StackInfo> m_StackInfoStack = new java.util.Stack<StackInfo>(); //堆栈数据
     private java.util.ArrayList<String> m_SearchPath = new java.util.ArrayList<String>(); //request所有文件的路径集合
     private java.util.ArrayList<String> m_Defines = new java.util.ArrayList<String>(); //所有Define
     private java.util.HashMap<java.lang.Class<?>, IScorpioFastReflectClass> m_FastReflectClass = new java.util.HashMap<java.lang.Class<?>, IScorpioFastReflectClass>(); //快速反射集合
     private java.util.HashMap<java.lang.Class<?>, ScriptUserdataEnum> m_Enums = new java.util.HashMap<java.lang.Class<?>, ScriptUserdataEnum>(); //所有枚举集合
-    private java.util.HashMap<java.lang.Class<?>, UserdataType> m_Types = new java.util.HashMap<java.lang.Class<?>, UserdataType>(); //所有的类集合
+    private java.util.HashMap<java.lang.Class<?>, ScriptUserdataObjectType> m_Types = new java.util.HashMap<java.lang.Class<?>, ScriptUserdataObjectType>(); //所有的类集合
+    private java.util.HashMap<java.lang.Class<?>, UserdataType> m_UserdataTypes = new java.util.HashMap<java.lang.Class<?>, UserdataType>(); //所有的类集合
     private StackInfo m_StackInfo = new StackInfo(); //最近堆栈数据
     private ScriptNull m_Null; //null对象
     private ScriptBoolean m_True; //true对象
@@ -57,6 +58,7 @@ public class Script {
         LibraryJson.Load(this);
         LibraryMath.Load(this);
         LibraryFunc.Load(this);
+        LibraryUserdata.Load(this);
     }
     public final ScriptObject LoadFile(String strFileName) {
         return LoadFile(strFileName, UTF8);
@@ -165,14 +167,18 @@ public class Script {
     public final boolean ContainDefine(String define) {
         return m_Defines.contains(define);
     }
-    public final ScriptObject LoadType(String str) {
+    public final java.lang.Class<?> GetType(String str) {
     	try {
-            Class<?> type = java.lang.Class.forName(str);
-            if (type != null) {
-                return CreateUserdata(type);
-            }
+            return java.lang.Class.forName(str);
     	} catch (Exception e) {}
-        return m_Null;
+    	return null;
+    }
+    public final ScriptObject LoadType(String str) {
+        java.lang.Class<?> type = GetType(str);
+        if (type == null) {
+            return m_Null;
+        }
+        return CreateUserdata(type);
     }
     public final void PushFastReflectClass(java.lang.Class<?> type, IScorpioFastReflectClass value) {
         m_FastReflectClass.put(type, value);
@@ -217,7 +223,7 @@ public class Script {
     public final ScriptObject GetValue(String key) {
         return m_GlobalTable.GetValue(key);
     }
-    public void SetValue(String key, Object value)  {
+    public final void SetValue(String key, Object value) {
         m_GlobalTable.SetValue(key, CreateObject(value));
     }
     public final void SetObject(String key, Object value) {
@@ -233,7 +239,7 @@ public class Script {
         }
         int length = args.length;
         ScriptObject[] parameters = new ScriptObject[length];
-        for (int i = 0; i < length;++i) {
+        for (int i = 0; i < length; ++i) {
             parameters[i] = CreateObject(args[i]);
         }
         m_StackInfoStack.clear();
@@ -292,6 +298,9 @@ public class Script {
     public final ScriptTable CreateTable() {
         return new ScriptTable(this);
     }
+    public final ScriptFunction CreateFunction(ScorpioHandle value) {
+        return new ScriptHandleFunction(this, value);
+    }
     public final ScriptUserdata CreateUserdata(Object obj) {
         java.lang.Class<?> type = (java.lang.Class<?>)((obj instanceof java.lang.Class<?>) ? obj : null);
         if (type != null) {
@@ -299,13 +308,10 @@ public class Script {
                 return GetEnum(type);
             }
             else {
-                return new ScriptUserdataObjectType(this, type, GetScorpioType(type));
+                return GetType(type);
             }
         }
         return new ScriptUserdataObject(this, obj, GetScorpioType(obj.getClass()));
-    }
-    public final ScriptFunction CreateFunction(ScorpioHandle value) {
-        return new ScriptHandleFunction(this, value);
     }
     public final ScriptUserdata GetEnum(java.lang.Class<?> type) {
         if (m_Enums.containsKey(type)) {
@@ -315,9 +321,17 @@ public class Script {
         m_Enums.put(type, ret);
         return ret;
     }
-    public final UserdataType GetScorpioType(java.lang.Class<?> type) {
+    public final ScriptUserdataObjectType GetType(java.lang.Class<?> type) {
         if (m_Types.containsKey(type)) {
             return m_Types.get(type);
+        }
+        ScriptUserdataObjectType ret = new ScriptUserdataObjectType(this, type, GetScorpioType(type));
+        m_Types.put(type, ret);
+        return ret;
+    }
+    public final UserdataType GetScorpioType(java.lang.Class<?> type) {
+        if (m_UserdataTypes.containsKey(type)) {
+            return m_UserdataTypes.get(type);
         }
         UserdataType scorpioType = null;
         if (ContainsFastReflectClass(type)) {
@@ -326,7 +340,7 @@ public class Script {
         else {
             scorpioType = new ReflectUserdataType(this, type);
         }
-        m_Types.put(type, scorpioType);
+        m_UserdataTypes.put(type, scorpioType);
         return scorpioType;
     }
 }
