@@ -38,6 +38,9 @@ public class ScriptLexer {
     public final String GetBreviary() {
         return m_strBreviary;
     }
+    private boolean IsIdentifier(char ch) {
+        return (ch == '_' || Character.isLetterOrDigit(ch));
+    }
     /**  解析字符串 
     */
     public final java.util.ArrayList<Token> GetTokens() {
@@ -92,6 +95,9 @@ public class ScriptLexer {
                         case '#':
                             AddToken(TokenType.Sharp);
                             break;
+                        case '~':
+                            AddToken(TokenType.Negative);
+                            break;
                         case '.':
                             setlexState(LexState.PeriodOrParams);
                             break;
@@ -141,16 +147,16 @@ public class ScriptLexer {
                             setlexState(LexState.SingleString);
                             break;
                         default:
-                            if (ch == '_' || Character.isLetter(ch)) {
-                                setlexState(LexState.Identifier);
-                                m_strToken = "" + ch;
-                            }
-                            else if (ch == '0') {
+                            if (ch == '0') {
                                 setlexState(LexState.NumberOrHexNumber);
                                 m_strToken = "";
                             }
                             else if (Character.isDigit(ch)) {
                                 setlexState(LexState.Number);
+                                m_strToken = "" + ch;
+                            }
+                            else if (IsIdentifier(ch)) {
+                                setlexState(LexState.Identifier);
                                 m_strToken = "" + ch;
                             }
                             else {
@@ -507,7 +513,7 @@ public class ScriptLexer {
                     }
                     break;
                 case Identifier:
-                    if (ch == '_' || Character.isLetterOrDigit(ch)) {
+                    if (IsIdentifier(ch)) {
                         m_strToken += ch;
                     }
                     else {
@@ -723,8 +729,7 @@ public class ScriptLexer {
             LexState.getMappings().put(value, this);
         }
 
-        @SuppressWarnings("unused")
-		public int getValue() {
+        public int getValue() {
             return intValue;
         }
 

@@ -172,211 +172,216 @@ public enum TokenType {
      
     */
     AssignXOR(33),
+    /**  
+     ~ 取反操作
+     
+    */
+    Negative(34),
     /** 
      <<左移
      
     */
-    Shi(34),
+    Shi(35),
     /** 
      <<=
      
     */
-    AssignShi(35),
+    AssignShi(36),
     /** 
      >> 右移
      
     */
-    Shr(36),
+    Shr(37),
     /** 
      >>=
      
     */
-    AssignShr(37),
+    AssignShr(38),
     /** 
      !
      
     */
-    Not(38),
+    Not(39),
     /** 
      =
      
     */
-    Assign(39),
+    Assign(40),
     /** 
      ==
      
     */
-    Equal(40),
+    Equal(41),
     /** 
      !=
      
     */
-    NotEqual(41),
+    NotEqual(42),
     /** 
      >
      
     */
-    Greater(42),
+    Greater(43),
     /** 
      >=
      
     */
-    GreaterOrEqual(43),
+    GreaterOrEqual(44),
     /** 
       <
      
     */
-    Less(44),
+    Less(45),
     /** 
      <=
      
     */
-    LessOrEqual(45),
+    LessOrEqual(46),
     /** 
      ...
      
     */
-    Params(46),
+    Params(47),
     /** 
      if
      
     */
-    If(47),
+    If(48),
     /** 
      else
      
     */
-    Else(48),
+    Else(49),
     /** 
      elif
      
     */
-    ElseIf(49),
+    ElseIf(50),
     /** 
      ifndef
      
     */
-    Ifndef(50),
+    Ifndef(51),
     /** 
      endif
      
     */
-    Endif(51),
+    Endif(52),
     /** 
      for
      
     */
-    For(52),
+    For(53),
     /** 
      foreach
      
     */
-    Foreach(53),
+    Foreach(54),
     /** 
      in
      
     */
-    In(54),
+    In(55),
     /** 
      switch
      
     */
-    Switch(55),
+    Switch(56),
     /** 
      case
      
     */
-    Case(56),
+    Case(57),
     /** 
      default
      
     */
-    Default(57),
+    Default(58),
     /** 
      break
      
     */
-    Break(58),
+    Break(59),
     /** 
      continue
      
     */
-    Continue(59),
+    Continue(60),
     /** 
      return
      
     */
-    Return(60),
+    Return(61),
     /** 
      while
      
     */
-    While(61),
+    While(62),
     /** 
      function
      
     */
-    Function(62),
+    Function(63),
     /** 
      try
      
     */
-    Try(63),
+    Try(64),
     /** 
      catch
      
     */
-    Catch(64),
+    Catch(65),
     /** 
      throw
      
     */
-    Throw(65),
+    Throw(66),
     /** 
      define
      
     */
-    Define(66),
+    Define(67),
     /** 
      bool true false
      
     */
-    Boolean(67),
+    Boolean(68),
     /** 
      int float
      
     */
-    Number(68),
+    Number(69),
     /** 
      string
      
     */
-    String(69),
+    String(70),
     /** 
      @"" @'' string
      
     */
-    SimpleString(70),
+    SimpleString(71),
     /** 
      null
      
     */
-    Null(71),
+    Null(72),
     /** 
      eval
      
     */
-    Eval(72),
+    Eval(73),
     /** 
      说明符
      
     */
-    Identifier(73),
+    Identifier(74),
     /** 
      结束
      
     */
-    Finished(74);
+    Finished(75);
 
     private int intValue;
     private static java.util.HashMap<Integer, TokenType> mappings;

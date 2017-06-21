@@ -14,6 +14,11 @@ public class ScriptParser {
         Already, //已经进入条件了
         Being, //还没找到合适的 正在处理
         Break; //跳过
+
+        public int getValue() {
+            return this.ordinal();
+        }
+
         public static DefineType forValue(int value) {
             return values()[value];
         }
@@ -82,7 +87,9 @@ public class ScriptParser {
         BeginExecutable(block);
         if (readLeftBrace && PeekToken().getType() != TokenType.LeftBrace) {
             ParseStatement();
-            if (PeekToken().getType() == TokenType.SemiColon) ReadToken();
+            if (PeekToken().getType() == TokenType.SemiColon) {
+                ReadToken();
+            }
         }
         else {
             if (readLeftBrace) {
@@ -731,17 +738,25 @@ public class ScriptParser {
         CodeObject ret = null;
         Token token = ReadToken();
         boolean not = false;
+        boolean minus = false;
         boolean negative = false;
         CALC calc = CALC.NONE;
-        if (token.getType() == TokenType.Not) {
-            not = true;
+        while (true) {
+            if (token.getType() == TokenType.Not) {
+                not = true;
+            }
+            else if (token.getType() == TokenType.Minus) {
+                minus = true;
+            }
+            else if (token.getType() == TokenType.Negative) {
+                negative = true;
+            }
+            else {
+                break;
+            }
             token = ReadToken();
         }
-        else if (token.getType() == TokenType.Minus) {
-            negative = true;
-            token = ReadToken();
-        }
-        else if (token.getType() == TokenType.Increment) {
+        if (token.getType() == TokenType.Increment) {
             calc = CALC.PRE_INCREMENT;
             token = ReadToken();
         }
@@ -787,6 +802,7 @@ public class ScriptParser {
         ret.StackInfo = new StackInfo(m_strBreviary, token.getSourceLine());
         ret = GetVariable(ret);
         ret.Not = not;
+        ret.Minus = minus;
         ret.Negative = negative;
         if (ret instanceof CodeMember) {
             if (calc != CALC.NONE) {
@@ -829,10 +845,17 @@ public class ScriptParser {
                     if (member.Not) {
                         ret = new CodeMember(!obj.LogicOperation(), ret);
                     }
-                    else if (member.Negative) {
+                    else if (member.Minus) {
                         ScriptNumber num = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
                         if (num == null) {
                             throw new ParserException("Script Object Type [" + obj.getType() + "] is cannot use [-] sign", m);
+                        }
+                        ret = new CodeMember(num.Minus().getKeyValue(), ret);
+                    }
+                    else if (member.Negative) {
+                        ScriptNumber num = (ScriptNumber)((obj instanceof ScriptNumber) ? obj : null);
+                        if (num == null) {
+                            throw new ParserException("Script Object Type [" + obj.getType() + "] is cannot use [~] sign", m);
                         }
                         ret = new CodeMember(num.Negative().getKeyValue(), ret);
                     }
@@ -919,6 +942,14 @@ public class ScriptParser {
                     }
                     else {
                         ret._Variables.add(new CodeTable.TableVariable(token.getLexeme(), GetObject()));
+                    }
+                }
+                else if (next.getType() == TokenType.Comma || next.getType() == TokenType.SemiColon) {
+                    if (token.getType() == TokenType.Null) {
+                        ret._Variables.add(new CodeTable.TableVariable(m_script.getNull().getKeyValue(), new CodeScriptObject(m_script, null)));
+                    }
+                    else {
+                        ret._Variables.add(new CodeTable.TableVariable(token.getLexeme(), new CodeScriptObject(m_script, null)));
                     }
                 }
                 else {
