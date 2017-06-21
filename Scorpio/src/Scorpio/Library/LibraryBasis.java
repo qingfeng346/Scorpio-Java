@@ -3,7 +3,6 @@ package Scorpio.Library;
 import Scorpio.*;
 import Scorpio.Exception.*;
 import Scorpio.Variable.*;
-import Scorpio.Function.*;
 
 public class LibraryBasis {
     private static class ArrayPairs implements ScorpioHandle {

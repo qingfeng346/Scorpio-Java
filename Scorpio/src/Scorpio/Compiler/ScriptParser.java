@@ -15,10 +15,6 @@ public class ScriptParser {
         Being, //还没找到合适的 正在处理
         Break; //跳过
 
-        public int getValue() {
-            return this.ordinal();
-        }
-
         public static DefineType forValue(int value) {
             return values()[value];
         }

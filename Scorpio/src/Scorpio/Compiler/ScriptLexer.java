@@ -715,7 +715,6 @@ public class ScriptLexer {
         */
         Identifier(32);
 
-        private int intValue;
         private static java.util.HashMap<Integer, LexState> mappings;
         private synchronized static java.util.HashMap<Integer, LexState> getMappings() {
             if (mappings == null) {
@@ -725,12 +724,7 @@ public class ScriptLexer {
         }
 
         private LexState(int value) {
-            intValue = value;
             LexState.getMappings().put(value, this);
-        }
-
-        public int getValue() {
-            return intValue;
         }
 
         public static LexState forValue(int value) {

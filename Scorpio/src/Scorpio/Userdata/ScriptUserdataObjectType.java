@@ -9,7 +9,7 @@ import Scorpio.Variable.*;
 public class ScriptUserdataObjectType extends ScriptUserdata {
     protected UserdataType m_UserdataType;
     protected java.util.HashMap<String, ScriptObject> m_Methods = new java.util.HashMap<String, ScriptObject>();
-    public ScriptUserdataObjectType(Script script, java.lang.Class value, UserdataType type) {
+    public ScriptUserdataObjectType(Script script, java.lang.Class<?> value, UserdataType type) {
         super(script);
         this.m_Value = value;
         this.m_ValueType = value;
