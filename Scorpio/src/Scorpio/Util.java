@@ -43,6 +43,17 @@ public final class Util {
             }
         }
     }
+    public static boolean CanChangeType(ScriptObject[] pars, java.lang.Class<?>[] types) {
+        if (pars.length != types.length) {
+            return false;
+        }
+        for (int i = 0; i < pars.length;++i) {
+            if (!CanChangeType(pars[i], types[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
     public static boolean CanChangeType(ScriptObject par, java.lang.Class<?> type) {
         if (type == TYPE_OBJECT) {
             return true;

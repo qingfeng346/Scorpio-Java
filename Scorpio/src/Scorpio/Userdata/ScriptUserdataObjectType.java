@@ -2,12 +2,14 @@ package Scorpio.Userdata;
 
 import Scorpio.*;
 import Scorpio.Exception.*;
+import Scorpio.Variable.*;
 
 /**  普通Object Type类型 
 */
 public class ScriptUserdataObjectType extends ScriptUserdata {
     protected UserdataType m_UserdataType;
-    public ScriptUserdataObjectType(Script script, java.lang.Class<?> value, UserdataType type) {
+    protected java.util.HashMap<String, ScriptObject> m_Methods = new java.util.HashMap<String, ScriptObject>();
+    public ScriptUserdataObjectType(Script script, java.lang.Class value, UserdataType type) {
         super(script);
         this.m_Value = value;
         this.m_ValueType = value;
@@ -23,7 +25,17 @@ public class ScriptUserdataObjectType extends ScriptUserdata {
         if (name == null) {
             throw new ExecutionException(m_Script, "ObjectType GetValue只支持String类型");
         }
-        return m_Script.CreateObject(m_UserdataType.GetValue(null, name));
+        if (m_Methods.containsKey(name)) {
+            return m_Methods.get(name);
+        }
+        Object ret = m_UserdataType.GetValue(null, name);
+        if (ret instanceof UserdataMethod) {
+            UserdataMethod method = (UserdataMethod)ret;
+            ScriptObject value = m_Script.CreateObject(method.getIsStatic() ? (ScorpioMethod)new ScorpioStaticMethod(name, method) : (ScorpioMethod)new ScorpioTypeMethod(m_Script, name, method, m_ValueType));
+            m_Methods.put(name, value);
+            return value;
+        }
+        return m_Script.CreateObject(ret);
     }
     @Override
     public void SetValue(Object key, ScriptObject value) {

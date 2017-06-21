@@ -13,7 +13,6 @@ public class ReflectUserdataType extends UserdataType {
     private java.util.HashMap<String, UserdataVariable> m_Variables; //所有的变量 FieldInfo,PropertyInfo,EventInfo
     private java.util.HashMap<String, ScriptUserdata> m_NestedTypes; //所有的类中类
     private java.util.HashMap<String, UserdataMethod> m_Functions; //所有的函数
-    private java.util.HashMap<String, ScorpioMethod> m_ScorpioMethods; //所有的静态函数和类函数（不包含对象函数）
     public ReflectUserdataType(Script script, java.lang.Class<?> type) {
         super(script, type);
         m_InitializeConstructor = false;
@@ -21,7 +20,6 @@ public class ReflectUserdataType extends UserdataType {
         m_Variables = new java.util.HashMap<String, UserdataVariable>();
         m_NestedTypes = new java.util.HashMap<String, ScriptUserdata>();
         m_Functions = new java.util.HashMap<String, UserdataMethod>();
-        m_ScorpioMethods = new java.util.HashMap<String, ScorpioMethod>();
     }
     private void InitializeConstructor() {
         if (m_InitializeConstructor == true) {
@@ -48,19 +46,6 @@ public class ReflectUserdataType extends UserdataType {
         }
         return null;
     }
-    private ScorpioMethod GetMethod(Object obj, String name, UserdataMethod method) {
-        if (method.getIsStatic()) {
-        	ScorpioMethod ret = new ScorpioStaticMethod(name, method);
-            m_ScorpioMethods.put(name, ret);
-            return ret;
-        }
-        else if (obj == null) {
-        	ScorpioMethod ret = new ScorpioTypeMethod(m_Script, name, method, m_Type);
-            m_ScorpioMethods.put(name, ret);
-            return ret;
-        }
-        return new ScorpioObjectMethod(obj, name, method);
-    }
     private UserdataVariable GetVariable(String name) {
     	if (m_Variables.containsKey(name)) {
             return m_Variables.get(name);
@@ -73,6 +58,17 @@ public class ReflectUserdataType extends UserdataType {
             return info;
         }
         return null;
+    }
+    private ScriptUserdata GetNestedType(String name) {
+        Class<?>[] classes = m_Type.getDeclaredClasses();
+		for (Class<?> clazz : classes) {
+			if (clazz.getName().equals(name)) {
+				ScriptUserdata ret = m_Script.CreateUserdata(clazz);
+				m_NestedTypes.put(name, ret);
+				return ret;
+			}
+		}
+		return null;
     }
     /**  创建一个实例 
     */
@@ -105,12 +101,9 @@ public class ReflectUserdataType extends UserdataType {
     /**  获得一个类变量 
     */
     @Override
-    public Object GetValue(Object obj, String name) {
-        if (m_ScorpioMethods.containsKey(name)) {
-            return m_ScorpioMethods.get(name);
-        }
+    public Object GetValue_impl(Object obj, String name) {
         if (m_Functions.containsKey(name)) {
-            return GetMethod(obj, name, m_Functions.get(name));
+            return m_Functions.get(name);
         }
         if (m_NestedTypes.containsKey(name)) {
             return m_NestedTypes.get(name);
@@ -119,24 +112,20 @@ public class ReflectUserdataType extends UserdataType {
         if (variable != null) {
             return variable.GetValue(obj);
         }
-        Class<?>[] classes = m_Type.getDeclaredClasses();
-		for (Class<?> clazz : classes) {
-			if (clazz.getName().equals(name)) {
-				ScriptUserdata ret = m_Script.CreateUserdata(clazz);
-				m_NestedTypes.put(name, ret);
-				return ret;
-			}
-		}
+        ScriptUserdata nestedType = GetNestedType(name);
+        if (nestedType != null) {
+            return nestedType;
+        }
         UserdataMethod func = GetMethod(name);
         if (func != null) {
-            return GetMethod(obj, name, func);
+            return func;
         }
         throw new ExecutionException(m_Script, "GetValue Type[" + m_Type.toString() + "] 变量 [" + name + "] 不存在");
     }
     /**  设置一个类变量 
     */
     @Override
-    public void SetValue(Object obj, String name, ScriptObject value) {
+    public void SetValue_impl(Object obj, String name, ScriptObject value) {
         UserdataVariable variable = GetVariable(name);
         if (variable == null) {
             throw new ExecutionException(m_Script, "SetValue Type[" + m_Type + "] 变量 [" + name + "] 不存在");

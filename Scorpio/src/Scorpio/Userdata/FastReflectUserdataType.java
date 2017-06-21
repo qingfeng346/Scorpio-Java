@@ -16,7 +16,6 @@ public class FastReflectUserdataType extends UserdataType {
     public Object CreateInstance(ScriptObject[] parameters) {
         return m_Constructor.Call(null, parameters);
     }
-
     @Override
     public ScorpioMethod GetComputeMethod(TokenType type) {
         switch (type) {
@@ -38,12 +37,12 @@ public class FastReflectUserdataType extends UserdataType {
     }
 
     @Override
-    public Object GetValue(Object obj, String name) {
+    public Object GetValue_impl(Object obj, String name) {
         return m_Value.GetValue(obj, name);
     }
 
     @Override
-    public void SetValue(Object obj, String name, ScriptObject value) {
+    public void SetValue_impl(Object obj, String name, ScriptObject value) {
         m_Value.SetValue(obj, name, value);
     }
 }

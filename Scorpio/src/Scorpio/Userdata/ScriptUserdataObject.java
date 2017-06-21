@@ -9,6 +9,7 @@ import Scorpio.Compiler.*;
 */
 public class ScriptUserdataObject extends ScriptUserdata {
     protected UserdataType m_UserdataType;
+    protected java.util.HashMap<String, ScriptObject> m_Methods = new java.util.HashMap<String, ScriptObject>();
     public ScriptUserdataObject(Script script, Object value, UserdataType type) {
         super(script);
         this.m_Value = value;
@@ -21,7 +22,17 @@ public class ScriptUserdataObject extends ScriptUserdata {
         if (name == null) {
             throw new ExecutionException(m_Script, "Object GetValue只支持String类型");
         }
-        return m_Script.CreateObject(m_UserdataType.GetValue(m_Value, name));
+        if (m_Methods.containsKey(name)) {
+            return m_Methods.get(name);
+        }
+        Object ret = m_UserdataType.GetValue(m_Value, name);
+        if (ret instanceof UserdataMethod) {
+            UserdataMethod method = (UserdataMethod)ret;
+            ScriptObject value = m_Script.CreateObject(method.getIsStatic() ? (ScorpioMethod)new ScorpioStaticMethod(name, method) : (ScorpioMethod)new ScorpioObjectMethod(m_Value, name, method));
+            m_Methods.put(name, value);
+            return value;
+        }
+        return m_Script.CreateObject(ret);
     }
     @Override
     public void SetValue(Object key, ScriptObject value) {
