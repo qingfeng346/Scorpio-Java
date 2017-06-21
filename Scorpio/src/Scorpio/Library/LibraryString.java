@@ -171,26 +171,22 @@ public class LibraryString {
         }
     }
     private static class join implements ScorpioHandle {
-        public Object Call(ScriptObject[] args) {
-        	String separator = ((ScriptString)((args[0] instanceof ScriptString) ? args[0] : null)).getValue();
-        	ScriptArray value = ((ScriptArray)((args[1] instanceof ScriptArray) ? args[1] : null));
+        public final Object Call(ScriptObject[] args) {
+            String separator = ((ScriptString)((args[0] instanceof ScriptString) ? args[0] : null)).getValue();
+            ScriptArray value = ((ScriptArray)((args[1] instanceof ScriptArray) ? args[1] : null));
             int count = value.Count();
-            StringBuffer buffer = new StringBuffer();
-            for (int i = 0;i < count; ++i) {
-            	if (i == count - 1) {
-            		buffer.append(value.GetValue(i).toString());
-            	} else {
-            		buffer.append(value.GetValue(i).toString()).append(separator);
-            	}
+            String[] values = new String[count];
+            for (int i = 0; i < count; ++i) {
+                values[i] = value.GetValue(i).toString();
             }
-            return new String(buffer);
+            return Util.Join(separator, values);
         }
     }
     private static class at implements ScorpioHandle {
         public final Object Call(ScriptObject[] args) {
-        	String str = ((ScriptString)((args[0] instanceof ScriptString) ? args[0] : null)).getValue();
+            String str = ((ScriptString)((args[0] instanceof ScriptString) ? args[0] : null)).getValue();
             int index = ((ScriptNumber)((args[1] instanceof ScriptNumber) ? args[1] : null)).ToInt32();
-            return (int)(str.charAt(index));
+            return (int)str.charAt(index);
         }
     }
     private static class char2ascii implements ScorpioHandle {
@@ -198,31 +194,36 @@ public class LibraryString {
         public char2ascii(Script script) {
             this.m_script = script;
         }
-        public Object Call(ScriptObject[] args) {
-            String str = ((ScriptString)args[0]).getValue();
+        public final Object Call(ScriptObject[] args) {
+            String str = ((ScriptString)((args[0] instanceof ScriptString) ? args[0] : null)).getValue();
             int length = str.length();
             if (length == 0) {
                 return null;
-            } else if (length == 1) {
-                return (int)(str.charAt(0));
-            } else {
+            }
+            else if (length == 1) {
+                return (int)str.charAt(0);
+            }
+            else {
                 ScriptArray array = m_script.CreateArray();
                 for (int i = 0; i < length; ++i) {
-                    array.Add(m_script.CreateObject((int)(str.charAt(i))));
+                    array.Add(m_script.CreateObject((int)str.charAt(i)));
                 }
                 return array;
             }
         }
     }
     private static class ascii2char implements ScorpioHandle {
-        public Object Call(ScriptObject[] args) {
-            if (args[0] instanceof ScriptNumber) {
-                return new String(new char[] { (char)(((ScriptNumber)args[0]).ToInt32()) });
-            } else {
-                ScriptArray array = (ScriptArray)args[0];
+        public final Object Call(ScriptObject[] args) {
+            ScriptNumber num = (ScriptNumber)((args[0] instanceof ScriptNumber) ? args[0] : null);
+            if (num != null) {
+                return new String(new char[] { (char)num.ToInt32() });
+            }
+            else {
+                ScriptArray array = (ScriptArray)((args[0] instanceof ScriptArray) ? args[0] : null);
                 char[] chars = new char[array.Count()];
                 for (int i = 0;i<array.Count();++i) {
-                    chars[i] = (char)(((ScriptNumber)array.GetValue(i)).ToInt32());
+                    ScriptObject tempVar = array.GetValue(i);
+                    chars[i] = (char)(((ScriptNumber)((tempVar instanceof ScriptNumber) ? tempVar : null)).ToInt32());
                 }
                 return new String(chars);
             }
