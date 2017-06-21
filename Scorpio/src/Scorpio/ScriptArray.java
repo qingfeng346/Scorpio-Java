@@ -4,7 +4,8 @@ import Scorpio.Exception.*;
 
 //脚本数组类型
 public class ScriptArray extends ScriptObject {
-    public final class Comparer implements java.util.Comparator<ScriptObject> {
+//C# TO JAVA CONVERTER TODO TASK: The interface type was changed to the closest equivalent Java type, but the methods implemented will need adjustment:
+    public final static class Comparer implements java.util.Comparator<ScriptObject> {
         private Script script;
         private ScriptFunction func;
         public Comparer(Script script, ScriptFunction func) {
@@ -16,11 +17,12 @@ public class ScriptArray extends ScriptObject {
             Object tempVar = func.Call(new ScriptObject[] { x, y });
             ScriptNumber ret = (ScriptNumber)((tempVar instanceof ScriptNumber) ? tempVar : null);
             if (ret == null) {
-                throw new ExecutionException(script, "Sort 返回值 必须是Number类型");
+                throw new ExecutionException(script, "Sort 返回值必须是Number类型");
             }
             return ret.ToInt32();
         }
     }
+//C# TO JAVA CONVERTER TODO TASK: The interface type was changed to the closest equivalent Java type, but the methods implemented will need adjustment:
     public final static class Enumerator {
         private ScriptArray list;
         private int index;
@@ -47,6 +49,7 @@ public class ScriptArray extends ScriptObject {
         }
     }
 
+
     @Override
     public ObjectType getType() {
         return ObjectType.Array;
@@ -66,7 +69,7 @@ public class ScriptArray extends ScriptObject {
         if (index instanceof Double || index instanceof Integer || index instanceof Long) {
             int i = Util.ToInt32(index);
             if (i < 0) {
-                throw new ExecutionException(m_Script, "Array GetValue索引小于0 index值为:" + index);
+                throw new ExecutionException(m_Script, this, "Array GetValue索引小于0 index值为:" + index);
             }
             if (i >= m_size) {
                 return m_null;
@@ -76,14 +79,14 @@ public class ScriptArray extends ScriptObject {
         else if (index instanceof String && index.equals("length")) {
             return m_Script.CreateDouble(Util.ToDouble(m_size));
         }
-        throw new ExecutionException(m_Script, "Array SetValue只支持Number类型 index值为:" + index);
+        throw new ExecutionException(m_Script, this, "Array GetValue只支持Number类型 index值为:" + index);
     }
     @Override
     public void SetValue(Object index, ScriptObject obj) {
         if (index instanceof Double || index instanceof Integer || index instanceof Long) {
             int i = Util.ToInt32(index);
             if (i < 0) {
-                throw new ExecutionException(m_Script, "Array SetValue索引小于0 index值为:" + index);
+                throw new ExecutionException(m_Script, this, "Array SetValue索引小于0 index值为:" + index);
             }
             if (i >= m_size) {
                 EnsureCapacity(i + 1);
@@ -92,7 +95,7 @@ public class ScriptArray extends ScriptObject {
             m_listObject[i] = obj;
         }
         else {
-            throw new ExecutionException(m_Script, "Array SetValue只支持Number类型 index值为:" + index);
+            throw new ExecutionException(m_Script, this, "Array SetValue只支持Number类型 index值为:" + index);
         }
     }
     private void SetCapacity(int value) {
@@ -152,7 +155,7 @@ public class ScriptArray extends ScriptObject {
         m_listObject[m_size] = null;
     }
     public final boolean Contains(ScriptObject obj) {
-        for (int i = 0;i < m_size; ++i) {
+        for (int i = 0; i < m_size; ++i) {
             if (obj.equals(m_listObject[i])) {
                 return true;
             }
@@ -177,7 +180,7 @@ public class ScriptArray extends ScriptObject {
     }
     public final void Resize(int length) {
         if (length < 0) {
-            throw new ExecutionException(m_Script, "Resize长度小于0 length:" + length);
+            throw new ExecutionException(m_Script, this, "Resize长度小于0 length:" + length);
         }
         if (length > m_size) {
             EnsureCapacity(length);
