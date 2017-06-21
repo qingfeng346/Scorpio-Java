@@ -8,16 +8,16 @@ public class ScriptInstruction {
         this(opcode, operand0, null);
     }
     public ScriptInstruction(Opcode opcode, CodeObject operand0, CodeObject operand1) {
-        Opcode = opcode;
-        Operand0 = operand0;
-        Operand1 = operand1;
+        this.opcode = opcode;
+        this.operand0 = operand0;
+        this.operand1 = operand1;
     }
-    public ScriptInstruction(Opcode opcode, String value) {
-        Opcode = opcode;
-        Value = value;
+    public ScriptInstruction(Opcode opcode, String opvalue) {
+        this.opcode = opcode;
+        this.opvalue = opvalue;
     }
-    public Opcode Opcode; //指令类型
-    public CodeObject Operand0; //指令值1
-    public CodeObject Operand1; //指令值2
-    public String Value; //指令值
+    public Opcode opcode = Opcode.forValue(0); //指令类型
+    public CodeObject operand0; //指令值1
+    public CodeObject operand1; //指令值2
+    public String opvalue; //指令值
 }

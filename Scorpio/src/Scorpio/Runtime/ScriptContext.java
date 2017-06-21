@@ -121,6 +121,9 @@ public class ScriptContext {
                 ret.setName(parent.getName() + "." + name.toString());
             }
         }
+        if (ret == null) {
+            throw new ExecutionException(m_script, "GetVariable member is error");
+        }
         if (member.Calc != CALC.NONE) {
             ScriptNumber num = (ScriptNumber)((ret instanceof ScriptNumber) ? ret : null);
             if (num == null) {
@@ -171,7 +174,7 @@ public class ScriptContext {
         return m_returnObject;
     }
     private void ExecuteInstruction() {
-        switch (m_scriptInstruction.Opcode) {
+        switch (m_scriptInstruction.opcode) {
             case VAR:
                 ProcessVar();
                 break;
@@ -232,19 +235,19 @@ public class ScriptContext {
         return m_block == Executable_Block.For || m_block == Executable_Block.Foreach || m_block == Executable_Block.While;
     }
     private void ProcessVar() {
-        ApplyVariableObject(m_scriptInstruction.Value);
+        ApplyVariableObject(m_scriptInstruction.opvalue);
     }
     private void ProcessMov() {
-        SetVariable((CodeMember)((m_scriptInstruction.Operand0 instanceof CodeMember) ? m_scriptInstruction.Operand0 : null), ResolveOperand(m_scriptInstruction.Operand1));
+        SetVariable((CodeMember)((m_scriptInstruction.operand0 instanceof CodeMember) ? m_scriptInstruction.operand0 : null), ResolveOperand(m_scriptInstruction.operand1));
     }
     private void ProcessContinue() {
-        InvokeContinue(m_scriptInstruction.Operand0);
+        InvokeContinue(m_scriptInstruction.operand0);
     }
     private void ProcessBreak() {
-        InvokeBreak(m_scriptInstruction.Operand0);
+        InvokeBreak(m_scriptInstruction.operand0);
     }
     private void ProcessCallFor() {
-        CodeFor code = (CodeFor)m_scriptInstruction.Operand0;
+        CodeFor code = (CodeFor)m_scriptInstruction.operand0;
         ScriptContext context = new ScriptContext(m_script, null, this, Executable_Block.For);
         context.Execute(code.BeginExecutable);
         for (; ;) {
@@ -262,7 +265,7 @@ public class ScriptContext {
         }
     }
     private void ProcessCallForSimple() {
-        CodeForSimple code = (CodeForSimple)m_scriptInstruction.Operand0;
+        CodeForSimple code = (CodeForSimple)m_scriptInstruction.operand0;
         ScriptObject tempVar = ResolveOperand(code.Begin);
         ScriptNumber beginNumber = (ScriptNumber)((tempVar instanceof ScriptNumber) ? tempVar : null);
         if (beginNumber == null) {
@@ -298,7 +301,7 @@ public class ScriptContext {
         }
     }
     private void ProcessCallForeach() {
-        CodeForeach code = (CodeForeach)m_scriptInstruction.Operand0;
+        CodeForeach code = (CodeForeach)m_scriptInstruction.operand0;
         ScriptObject loop = ResolveOperand(code.LoopObject);
         if (!(loop instanceof ScriptFunction)) {
             throw new ExecutionException(m_script, "foreach函数必须返回一个ScriptFunction");
@@ -320,7 +323,7 @@ public class ScriptContext {
         }
     }
     private void ProcessCallIf() {
-        CodeIf code = (CodeIf)m_scriptInstruction.Operand0;
+        CodeIf code = (CodeIf)m_scriptInstruction.operand0;
         if (ProcessAllow(code.If)) {
             ProcessCondition(code.If);
             return;
@@ -345,7 +348,7 @@ public class ScriptContext {
         new ScriptContext(m_script, condition.Executable, this, condition.Block).Execute();
     }
     private void ProcessCallWhile() {
-        CodeWhile code = (CodeWhile)m_scriptInstruction.Operand0;
+        CodeWhile code = (CodeWhile)m_scriptInstruction.operand0;
         TempCondition condition = code.While;
         ScriptContext context;
         for (; ;) {
@@ -360,7 +363,7 @@ public class ScriptContext {
         }
     }
     private void ProcessCallSwitch() {
-        CodeSwitch code = (CodeSwitch)m_scriptInstruction.Operand0;
+        CodeSwitch code = (CodeSwitch)m_scriptInstruction.operand0;
         ScriptObject obj = ResolveOperand(code.Condition);
         boolean exec = false;
         for (TempCase Case : code.Cases) {
@@ -380,7 +383,7 @@ public class ScriptContext {
         }
     }
     private void ProcessTry() {
-        CodeTry code = (CodeTry)m_scriptInstruction.Operand0;
+        CodeTry code = (CodeTry)m_scriptInstruction.operand0;
         try {
             new ScriptContext(m_script, code.TryExecutable, this).Execute();
         }
@@ -396,24 +399,24 @@ public class ScriptContext {
         }
     }
     private void ProcessThrow() {
-        throw new InteriorException(ResolveOperand(((CodeThrow)m_scriptInstruction.Operand0).obj));
+        throw new InteriorException(ResolveOperand(((CodeThrow)m_scriptInstruction.operand0).obj));
     }
     private void ProcessRet() {
-        if (m_scriptInstruction.Operand0 == null) {
+        if (m_scriptInstruction.operand0 == null) {
             InvokeReturnValue(null);
         }
         else {
-            InvokeReturnValue(ResolveOperand(m_scriptInstruction.Operand0));
+            InvokeReturnValue(ResolveOperand(m_scriptInstruction.operand0));
         }
     }
     private void ProcessResolve() {
-        ResolveOperand(m_scriptInstruction.Operand0);
+        ResolveOperand(m_scriptInstruction.operand0);
     }
     private void ProcessCallBlock() {
-        ParseCallBlock((CodeCallBlock)m_scriptInstruction.Operand0);
+        ParseCallBlock((CodeCallBlock)m_scriptInstruction.operand0);
     }
     private void ProcessCallFunction() {
-        ParseCall((CodeCallFunction)m_scriptInstruction.Operand0, false);
+        ParseCall((CodeCallFunction)m_scriptInstruction.operand0, false);
     }
     private void InvokeReturnValue(ScriptObject value) {
         m_Over = true;
@@ -484,10 +487,17 @@ public class ScriptContext {
         if (value.Not) {
             ret = m_script.CreateBool(!ret.LogicOperation());
         }
-        else if (value.Negative) {
+        else if (value.Minus) {
             ScriptNumber b = (ScriptNumber)((ret instanceof ScriptNumber) ? ret : null);
             if (b == null) {
                 throw new ExecutionException(m_script, "Script Object Type [" + ret.getType() + "] is cannot use [-] sign");
+            }
+            ret = b.Minus();
+        }
+        else if (value.Negative) {
+            ScriptNumber b = (ScriptNumber)((ret instanceof ScriptNumber) ? ret : null);
+            if (b == null) {
+                throw new ExecutionException(m_script, "Script Object Type [" + ret.getType() + "] is cannot use [~] sign");
             }
             ret = b.Negative();
         }
@@ -528,14 +538,14 @@ public class ScriptContext {
         return ret;
     }
     private ScriptTable ParseTable(CodeTable table) {
-    	ScriptContext context = new ScriptContext(m_script, null, this, Executable_Block.None);
+        ScriptContext context = new ScriptContext(m_script, null, this, Executable_Block.None);
         ScriptTable ret = m_script.CreateTable();
         for (ScriptScriptFunction func : table.Functions) {
             ret.SetValue(func.getName(), func);
             context.SetVariableForce(func.getName(), func);
         }
         for (CodeTable.TableVariable variable : table.Variables) {
-        	ScriptObject value = context.ResolveOperand(variable.value);
+            ScriptObject value = context.ResolveOperand(variable.value);
             ret.SetValue(variable.key, value);
             context.SetVariableForce(variable.key.toString(), value);
         }
