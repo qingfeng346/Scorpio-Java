@@ -538,11 +538,15 @@ public class ScriptContext {
         ScriptContext context = new ScriptContext(m_script, null, this, Executable_Block.None);
         ScriptTable ret = m_script.CreateTable();
         for (ScriptScriptFunction func : table.Functions) {
+        	func.SetTable(ret);
             ret.SetValue(func.getName(), func);
             context.SetVariableForce(func.getName(), func);
         }
         for (CodeTable.TableVariable variable : table.Variables) {
             ScriptObject value = context.ResolveOperand(variable.value);
+        	if (value instanceof ScriptScriptFunction) {
+        		((ScriptScriptFunction)value).SetTable(ret);
+        	}
             ret.SetValue(variable.key, value);
             context.SetVariableForce(variable.key.toString(), value);
         }
