@@ -80,23 +80,14 @@ public class ReflectUserdataType extends UserdataType {
     /**  获得运算符重载的函数 
     */
     @Override
-    public ScorpioMethod GetComputeMethod(TokenType type) {
-        switch (type) {
-        case Plus:
-            Object tempVar = GetValue(null, "op_Addition");
-            return (ScorpioMethod)((tempVar instanceof ScorpioMethod) ? tempVar : null);
-        case Minus:
-            Object tempVar2 = GetValue(null, "op_Subtraction");
-            return (ScorpioMethod)((tempVar2 instanceof ScorpioMethod) ? tempVar2 : null);
-        case Multiply:
-            Object tempVar3 = GetValue(null, "op_Multiply");
-            return (ScorpioMethod)((tempVar3 instanceof ScorpioMethod) ? tempVar3 : null);
-        case Divide:
-            Object tempVar4 = GetValue(null, "op_Division");
-            return (ScorpioMethod)((tempVar4 instanceof ScorpioMethod) ? tempVar4 : null);
-        default:
-            return null;
+    public ScorpioMethod GetComputeMethod_impl(TokenType type) {
+        if (m_ComputeNames.containsKey(type)) {
+        	Object ret = GetValue(null, m_ComputeNames.get(type));
+            if (ret instanceof UserdataMethod) {
+                return new ScorpioStaticMethod(m_ComputeNames.get(type), (UserdataMethod)ret);
+            }
         }
+        return null;
     }
     /**  获得一个类变量 
     */

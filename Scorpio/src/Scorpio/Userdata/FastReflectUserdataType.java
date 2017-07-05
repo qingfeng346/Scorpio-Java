@@ -17,25 +17,13 @@ public class FastReflectUserdataType extends UserdataType {
         return m_Constructor.Call(null, parameters);
     }
     @Override
-    public ScorpioMethod GetComputeMethod(TokenType type) {
-        switch (type) {
-        case Plus:
-            Object tempVar = m_Value.GetValue(null, "op_Addition");
+    public ScorpioMethod GetComputeMethod_impl(TokenType type) {
+    	if (m_ComputeNames.containsKey(type)) {
+            Object tempVar = m_Value.GetValue(null, m_ComputeNames.get(type));
             return (ScorpioMethod)((tempVar instanceof ScorpioMethod) ? tempVar : null);
-        case Minus:
-            Object tempVar2 = m_Value.GetValue(null, "op_Subtraction");
-            return (ScorpioMethod)((tempVar2 instanceof ScorpioMethod) ? tempVar2 : null);
-        case Multiply:
-            Object tempVar3 = m_Value.GetValue(null, "op_Multiply");
-            return (ScorpioMethod)((tempVar3 instanceof ScorpioMethod) ? tempVar3 : null);
-        case Divide:
-            Object tempVar4 = m_Value.GetValue(null, "op_Division");
-            return (ScorpioMethod)((tempVar4 instanceof ScorpioMethod) ? tempVar4 : null);
-        default:
-            return null;
-        }
+    	}
+    	return null;
     }
-
     @Override
     public Object GetValue_impl(Object obj, String name) {
         return m_Value.GetValue(obj, name);
