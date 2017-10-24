@@ -416,6 +416,10 @@ public class ScriptParser {
         ret.Identifier = ReadIdentifier();
         ReadRightParenthesis();
         ret.CatchExecutable = ParseStatementBlock(Executable_Block.Context);
+        if (PeekToken().getType() == TokenType.Finally) {
+            ReadToken();
+            ret.FinallyExecutable = ParseStatementBlock(Executable_Block.Context);
+        }
         m_scriptExecutable.AddScriptInstruction(new ScriptInstruction(Opcode.CALL_TRY, ret));
     }
     //解析throw

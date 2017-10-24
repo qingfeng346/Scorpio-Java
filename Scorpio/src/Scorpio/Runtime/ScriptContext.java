@@ -121,6 +121,9 @@ public class ScriptContext {
                 ret.setName(parent.getName() + "." + name.toString());
             }
         }
+        if (ret == null) {
+            throw new ExecutionException(m_script, "GetVariable member is error");
+        }
         if (member.Calc != CALC.NONE) {
             ScriptNumber num = (ScriptNumber)((ret instanceof ScriptNumber) ? ret : null);
             if (num == null) {
@@ -394,6 +397,11 @@ public class ScriptContext {
             context.Initialize(code.Identifier, m_script.CreateObject(ex));
             context.Execute();
         }
+        finally {
+            if (code.FinallyExecutable != null) {
+                new ScriptContext(m_script, code.FinallyExecutable, this).Execute();
+            }
+        }
     }
     private void ProcessThrow() {
         throw new InteriorException(ResolveOperand(((CodeThrow)m_scriptInstruction.operand0).obj));
@@ -538,15 +546,18 @@ public class ScriptContext {
         ScriptContext context = new ScriptContext(m_script, null, this, Executable_Block.None);
         ScriptTable ret = m_script.CreateTable();
         for (ScriptScriptFunction func : table.Functions) {
-        	func.SetTable(ret);
+            func.SetTable(ret);
             ret.SetValue(func.getName(), func);
             context.SetVariableForce(func.getName(), func);
         }
         for (CodeTable.TableVariable variable : table.Variables) {
             ScriptObject value = context.ResolveOperand(variable.value);
-        	if (value instanceof ScriptScriptFunction) {
-        		((ScriptScriptFunction)value).SetTable(ret);
-        	}
+            if (value instanceof ScriptScriptFunction) {
+                ScriptScriptFunction func = (ScriptScriptFunction)value;
+                if (func.getIsStaticFunction()) {
+                    func.SetTable(ret);
+                }
+            }
             ret.SetValue(variable.key, value);
             context.SetVariableForce(variable.key.toString(), value);
         }
@@ -556,43 +567,43 @@ public class ScriptContext {
         TokenType type = operate.Operator;
         ScriptObject left = ResolveOperand(operate.Left);
         switch (type) {
-        case Plus:
-            ScriptObject right = ResolveOperand(operate.Right);
-            if (left instanceof ScriptString || right instanceof ScriptString) {
-                return new ScriptString(m_script, left.toString() + right.toString());
-            }
-            return left.Compute(type, right);
-        case Minus:
-        case Multiply:
-        case Divide:
-        case Modulo:
-        case InclusiveOr:
-        case Combine:
-        case XOR:
-        case Shr:
-        case Shi:
-            return left.Compute(type, ResolveOperand(operate.Right));
-        case And:
-            if (!left.LogicOperation()) {
-                return m_script.getFalse();
-            }
-            return m_script.CreateBool(ResolveOperand(operate.Right).LogicOperation());
-        case Or:
-            if (left.LogicOperation()) {
-                return m_script.getTrue();
-            }
-            return m_script.CreateBool(ResolveOperand(operate.Right).LogicOperation());
-        case Equal:
-            return m_script.CreateBool(left.equals(ResolveOperand(operate.Right)));
-        case NotEqual:
-            return m_script.CreateBool(!left.equals(ResolveOperand(operate.Right)));
-        case Greater:
-        case GreaterOrEqual:
-        case Less:
-        case LessOrEqual:
-            return m_script.CreateBool(left.Compare(type, ResolveOperand(operate.Right)));
-        default:
-            throw new ExecutionException(m_script, "不支持的运算符 " + type);
+            case Plus:
+                ScriptObject right = ResolveOperand(operate.Right);
+                if (left instanceof ScriptString || right instanceof ScriptString) {
+                    return new ScriptString(m_script, left.toString() + right.toString());
+                }
+                return left.Compute(type, right);
+            case Minus:
+            case Multiply:
+            case Divide:
+            case Modulo:
+            case InclusiveOr:
+            case Combine:
+            case XOR:
+            case Shr:
+            case Shi:
+                return left.Compute(type, ResolveOperand(operate.Right));
+            case And:
+                if (!left.LogicOperation()) {
+                    return m_script.getFalse();
+                }
+                return m_script.CreateBool(ResolveOperand(operate.Right).LogicOperation());
+            case Or:
+                if (left.LogicOperation()) {
+                    return m_script.getTrue();
+                }
+                return m_script.CreateBool(ResolveOperand(operate.Right).LogicOperation());
+            case Equal:
+                return m_script.CreateBool(left.equals(ResolveOperand(operate.Right)));
+            case NotEqual:
+                return m_script.CreateBool(!left.equals(ResolveOperand(operate.Right)));
+            case Greater:
+            case GreaterOrEqual:
+            case Less:
+            case LessOrEqual:
+                return m_script.CreateBool(left.Compare(type, ResolveOperand(operate.Right)));
+            default:
+                throw new ExecutionException(m_script, "不支持的运算符 " + type);
         }
     }
     private ScriptObject ParseTernary(CodeTernary ternary) {

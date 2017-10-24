@@ -338,50 +338,55 @@ public enum TokenType {
     */
     Throw(66),
     /** 
+     finally
+     
+    */
+    Finally(67),
+    /** 
      define
      
     */
-    Define(67),
+    Define(68),
     /** 
      bool true false
      
     */
-    Boolean(68),
+    Boolean(69),
     /** 
      int float
      
     */
-    Number(69),
+    Number(70),
     /** 
      string
      
     */
-    String(70),
+    String(71),
     /** 
      @"" @'' string
      
     */
-    SimpleString(71),
+    SimpleString(72),
     /** 
      null
      
     */
-    Null(72),
+    Null(73),
     /** 
      eval
      
     */
-    Eval(73),
+    Eval(74),
     /** 
      说明符
      
     */
-    Identifier(74),
+    Identifier(75),
     /** 
      结束
      
     */
-    Finished(75);
+    Finished(76);
 
     private int intValue;
     private static java.util.HashMap<Integer, TokenType> mappings;
