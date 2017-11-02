@@ -16,7 +16,11 @@ public class ScriptTable extends ScriptObject {
     }
     @Override
     public void SetValue(Object key, ScriptObject value) {
-        m_listObject.put(key, value.Assign());
+    	if (value instanceof ScriptNull) {
+    		m_listObject.remove(key);
+    	} else {
+    		m_listObject.put(key, value.Assign());
+    	}
     }
     @Override
     public ScriptObject GetValue(Object key) {

@@ -8,8 +8,7 @@
 	<property name="project" location="./"/>									<!-- 项目路径 -->
 	<property name="build" location="build"/>									<!-- 生成目录 -->
 	<property name="build.classes" location="${build}/classes"/>				<!-- 生成class目录 -->
-	<property name="build.dist" location="${build}/dist"/>						<!-- 生成执行目录 -->
-	<property name="build.dist.target" location="${build.dist}"/>		<!-- 生成执行目录 -->
+	<property name="build.dist" location="../bin"/>								<!-- 生成执行目录 -->
 	
     <target name="buildLibrary">
 		<echo message="开始编译Scorpio项目"/>
@@ -46,13 +45,13 @@
 	<!-- 生成执行目录 -->
 	<target name="dist" depends="jar">
 		<mkdir dir="${build.dist}"/>
-		<copy todir="${build.dist.target}">
+		<copy todir="${build.dist}">
 			<fileset dir="${build}"> <include name="${export}.jar"/> </fileset>
 		</copy>
-		<copy todir="${build.dist.target}/libs">
+		<copy todir="${build.dist}/libs">
 			<fileset dir="${libs}"> <include name="*.jar"/> </fileset>
 		</copy>
-		<copy todir="${build.dist.target}">
+		<copy todir="${build.dist}">
 			<fileset dir="${project}"> <include name="sco.*"/> </fileset>
 		</copy>
         <delete file="${build}/${export}.jar" />
